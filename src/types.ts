@@ -8,6 +8,8 @@ export interface UserProfile {
   mfaEnabled: boolean;
   mfaSecret?: string;
   createdAt: string;
+  loginStreak?: number;
+  lastLoginDate?: string;
 }
 
 export interface ReportLocation {

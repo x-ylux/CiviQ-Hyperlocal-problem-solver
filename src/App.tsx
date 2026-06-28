@@ -202,25 +202,68 @@ export default function App() {
                 data.credits = 0;
                 localStorage.setItem("civiq_reset_credits", "done");
               }
+              
+              // Daily Login Streak Logic
+              const today = new Date().toISOString().split("T")[0];
+              let currentStreak = data.loginStreak || 0;
+              const lastDate = data.lastLoginDate;
+              let bonusXP = 0;
+
+              if (lastDate !== today) {
+                if (lastDate) {
+                  const yesterday = new Date();
+                  yesterday.setDate(yesterday.getDate() - 1);
+                  const yesterdayStr = yesterday.toISOString().split("T")[0];
+                  if (lastDate === yesterdayStr) {
+                    currentStreak += 1;
+                  } else {
+                    currentStreak = 1;
+                  }
+                } else {
+                  currentStreak = 1;
+                }
+                
+                bonusXP = currentStreak > 1 ? Math.min(currentStreak * 10, 100) : 10; // Base 10 XP for login
+                
+                data.loginStreak = currentStreak;
+                data.lastLoginDate = today;
+                data.credits = (data.credits || 0) + bonusXP;
+                
+                await setDoc(doc(db, "users", user.uid), { 
+                  loginStreak: currentStreak, 
+                  lastLoginDate: today,
+                  credits: data.credits 
+                }, { merge: true });
+              }
+
               setUserProfile(data);
               if (typeof data.credits === "number") {
                 setCredits(data.credits);
               }
+              
+              // We need to trigger this after the component renders or just use standard state
+              if (bonusXP > 0) {
+                 setTimeout(() => triggerToast("🔥", `Streak Day ${currentStreak}! +${bonusXP} XP`), 1000);
+              }
             }
           } else {
             // Register initial profile in firestore with clean slate (0 credits)
+            const today = new Date().toISOString().split("T")[0];
             const newProfile: UserProfile = {
               uid: user.uid,
               email: user.email || "",
               displayName: user.displayName || "New Citizen",
               role: "citizen",
-              credits: 0,
+              credits: 10, // 10 initial XP for first login
               mfaEnabled: false,
               createdAt: new Date().toISOString(),
+              loginStreak: 1,
+              lastLoginDate: today
             };
             await setDoc(doc(db, "users", user.uid), newProfile);
             setUserProfile(newProfile);
-            setCredits(0);
+            setCredits(10);
+            setTimeout(() => triggerToast("🔥", `Streak Day 1! +10 XP`), 1000);
           }
         } catch (err) {
           console.warn("Firestore profile sync block (offline fallback):", err);

@@ -1,8 +1,17 @@
 import React from "react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 interface CiviQInsightsProps {
   triggerToast: (icon: string, message: string) => void;
 }
+
+const resolvedIssuesData = [
+  { category: "Roads", resolved: 245 },
+  { category: "Water", resolved: 189 },
+  { category: "Waste", resolved: 312 },
+  { category: "Lights", resolved: 145 },
+  { category: "Parks", resolved: 67 },
+];
 
 export function CiviQInsights({ triggerToast }: CiviQInsightsProps) {
   return (
@@ -69,6 +78,27 @@ export function CiviQInsights({ triggerToast }: CiviQInsightsProps) {
                 Green bin usage in Dwarka up 34% since last month. AI recommends running a compost kit promotion to sustain momentum.
               </div>
             </div>
+            
+            <div className="card card-body" style={{ marginBottom: "1.5rem" }}>
+              <div style={{ fontWeight: 700, fontFamily: "Poppins, sans-serif", fontSize: "1.1rem", marginBottom: "1rem" }}>
+                <i className="fas fa-chart-bar" style={{ color: "var(--leaf)" }}></i> Issues Resolved by Category
+              </div>
+              <div style={{ width: '100%', height: 300 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={resolvedIssuesData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                    <XAxis dataKey="category" axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12 }} />
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                      cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                    />
+                    <Bar dataKey="resolved" fill="var(--leaf)" radius={[4, 4, 0, 0]} barSize={40} name="Issues Resolved" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
           </div>
 
           <div className="grid g2">

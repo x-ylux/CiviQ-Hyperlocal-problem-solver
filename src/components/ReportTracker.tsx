@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Camera, MapPin, Search, Plus, ThumbsUp, AlertCircle, Award, CheckCircle2, ChevronRight, Download, FileSpreadsheet, Send, Sparkles, Map, User, Bell } from "lucide-react";
 import { CivicReport, UserProfile } from "../types";
 import { analyzeReport, exportCSV, exportPDF } from "../api";
@@ -52,10 +52,37 @@ export function ReportTracker({
     "🌿 New Campaign: Green Dwarka segregate-and-win drive is now active."
   ]);
 
+  const previousStatuses = useRef<Map<string, string>>(new Map());
+
   useEffect(() => {
     // Dynamic real-time sync with firestore
     const unsub = onSnapshot(collection(db, "reports"), (snapshot) => {
       const data: CivicReport[] = [];
+      
+      snapshot.docChanges().forEach((change) => {
+        const docData = { id: change.doc.id, ...change.doc.data() } as CivicReport;
+        
+        if (change.type === "added") {
+          previousStatuses.current.set(docData.id, docData.status);
+        }
+        
+        if (change.type === "modified") {
+          const prevStatus = previousStatuses.current.get(docData.id);
+          if (prevStatus && prevStatus !== docData.status) {
+            let icon = "🔔";
+            if (docData.status === "resolved") icon = "✅";
+            else if (docData.status === "in_progress") icon = "🚧";
+            
+            showToastMessage(icon, `Status changed to ${docData.status.replace("_", " ")}: ${docData.title}`);
+            previousStatuses.current.set(docData.id, docData.status);
+          }
+        }
+        
+        if (change.type === "removed") {
+          previousStatuses.current.delete(docData.id);
+        }
+      });
+
       snapshot.forEach((doc) => {
         data.push({ id: doc.id, ...doc.data() } as CivicReport);
       });
@@ -71,7 +98,7 @@ export function ReportTracker({
     });
 
     return () => unsub();
-  }, []);
+  }, [showToastMessage]);
 
   const loadMockReports = () => {
     const local = localStorage.getItem("civicai_reports");
@@ -145,6 +172,33 @@ export function ReportTracker({
       );
     } else {
       showToastMessage("⚠️", "Geolocation not supported in browser.");
+    }
+  };
+
+  // Image Upload and AI Analysis
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        setImageBase64(base64);
+        
+        // Auto-analyze when image is uploaded
+        setAnalyzing(true);
+        try {
+          const analysis = await analyzeReport(title || "User Photo", description, category, base64);
+          setAiAnalysis(analysis);
+          setCategory(analysis.predictedCategory as CivicReport["category"]);
+          showToastMessage("🤖", "Gemini automated analysis of image complete!");
+        } catch (err) {
+          console.error(err);
+          showToastMessage("⚠️", "Image processed in fallback mode.");
+        } finally {
+          setAnalyzing(false);
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -436,13 +490,23 @@ export function ReportTracker({
             {/* Image upload preview mock (BonLeaf look) */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-emerald-950">Report Photo (optional)</label>
-              <div className="border-2 border-dashed border-emerald-200 hover:bg-emerald-50/50 p-6 rounded-2xl text-center space-y-2 cursor-pointer transition-all">
-                <Camera className="w-8 h-8 text-emerald-700/60 mx-auto" />
-                <span className="text-[10px] text-emerald-800 font-bold block">
-                  Drag & Drop or Click to Upload
-                </span>
-                <span className="text-[9px] text-emerald-800/40 block">Supports JPG, PNG</span>
-              </div>
+              <label className="border-2 border-dashed border-emerald-200 hover:bg-emerald-50/50 p-6 rounded-2xl text-center space-y-2 cursor-pointer transition-all flex flex-col justify-center items-center overflow-hidden relative">
+                {imageBase64 ? (
+                  <img src={imageBase64} alt="Preview" className="absolute inset-0 w-full h-full object-cover opacity-30" />
+                ) : null}
+                <div className="relative z-10 pointer-events-none">
+                  {analyzing ? (
+                    <div className="w-8 h-8 rounded-full border-2 border-emerald-700/60 border-t-emerald-700 animate-spin mx-auto mb-2"></div>
+                  ) : (
+                    <Camera className="w-8 h-8 text-emerald-700/60 mx-auto" />
+                  )}
+                  <span className="text-[10px] text-emerald-800 font-bold block">
+                    {analyzing ? "Analyzing Image..." : "Drag & Drop or Click to Upload"}
+                  </span>
+                  <span className="text-[9px] text-emerald-800/40 block">Supports JPG, PNG (Auto-detects issue)</span>
+                </div>
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={analyzing} />
+              </label>
             </div>
 
             {/* AI recommendation module */}

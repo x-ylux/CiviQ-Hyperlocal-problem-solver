@@ -193,6 +193,9 @@ export function ProfileMfa({
                   <span className="text-[10px] bg-[#1D3B1F] text-emerald-50 px-3 py-1 rounded-full font-bold uppercase tracking-wider">
                     Role: {userProfile?.role}
                   </span>
+                  <span className="text-[10px] bg-amber-100 text-amber-800 border border-amber-200 px-3 py-1 rounded-full font-bold uppercase tracking-wider flex items-center gap-1">
+                    🔥 Streak: {userProfile?.loginStreak || 1} Day{(userProfile?.loginStreak || 1) !== 1 ? 's' : ''}
+                  </span>
                 </div>
               </div>
             </div>
