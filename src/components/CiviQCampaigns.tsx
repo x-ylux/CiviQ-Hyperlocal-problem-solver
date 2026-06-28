@@ -1,4 +1,5 @@
 import React from "react";
+import { CAMPAIGN_IMAGES, IMAGES } from "../constants/images";
 
 interface CiviQCampaignsProps {
   campaignFilter: string;
@@ -24,7 +25,14 @@ export function CiviQCampaigns({
 
   return (
     <div className="page active" id="page-campaigns" style={{ display: "block" }}>
-      <div className="page-hero">
+      <div
+        className="page-hero"
+        style={{
+          backgroundImage: `linear-gradient(135deg, rgba(27,94,32,0.92), rgba(46,125,50,0.85)), url(${IMAGES.forest})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
         <h2>
           <i className="fas fa-bullhorn"></i> Active Campaigns
         </h2>
@@ -61,8 +69,13 @@ export function CiviQCampaigns({
 
               return (
                 <div key={camp.id} className="campaign-card">
-                  <div className="campaign-img" style={{ background: "linear-gradient(135deg,#E8F5E9,#C8E6C9)" }}>
-                    {camp.emoji}
+                  <div
+                    className="campaign-img-photo"
+                    style={{
+                      backgroundImage: `url(${CAMPAIGN_IMAGES[camp.tag] || IMAGES.garden})`,
+                    }}
+                  >
+                    <span className="campaign-img-emoji">{camp.emoji}</span>
                   </div>
                   <div className="campaign-body">
                     <div className="campaign-title">{camp.title}</div>
