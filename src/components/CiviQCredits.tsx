@@ -1,7 +1,9 @@
 import React from "react";
+import { UserProfile } from "../types";
 
 interface CiviQCreditsProps {
   credits: number;
+  userProfile?: UserProfile | null;
   onNavigate: (tab: string) => void;
   triggerToast: (icon: string, message: string) => void;
   onRedeemReward: (msg: string, cost: number) => void;
@@ -11,12 +13,26 @@ interface CiviQCreditsProps {
 
 export function CiviQCredits({
   credits,
+  userProfile,
   onNavigate,
   triggerToast,
   onRedeemReward,
   onStartCivicLearning,
   setGameTab,
 }: CiviQCreditsProps) {
+  const displayName = userProfile?.displayName || "Priya Malhotra";
+  const getInitials = (name: string) => {
+    if (!name) return "PM";
+    return name
+      .split(" ")
+      .filter(Boolean)
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2);
+  };
+  const initials = getInitials(displayName);
+
   return (
     <div className="page active" id="page-gamify" style={{ display: "block" }}>
       <div className="page-hero">
@@ -33,7 +49,7 @@ export function CiviQCredits({
                 <div>
                   <div style={{ fontSize: ".75rem", color: "rgba(255,255,255,.6)", fontWeight: 500, letterSpacing: ".05em", marginBottom: ".25rem" }}>YOUR RANK</div>
                   <div className="xp-rank">🥈 Silver Citizen</div>
-                  <div style={{ fontSize: ".88rem", opacity: 0.8, marginTop: ".15rem" }}>Priya Malhotra</div>
+                  <div style={{ fontSize: ".88rem", opacity: 0.8, marginTop: ".15rem" }}>{displayName}</div>
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <div style={{ fontSize: "2.4rem", fontWeight: 800, fontFamily: "Poppins, sans-serif", color: "#CCFF90" }}>
@@ -111,9 +127,9 @@ export function CiviQCredits({
               </div>
               <div className="lb-row">
                 <div className="lb-rank" style={{ color: "var(--muted)" }}>🥈</div>
-                <div className="lb-avatar" style={{ background: "#E3F2FD", color: "#1565C0" }}>PM</div>
+                <div className="lb-avatar" style={{ background: "#E3F2FD", color: "#1565C0" }}>{initials}</div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, fontSize: ".85rem" }}>Priya Malhotra</div>
+                  <div style={{ fontWeight: 600, fontSize: ".85rem" }}>{displayName}</div>
                   <div style={{ fontSize: ".72rem", color: "var(--muted)" }}>📍 Active reporter</div>
                 </div>
                 <div className="lb-xp">{credits}</div>

@@ -74,3 +74,41 @@ export interface AuditLog {
   details: string;
   severity: "info" | "warning" | "critical";
 }
+
+export interface CivicIssue {
+  id: string;
+  title: string;
+  category: string;
+  address: string;
+  lat: number;
+  lng: number;
+  daysOpen: number;
+  createdAt: string;
+  slaDays: number;
+  upvotes: number;
+  status: "In progress" | "Open" | "Resolved";
+  severity: "Critical" | "High" | "Medium" | "Low";
+  verifiedCount: number;
+  budget: string;
+  contractorName: string;
+  contractorRating: number;
+  populationDensity: number;
+  weatherForecast: string;
+  assignedOfficer: string;
+  description?: string;
+  voiceTranscription?: string;
+  image?: string;
+  isRiskNotified?: boolean;
+}
+
+export interface OnboardingData {
+  completed: boolean;
+  ward: string;
+  interests: string[];
+  reportedBefore: boolean;
+  greeting?: string;
+  dashboardMessage?: string;
+  xpGoal?: number;
+  suggestedCampaigns?: string[];
+  nextAction?: string;
+}

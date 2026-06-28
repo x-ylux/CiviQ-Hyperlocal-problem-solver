@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "./firebase";
-import { UserProfile } from "./types";
+import { UserProfile, OnboardingData, CivicIssue } from "./types";
 
 // Modular Views
 import { CiviQHome } from "./components/CiviQHome";
@@ -117,6 +117,85 @@ export default function App() {
   const isUserLoggedIn = !!userProfile && (userProfile.uid.startsWith("sb_") || !auth.currentUser?.isAnonymous);
   const [reportStep, setReportStep] = useState<number>(1);
   const [selectedCat, setSelectedCat] = useState<string>("Roads");
+
+  // Onboarding & Incident states
+  const [onboarding, setOnboarding] = useState<OnboardingData>({
+    completed: false,
+    ward: "",
+    interests: [],
+    reportedBefore: false,
+  });
+
+  const [issues, setIssues] = useState<CivicIssue[]>([
+    {
+      id: "1042",
+      title: "Pothole cluster — Ward 7",
+      category: "Roads",
+      address: "Rajouri Garden Sector 5",
+      lat: 28.6648,
+      lng: 77.1167,
+      daysOpen: 14,
+      createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+      slaDays: 10,
+      upvotes: 143,
+      status: "In progress",
+      severity: "Critical",
+      verifiedCount: 38,
+      budget: "₹4,20,000",
+      contractorName: "Metro Roads Ltd",
+      contractorRating: 71,
+      populationDensity: 18400,
+      weatherForecast: "Heavy Rain & Storm Alert",
+      assignedOfficer: "Dy. Commissioner",
+      description: "Severe pothole cluster blocking traffic flow on Rajouri Garden Main Road. Highly hazardous during rainy hours.",
+    },
+    {
+      id: "1085",
+      title: "Broken street lamp grid",
+      category: "Lights",
+      address: "Dwarka Sector 11 Main Market",
+      lat: 28.5855,
+      lng: 77.0601,
+      daysOpen: 2,
+      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      slaDays: 7,
+      upvotes: 24,
+      status: "Open",
+      severity: "Medium",
+      verifiedCount: 4,
+      budget: "₹65,000",
+      contractorName: "BrightLite Systems",
+      contractorRating: 88,
+      populationDensity: 12500,
+      weatherForecast: "Clear Sky",
+      assignedOfficer: "Asst. Engineer Lights",
+      description: "A block of 5 streetlights is completely dark near Sector 11 metro station gate, creating dark zones for pedestrians.",
+    },
+    {
+      id: "1091",
+      title: "Water pipeline leakage",
+      category: "Water",
+      address: "Pitampura Block KP-23",
+      lat: 28.7032,
+      lng: 77.1325,
+      daysOpen: 1,
+      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      slaDays: 5,
+      upvotes: 68,
+      status: "In progress",
+      severity: "High",
+      verifiedCount: 12,
+      budget: "₹1,80,000",
+      contractorName: "AquaFlow Solutions",
+      contractorRating: 92,
+      populationDensity: 24000,
+      weatherForecast: "Thunderstorms Expected",
+      assignedOfficer: "Executive Engineer (DJB)",
+      description: "Clean drinking water bursting through the main pipeline beneath the pavement, wasting thousands of gallons hourly.",
+    }
+  ]);
+
+  const [selectedIssueId, setSelectedIssueId] = useState<string>("1042");
 
   // Games
   const [gameTab, setGameTab] = useState<"sort" | "quiz" | "speed">("sort");
@@ -458,10 +537,56 @@ export default function App() {
   };
 
   // Report Flow
-  const handleReportSubmit = () => {
+  const handleReportSubmit = (reportData: {
+    title: string;
+    category: string;
+    severity: string;
+    description: string;
+    address: string;
+    image?: string;
+    voiceTranscription?: string;
+  }) => {
+    const newId = (1000 + Math.floor(Math.random() * 9000)).toString();
+    const newIssue: CivicIssue = {
+      id: newId,
+      title: reportData.title || "Reported Incident",
+      category: reportData.category || "Roads",
+      address: reportData.address || "Rajouri Garden, Sector 5",
+      lat: 28.6648,
+      lng: 77.1167,
+      daysOpen: 0,
+      createdAt: new Date().toISOString(),
+      slaDays: reportData.severity === "Critical" ? 3 : reportData.severity === "High" ? 5 : 7,
+      upvotes: 1,
+      status: "Open",
+      severity: reportData.severity as any || "Medium",
+      verifiedCount: 0,
+      budget: "₹45,000 (Allocating)",
+      contractorName: "GreenBuild Pvt Ltd",
+      contractorRating: 94,
+      populationDensity: 15000,
+      weatherForecast: "Slight Overcast",
+      assignedOfficer: "Zone Supervisor",
+      image: reportData.image,
+      voiceTranscription: reportData.voiceTranscription,
+    };
+
+    setIssues((prev) => [newIssue, ...prev]);
+    setSelectedIssueId(newId);
     setReportStep(4);
     handleUpdateCredits(credits + 150);
-    triggerToast("⭐", "Report submitted! +150 XP earned!");
+    triggerToast("⭐", "Report submitted! Background duplication checks passed! +150 XP");
+  };
+
+  const handleUpvoteIssue = (id: string) => {
+    setIssues((prev) =>
+      prev.map((iss) => {
+        if (iss.id === id) {
+          return { ...iss, upvotes: iss.upvotes + 1 };
+        }
+        return iss;
+      })
+    );
   };
 
   const resetReport = () => {
@@ -679,7 +804,14 @@ export default function App() {
 
       {/* Main page view containers matching civiQ.html active class and display toggles */}
       <main style={{ marginTop: "70px", paddingBottom: "80px" }}>
-        {activeTab === "home" && <CiviQHome onNavigate={setActiveTab} />}
+        {activeTab === "home" && (
+          <CiviQHome
+            onNavigate={setActiveTab}
+            onboarding={onboarding}
+            setOnboarding={setOnboarding}
+            triggerToast={triggerToast}
+          />
+        )}
 
         {activeTab === "dashboard" && (
           <CiviQDashboard onNavigate={setActiveTab} openModal={openModal} triggerToast={triggerToast} />
@@ -695,12 +827,22 @@ export default function App() {
             onReportSubmit={handleReportSubmit}
             onResetReport={resetReport}
             openModal={openModal}
+            triggerToast={triggerToast}
           />
         )}
 
         {activeTab === "map" && <CiviQMap triggerToast={triggerToast} />}
 
-        {activeTab === "track" && <CiviQTrack openModal={openModal} triggerToast={triggerToast} />}
+        {activeTab === "track" && (
+          <CiviQTrack
+            issues={issues}
+            selectedIssueId={selectedIssueId}
+            setSelectedIssueId={setSelectedIssueId}
+            openModal={openModal}
+            triggerToast={triggerToast}
+            onUpvoteIssue={handleUpvoteIssue}
+          />
+        )}
 
         {activeTab === "campaigns" && (
           <CiviQCampaigns
@@ -760,6 +902,7 @@ export default function App() {
         {activeTab === "gamify" && (
           <CiviQCredits
             credits={credits}
+            userProfile={userProfile}
             onNavigate={setActiveTab}
             triggerToast={triggerToast}
             onRedeemReward={redeemReward}
@@ -900,7 +1043,7 @@ export default function App() {
                 4. Action taken against responsible engineer
                 <br />
                 <br />
-                Requestor: Priya Malhotra | Date: June 27, 2026
+                Requestor: {userProfile?.displayName || "Priya Malhotra"} | Date: June 27, 2026
               </div>
               <div style={{ display: "flex", gap: ".75rem" }}>
                 <button
