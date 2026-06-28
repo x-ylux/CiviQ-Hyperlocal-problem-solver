@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { OnboardingData } from "../types";
-import { IMAGES } from "../constants/images";
 
 interface CiviQHomeProps {
   onNavigate: (tab: string) => void;
@@ -192,15 +191,11 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
       {!onboarding.completed ? (
         // ONBOARDING CHAT FLOW
         <div className="hero" style={{ minHeight: "580px", padding: "3rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div
-            className="hero-image-bg earth-overlay"
-            style={{ backgroundImage: `url(${IMAGES.leaves})` }}
-          />
           <div className="hero-bg-circles">
             <div className="hero-circle" style={{ width: "500px", height: "500px", top: "-100px", left: "-100px" }}></div>
             <div className="hero-circle" style={{ width: "300px", height: "300px", bottom: "-50px", right: "-50px" }}></div>
           </div>
-          <div className="card w-full max-w-2xl" style={{ border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(20px)", background: "rgba(30, 41, 59, 0.75)", position: "relative", zIndex: 2 }}>
+          <div className="card w-full max-w-2xl" style={{ border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(20px)", background: "rgba(30, 41, 59, 0.75)" }}>
             <div className="card-header" style={{ borderBottom: "1px solid rgba(255,255,255,0.15)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
                 <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: "var(--leaf)", animation: "pulse 1.5s infinite" }}></div>
@@ -321,15 +316,11 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
       ) : (
         // PERSONALIZED WELCOME SCREEN
         <div className="hero" style={{ padding: "4rem 2rem", position: "relative" }}>
-          <div
-            className="hero-image-bg earth-overlay"
-            style={{ backgroundImage: `url(${IMAGES.earthHands})` }}
-          />
           <div className="hero-bg-circles">
             <div className="hero-circle" style={{ width: "550px", height: "550px", top: "-150px", left: "-100px" }}></div>
             <div className="hero-circle" style={{ width: "350px", height: "350px", bottom: "-80px", right: "-80px" }}></div>
           </div>
-          <div className="hero-content" style={{ maxWidth: "800px", margin: "0 auto", textAlign: "left", position: "relative", zIndex: 2 }}>
+          <div className="hero-content" style={{ maxWidth: "800px", margin: "0 auto", textAlign: "left" }}>
             <div style={{ display: "flex", gap: "0.8rem", flexWrap: "wrap", marginBottom: "1rem" }}>
               <div className="hero-tag" style={{ marginBottom: 0 }}>
                 <i className="fas fa-location-dot"></i> Ward {onboarding.ward} Citizen Hub
@@ -437,7 +428,7 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
       )}
 
       {/* HOW IT WORKS */}
-      <div className="section" style={{ background: "var(--card)" }}>
+      <div className="section" style={{ background: "white" }}>
         <div className="section-inner">
           <div className="section-header">
             <div className="section-tag">
@@ -551,47 +542,56 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
           </div>
           <div className="grid g3">
             <div
-              className="nature-card"
-              style={{ backgroundImage: `url(${IMAGES.recycling})` }}
+              style={{
+                background: "linear-gradient(135deg,#E3F2FD,#BBDEFB)",
+                borderRadius: "var(--radius)",
+                padding: "2rem",
+                textAlign: "center",
+                border: "1px solid #90CAF9",
+              }}
             >
-              <div className="nature-card-overlay">
-                <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>♻️</div>
-                <h3 style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700, marginBottom: "0.35rem" }}>Reduce</h3>
-                <p style={{ fontSize: "0.82rem", opacity: 0.9, lineHeight: 1.5 }}>
-                  AI predicts waste hotspots before they form. Proactive prevention over reactive cleanup.
-                </p>
-              </div>
+              <div style={{ fontSize: "3rem", marginBottom: ".75rem" }}>♻️</div>
+              <h3 style={{ fontFamily: "Poppins, sans-serif", color: "#0D47A1", marginBottom: ".5rem" }}>Reduce</h3>
+              <p style={{ fontSize: ".85rem", color: "#1565C0", lineHeight: 1.6 }}>
+                AI predicts waste hotspots before they form. Proactive prevention over reactive cleanup.
+              </p>
             </div>
             <div
-              className="nature-card"
-              style={{ backgroundImage: `url(${IMAGES.compost})` }}
+              style={{
+                background: "linear-gradient(135deg,#FEF3C7,#FDE68A)",
+                borderRadius: "var(--radius)",
+                padding: "2rem",
+                textAlign: "center",
+                border: "1px solid #FCD34D",
+              }}
             >
-              <div className="nature-card-overlay">
-                <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🔄</div>
-                <h3 style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700, marginBottom: "0.35rem" }}>Reuse</h3>
-                <p style={{ fontSize: "0.82rem", opacity: 0.9, lineHeight: 1.5 }}>
-                  Connect citizens with e-scrap dealers, compost kits, and material exchange programs.
-                </p>
-              </div>
+              <div style={{ fontSize: "3rem", marginBottom: ".75rem" }}>🔄</div>
+              <h3 style={{ fontFamily: "Poppins, sans-serif", color: "#78350F", marginBottom: ".5rem" }}>Reuse</h3>
+              <p style={{ fontSize: ".85rem", color: "#92400E", lineHeight: 1.6 }}>
+                Connect citizens with e-scrap dealers, compost kits, and material exchange programs.
+              </p>
             </div>
             <div
-              className="nature-card"
-              style={{ backgroundImage: `url(${IMAGES.garden})` }}
+              style={{
+                background: "linear-gradient(135deg,#E8F5E9,#C8E6C9)",
+                borderRadius: "var(--radius)",
+                padding: "2rem",
+                textAlign: "center",
+                border: "1px solid #A5D6A7",
+              }}
             >
-              <div className="nature-card-overlay">
-                <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🌱</div>
-                <h3 style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700, marginBottom: "0.35rem" }}>Recycle</h3>
-                <p style={{ fontSize: "0.82rem", opacity: 0.9, lineHeight: 1.5 }}>
-                  Track recycling pickups live. Earn XP for segregation. Map nearest recycling plants.
-                </p>
-              </div>
+              <div style={{ fontSize: "3rem", marginBottom: ".75rem" }}>🌱</div>
+              <h3 style={{ fontFamily: "Poppins, sans-serif", color: "#1B5E20", marginBottom: ".5rem" }}>Recycle</h3>
+              <p style={{ fontSize: ".85rem", color: "#2E7D32", lineHeight: 1.6 }}>
+                Track recycling pickups live. Earn XP for segregation. Map nearest recycling plants.
+              </p>
             </div>
           </div>
         </div>
       </div>
 
       {/* AI ROLES */}
-      <div className="section" style={{ background: "var(--card)" }}>
+      <div className="section" style={{ background: "white" }}>
         <div className="section-inner">
           <div className="section-header">
             <div className="section-tag">

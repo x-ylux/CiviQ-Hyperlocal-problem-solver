@@ -76,7 +76,7 @@ const quizQs = [
       "Red, Round, Remove",
       "Register, Report, Rate",
     ],
-    ans: 1,
+    ans: 2,
     exp: "Reduce (produce less waste), Reuse (use items again), Recycle (process waste into new materials). Follow this order — reduction is always best!",
   },
 ];
@@ -244,30 +244,10 @@ export default function App() {
   });
 
   // Modal
-  const [modal, setModal] = useState<{ open: boolean; type: "rti" | "compost" | "welcome" | "" }>({
+  const [modal, setModal] = useState<{ open: boolean; type: "rti" | "compost" | "" }>({
     open: false,
     type: "",
   });
-
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [pageKey, setPageKey] = useState(0);
-
-  const navigateTo = (tab: string) => {
-    setActiveTab(tab);
-    setMobileMenuOpen(false);
-    setPageKey((k) => k + 1);
-  };
-
-  // Welcome popup on first visit
-  useEffect(() => {
-    if (!localStorage.getItem("civiq_welcome_seen")) {
-      const timer = setTimeout(() => {
-        setModal({ open: true, type: "welcome" });
-        localStorage.setItem("civiq_welcome_seen", "1");
-      }, 1200);
-      return () => clearTimeout(timer);
-    }
-  }, []);
 
   // Falling leaves effect
   useEffect(() => {
@@ -612,7 +592,7 @@ export default function App() {
   const resetReport = () => {
     setReportStep(1);
     setSelectedCat("Roads");
-    navigateTo("dashboard");
+    setActiveTab("dashboard");
   };
 
   // Campaigns enlisting
@@ -680,25 +660,18 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen antialiased relative" style={{ background: "var(--bg)", color: "var(--text)" }}>
+    <div className="min-h-screen bg-slate-50 text-slate-800 antialiased relative">
       {/* Falling Leaves Background container */}
       <div className="leaves-container" id="leavesContainer"></div>
 
       {/* Navbar exactly like civiQ.html */}
       <nav className="nav" id="navbar">
-        <button
-          className="nav-hamburger"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
-        >
-          <i className={`fas ${mobileMenuOpen ? "fa-times" : "fa-bars"}`} />
-        </button>
         <a
           className="nav-logo"
           href="#"
           onClick={(e) => {
             e.preventDefault();
-            navigateTo("home");
+            setActiveTab("home");
           }}
         >
           <div className="nav-logo-icon">
@@ -707,28 +680,42 @@ export default function App() {
           CivicAI
         </a>
         <div className="nav-links">
-          {[
-            { tab: "home", label: "Home" },
-            { tab: "dashboard", label: "Dashboard" },
-            { tab: "report", label: "Report" },
-            { tab: "map", label: "Map" },
-            { tab: "track", label: "Track" },
-            { tab: "campaigns", label: "Campaigns" },
-            { tab: "games", label: "Games" },
-            { tab: "waste", label: "Waste Hub" },
-            { tab: "carbon", label: "Carbon Tracker" },
-            { tab: "gamify", label: "Credits" },
-            { tab: "insights", label: "AI Insights" },
-            { tab: "login", label: isUserLoggedIn ? "My Profile" : "Login" },
-          ].map(({ tab, label }) => (
-            <button
-              key={tab}
-              className={`nav-link ${activeTab === tab ? "active" : ""}`}
-              onClick={() => navigateTo(tab)}
-            >
-              {label}
-            </button>
-          ))}
+          <button className={`nav-link ${activeTab === "home" ? "active" : ""}`} onClick={() => setActiveTab("home")}>
+            Home
+          </button>
+          <button className={`nav-link ${activeTab === "dashboard" ? "active" : ""}`} onClick={() => setActiveTab("dashboard")}>
+            Dashboard
+          </button>
+          <button className={`nav-link ${activeTab === "report" ? "active" : ""}`} onClick={() => setActiveTab("report")}>
+            Report
+          </button>
+          <button className={`nav-link ${activeTab === "map" ? "active" : ""}`} onClick={() => setActiveTab("map")}>
+            Map
+          </button>
+          <button className={`nav-link ${activeTab === "track" ? "active" : ""}`} onClick={() => setActiveTab("track")}>
+            Track
+          </button>
+          <button className={`nav-link ${activeTab === "campaigns" ? "active" : ""}`} onClick={() => setActiveTab("campaigns")}>
+            Campaigns
+          </button>
+          <button className={`nav-link ${activeTab === "games" ? "active" : ""}`} onClick={() => setActiveTab("games")}>
+            Games
+          </button>
+          <button className={`nav-link ${activeTab === "waste" ? "active" : ""}`} onClick={() => setActiveTab("waste")}>
+            Waste Hub
+          </button>
+          <button className={`nav-link ${activeTab === "carbon" ? "active" : ""}`} onClick={() => setActiveTab("carbon")}>
+            Carbon Tracker
+          </button>
+          <button className={`nav-link ${activeTab === "gamify" ? "active" : ""}`} onClick={() => setActiveTab("gamify")}>
+            Credits
+          </button>
+          <button className={`nav-link ${activeTab === "insights" ? "active" : ""}`} onClick={() => setActiveTab("insights")}>
+            AI Insights
+          </button>
+          <button className={`nav-link ${activeTab === "login" ? "active" : ""}`} onClick={() => setActiveTab("login")}>
+            {isUserLoggedIn ? "My Profile" : "Login"}
+          </button>
         </div>
         <div className="nav-right">
           <button
@@ -744,7 +731,7 @@ export default function App() {
               <i className="fas fa-star"></i> {credits.toLocaleString()} XP
             </div>
           )}
-          <button className="nav-btn" onClick={() => navigateTo("report")}>
+          <button className="nav-btn" onClick={() => setActiveTab("report")}>
             <i className="fas fa-plus"></i> Report
           </button>
           {isUserLoggedIn ? (
@@ -752,7 +739,7 @@ export default function App() {
               <div
                 className="nav-avatar"
                 title={userProfile?.displayName || userProfile?.email}
-                onClick={() => navigateTo("login")}
+                onClick={() => setActiveTab("login")}
                 style={{ cursor: "pointer", background: "var(--forest)", color: "white" }}
               >
                 {userProfile?.displayName
@@ -780,7 +767,7 @@ export default function App() {
                     localStorage.removeItem("civiq_active_user");
                     await signOut(auth);
                     triggerToast("🔓", "Logged out successfully!");
-                    navigateTo("login");
+                    setActiveTab("login");
                   } catch (err) {
                     console.error("Sign out error", err);
                   }
@@ -803,11 +790,11 @@ export default function App() {
                   border: "none",
                   cursor: "pointer",
                 }}
-                onClick={() => navigateTo("login")}
+                onClick={() => setActiveTab("login")}
               >
                 <i className="fas fa-sign-in-alt"></i> Login
               </button>
-              <div className="nav-avatar" title="Guest Citizen" onClick={() => navigateTo("login")}>
+              <div className="nav-avatar" title="Guest Citizen" onClick={() => setActiveTab("login")}>
                 GC
               </div>
             </div>
@@ -815,63 +802,11 @@ export default function App() {
         </div>
       </nav>
 
-      {/* Mobile slide-down menu */}
-      <div className={`mobile-menu ${mobileMenuOpen ? "open" : ""}`}>
-        <div className="mobile-menu-grid">
-          {[
-            { tab: "home", icon: "fa-home", label: "Home" },
-            { tab: "dashboard", icon: "fa-chart-line", label: "Dashboard" },
-            { tab: "report", icon: "fa-camera", label: "Report" },
-            { tab: "map", icon: "fa-map", label: "Map" },
-            { tab: "track", icon: "fa-list-check", label: "Track" },
-            { tab: "campaigns", icon: "fa-bullhorn", label: "Campaigns" },
-            { tab: "games", icon: "fa-gamepad", label: "Games" },
-            { tab: "waste", icon: "fa-recycle", label: "Waste Hub" },
-            { tab: "carbon", icon: "fa-cloud", label: "Carbon" },
-            { tab: "gamify", icon: "fa-star", label: "Credits" },
-            { tab: "insights", icon: "fa-brain", label: "AI Insights" },
-            { tab: "login", icon: "fa-user", label: isUserLoggedIn ? "Profile" : "Login" },
-          ].map(({ tab, icon, label }) => (
-            <button
-              key={tab}
-              className={`mobile-menu-item ${activeTab === tab ? "active" : ""}`}
-              onClick={() => navigateTo(tab)}
-            >
-              <i className={`fas ${icon}`} />
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Bottom mobile navigation */}
-      <nav className="bottom-nav">
-        <div className="bottom-nav-inner">
-          {[
-            { tab: "home", icon: "fa-home", label: "Home" },
-            { tab: "map", icon: "fa-map", label: "Map" },
-            { tab: "report", icon: "fa-plus", label: "Report", isReport: true },
-            { tab: "track", icon: "fa-list-check", label: "Track" },
-            { tab: "login", icon: "fa-user", label: "Profile" },
-          ].map(({ tab, icon, label, isReport }) => (
-            <button
-              key={tab}
-              className={`bottom-nav-item ${isReport ? "report-btn" : ""} ${activeTab === tab ? "active" : ""}`}
-              onClick={() => navigateTo(tab)}
-            >
-              <i className={`fas ${icon}`} />
-              <span>{label}</span>
-            </button>
-          ))}
-        </div>
-      </nav>
-
       {/* Main page view containers matching civiQ.html active class and display toggles */}
       <main style={{ marginTop: "70px", paddingBottom: "80px" }}>
-        <div key={pageKey} className="page-enter">
         {activeTab === "home" && (
           <CiviQHome
-            onNavigate={navigateTo}
+            onNavigate={setActiveTab}
             onboarding={onboarding}
             setOnboarding={setOnboarding}
             triggerToast={triggerToast}
@@ -879,12 +814,12 @@ export default function App() {
         )}
 
         {activeTab === "dashboard" && (
-          <CiviQDashboard onNavigate={navigateTo} openModal={openModal} triggerToast={triggerToast} />
+          <CiviQDashboard onNavigate={setActiveTab} openModal={openModal} triggerToast={triggerToast} />
         )}
 
         {activeTab === "report" && (
           <CiviQReport
-            onNavigate={navigateTo}
+            onNavigate={setActiveTab}
             reportStep={reportStep}
             setReportStep={setReportStep}
             selectedCat={selectedCat}
@@ -949,7 +884,7 @@ export default function App() {
 
         {activeTab === "waste" && (
           <CiviQWasteHub
-            onNavigate={navigateTo}
+            onNavigate={setActiveTab}
             openModal={openModal}
             triggerToast={triggerToast}
             onBuyCompostItem={buyCompostItem}
@@ -968,7 +903,7 @@ export default function App() {
           <CiviQCredits
             credits={credits}
             userProfile={userProfile}
-            onNavigate={navigateTo}
+            onNavigate={setActiveTab}
             triggerToast={triggerToast}
             onRedeemReward={redeemReward}
             onStartCivicLearning={startCivicLearning}
@@ -980,13 +915,10 @@ export default function App() {
 
         {activeTab === "login" && (
           <CiviQLogin
-            onNavigate={navigateTo}
+            onNavigate={setActiveTab}
             triggerToast={triggerToast}
-            userProfile={userProfile}
-            credits={credits}
           />
         )}
-        </div>
       </main>
 
       {/* Floating Smart AI Chatbot assistant with standard or keyword responses */}
@@ -1137,83 +1069,6 @@ export default function App() {
               </div>
             </>
           )}
-          {modal.type === "welcome" && (
-            <>
-              <div
-                style={{
-                  height: "140px",
-                  borderRadius: "16px",
-                  backgroundImage: "url(https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80)",
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  marginBottom: "1.25rem",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    background: "linear-gradient(to top, rgba(13,31,15,0.8), transparent)",
-                    display: "flex",
-                    alignItems: "flex-end",
-                    padding: "1rem",
-                    color: "white",
-                    fontFamily: "Poppins, sans-serif",
-                    fontWeight: 700,
-                    fontSize: "1.1rem",
-                  }}
-                >
-                  🌍 Welcome to CivicAI
-                </div>
-              </div>
-              <p style={{ color: "var(--muted)", fontSize: "0.9rem", lineHeight: 1.7, marginBottom: "1.25rem" }}>
-                Your hyperlocal platform for reporting civic issues, tracking fixes, earning XP, and making your neighborhood greener. Everything is connected — report, track, play, and earn!
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem", marginBottom: "1.25rem" }}>
-                {[
-                  { icon: "📷", text: "Report issues with photo + GPS" },
-                  { icon: "🗺️", text: "Track progress on live map" },
-                  { icon: "♻️", text: "Learn waste segregation & earn credits" },
-                ].map((item) => (
-                  <div
-                    key={item.text}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.65rem",
-                      padding: "0.65rem 0.85rem",
-                      background: "var(--bg2)",
-                      borderRadius: "10px",
-                      fontSize: "0.85rem",
-                    }}
-                  >
-                    <span>{item.icon}</span> {item.text}
-                  </div>
-                ))}
-              </div>
-              <div style={{ display: "flex", gap: "0.75rem" }}>
-                <button
-                  className="btn btn-outline"
-                  style={{ flex: 1, justifyContent: "center" }}
-                  onClick={closeModal}
-                >
-                  Explore
-                </button>
-                <button
-                  className="btn btn-green"
-                  style={{ flex: 1, justifyContent: "center" }}
-                  onClick={() => {
-                    closeModal();
-                    navigateTo("login");
-                  }}
-                >
-                  <i className="fas fa-leaf" /> Get Started
-                </button>
-              </div>
-            </>
-          )}
           {modal.type === "compost" && (
             <>
               <div style={{ textAlign: "center", marginBottom: "1.25rem" }}>
@@ -1236,7 +1091,7 @@ export default function App() {
                 style={{ width: "100%", justifyContent: "center" }}
                 onClick={() => {
                   closeModal();
-                  navigateTo("waste");
+                  setActiveTab("waste");
                 }}
               >
                 <i className="fas fa-shop"></i> Buy a compost kit
