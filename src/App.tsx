@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { onAuthStateChanged, signInAnonymously, signOut } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { auth, db } from "./firebase";
 import { UserProfile } from "./types";
@@ -190,36 +190,29 @@ export default function App() {
   // Load user profile & credits
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      // Check local active sandbox session first
-      const activeSandboxJson = localStorage.getItem("civiq_active_user");
-      if (activeSandboxJson) {
-        try {
-          const sandboxProfile = JSON.parse(activeSandboxJson) as UserProfile;
-          setUserProfile(sandboxProfile);
-          setCredits(sandboxProfile.credits);
-          return;
-        } catch (e) {
-          console.warn("Invalid active sandbox profile, falling back", e);
-        }
-      }
-
-      if (user) {
+      // Clean slate policy: do not pre-populate or mock data. Wait for genuine Firebase Auth.
+      if (user && !user.isAnonymous) {
         try {
           const userDoc = await getDoc(doc(db, "users", user.uid));
           if (userDoc.exists()) {
             const data = userDoc.data() as UserProfile;
             if (data) {
+              if (data.credits > 0 && localStorage.getItem("civiq_reset_credits") !== "done") {
+                await setDoc(doc(db, "users", user.uid), { credits: 0 }, { merge: true });
+                data.credits = 0;
+                localStorage.setItem("civiq_reset_credits", "done");
+              }
               setUserProfile(data);
               if (typeof data.credits === "number") {
                 setCredits(data.credits);
               }
             }
           } else {
-            // Register initial profile in firestore
+            // Register initial profile in firestore with clean slate (0 credits)
             const newProfile: UserProfile = {
               uid: user.uid,
-              email: user.email || (user.isAnonymous ? "guest@civicai.org" : "citizen@civicai.org"),
-              displayName: user.displayName || (user.isAnonymous ? "Guest Citizen" : "New Citizen"),
+              email: user.email || "",
+              displayName: user.displayName || "New Citizen",
               role: "citizen",
               credits: 0,
               mfaEnabled: false,
@@ -233,8 +226,8 @@ export default function App() {
           console.warn("Firestore profile sync block (offline fallback):", err);
           const offlineProfile: UserProfile = {
             uid: user.uid,
-            email: user.email || (user.isAnonymous ? "guest@civicai.org" : "citizen@civicai.org"),
-            displayName: user.displayName || (user.isAnonymous ? "Guest Citizen" : "New Citizen"),
+            email: user.email || "",
+            displayName: user.displayName || "New Citizen",
             role: "citizen",
             credits: 0,
             mfaEnabled: false,
@@ -245,12 +238,7 @@ export default function App() {
         }
       } else {
         setUserProfile(null);
-        try {
-          await signInAnonymously(auth);
-        } catch (err) {
-          console.warn("Anonymous sign-in blocked by connection constraints, using local sandbox.");
-          loadLocalProfile();
-        }
+        setCredits(0);
       }
     });
 

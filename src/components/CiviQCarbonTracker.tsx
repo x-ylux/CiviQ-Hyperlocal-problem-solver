@@ -35,11 +35,11 @@ export function CiviQCarbonTracker({
   triggerToast,
 }: CiviQCarbonTrackerProps) {
   // Calculator inputs
-  const [transportKm, setTransportKm] = useState<number>(15);
+  const [transportKm, setTransportKm] = useState<number>(0);
   const [transportType, setTransportType] = useState<string>("petrol-car");
-  const [electricityKwh, setElectricityKwh] = useState<number>(8);
-  const [wasteKg, setWasteKg] = useState<number>(2);
-  const [dietType, setDietType] = useState<"heavy-meat" | "avg-meat" | "vegetarian" | "vegan">("avg-meat");
+  const [electricityKwh, setElectricityKwh] = useState<number>(0);
+  const [wasteKg, setWasteKg] = useState<number>(0);
+  const [dietType, setDietType] = useState<"heavy-meat" | "avg-meat" | "vegetarian" | "vegan" | "none">("none");
   const [composted, setComposted] = useState<boolean>(false);
   const [recycled, setRecycled] = useState<boolean>(false);
 
@@ -55,80 +55,7 @@ export function CiviQCarbonTracker({
   });
 
   // Logs History
-  const [logs, setLogs] = useState<CarbonLog[]>([
-    {
-      id: "log-1",
-      date: "Jun 21",
-      transportKm: 25,
-      transportType: "petrol-car",
-      electricityKwh: 12,
-      wasteKg: 3,
-      dietType: "heavy-meat",
-      composted: false,
-      recycled: false,
-      totalCo2Kg: 18.2,
-    },
-    {
-      id: "log-2",
-      date: "Jun 22",
-      transportKm: 18,
-      transportType: "petrol-car",
-      electricityKwh: 10,
-      wasteKg: 2.5,
-      dietType: "avg-meat",
-      composted: false,
-      recycled: true,
-      totalCo2Kg: 13.5,
-    },
-    {
-      id: "log-3",
-      date: "Jun 23",
-      transportKm: 4,
-      transportType: "public-transit",
-      electricityKwh: 7,
-      wasteKg: 1.2,
-      dietType: "vegetarian",
-      composted: true,
-      recycled: true,
-      totalCo2Kg: 6.8,
-    },
-    {
-      id: "log-4",
-      date: "Jun 24",
-      transportKm: 12,
-      transportType: "motorbike",
-      electricityKwh: 9,
-      wasteKg: 2.0,
-      dietType: "vegetarian",
-      composted: true,
-      recycled: true,
-      totalCo2Kg: 8.9,
-    },
-    {
-      id: "log-5",
-      date: "Jun 25",
-      transportKm: 0,
-      transportType: "walk-cycle",
-      electricityKwh: 6,
-      wasteKg: 0.8,
-      dietType: "vegan",
-      composted: true,
-      recycled: true,
-      totalCo2Kg: 4.2,
-    },
-    {
-      id: "log-6",
-      date: "Jun 26",
-      transportKm: 30,
-      transportType: "electric-vehicle",
-      electricityKwh: 14,
-      wasteKg: 2.2,
-      dietType: "avg-meat",
-      composted: false,
-      recycled: true,
-      totalCo2Kg: 12.1,
-    },
-  ]);
+  const [logs, setLogs] = useState<CarbonLog[]>([]);
 
   // Carbon factors
   const getTransportFactor = (type: string) => {
@@ -159,8 +86,10 @@ export function CiviQCarbonTracker({
         return 1.7;
       case "vegan":
         return 0.9;
+      case "none":
+        return 0.0;
       default:
-        return 1.7;
+        return 0.0;
     }
   };
 
@@ -189,7 +118,7 @@ export function CiviQCarbonTracker({
     if (offsetChecked.seedling) offsetSavings += 0.5;
 
     const netValue = transportCO2 + electricityCO2 + wasteCO2 + dietCO2 - offsetSavings;
-    return Math.max(0.1, Math.round(netValue * 10) / 10);
+    return Math.max(0, Math.round(netValue * 10) / 10);
   };
 
   const currentCo2 = calculateCurrentCo2();
@@ -450,6 +379,7 @@ export function CiviQCarbonTracker({
                         { id: "avg-meat", label: "🍗 Average Diet (Poultry/fish/some meat)", factor: "3.1 kg CO2" },
                         { id: "vegetarian", label: "🥦 Vegetarian (No meat/seafood)", factor: "1.7 kg CO2" },
                         { id: "vegan", label: "🌱 Vegan (Purely plant-based)", factor: "0.9 kg CO2" },
+                        { id: "none", label: "🚫 None (Not tracking diet)", factor: "0.0 kg CO2" },
                       ].map((item) => (
                         <label
                           key={item.id}

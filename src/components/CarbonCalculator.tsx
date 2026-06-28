@@ -19,9 +19,9 @@ export function CarbonCalculator({
   onAddAuditLog,
   showToastMessage,
 }: CarbonCalculatorProps) {
-  const [transport, setTransport] = useState<number>(15);
-  const [electricity, setElectricity] = useState<number>(8);
-  const [waste, setWaste] = useState<number>(2);
+  const [transport, setTransport] = useState<number>(0);
+  const [electricity, setElectricity] = useState<number>(0);
+  const [waste, setWaste] = useState<number>(0);
 
   const [loading, setLoading] = useState<boolean>(false);
   const [history, setHistory] = useState<CarbonEntry[]>([]);
@@ -80,17 +80,8 @@ export function CarbonCalculator({
     if (local) {
       setHistory(JSON.parse(local));
     } else {
-      // Default initial mock history to make graphs look rich and beautiful instantly
-      const mockHistory: CarbonEntry[] = [
-        { id: "1", userId: "local", date: "06-21", transportationKm: 10, electricityKwh: 6, wasteKg: 1, totalCo2Kg: 7.05, tips: [] },
-        { id: "2", userId: "local", date: "06-22", transportationKm: 25, electricityKwh: 12, wasteKg: 3, totalCo2Kg: 15.3, tips: [] },
-        { id: "3", userId: "local", date: "06-23", transportationKm: 12, electricityKwh: 5, wasteKg: 2.5, totalCo2Kg: 7.18, tips: [] },
-        { id: "4", userId: "local", date: "06-24", transportationKm: 0, electricityKwh: 8, wasteKg: 1.5, totalCo2Kg: 7.48, tips: [] },
-        { id: "5", userId: "local", date: "06-25", transportationKm: 8, electricityKwh: 10, wasteKg: 2, totalCo2Kg: 10.6, tips: [] },
-        { id: "6", userId: "local", date: "06-26", transportationKm: 15, electricityKwh: 8, wasteKg: 2, totalCo2Kg: 10.0, tips: [] }
-      ];
-      setHistory(mockHistory);
-      localStorage.setItem("civicai_carbon_history", JSON.stringify(mockHistory));
+      setHistory([]);
+      localStorage.setItem("civicai_carbon_history", JSON.stringify([]));
     }
   };
 
