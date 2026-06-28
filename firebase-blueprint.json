@@ -1,0 +1,123 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profiles with roles, MFA settings, and credits.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The unique user ID from Firebase Auth." },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "role": { "type": "string", "enum": ["citizen", "officer", "admin"] },
+        "credits": { "type": "integer" },
+        "mfaEnabled": { "type": "boolean" },
+        "mfaSecret": { "type": "string", "description": "Encrypted TOTP secret for MFA." },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role", "credits", "mfaEnabled"]
+    },
+    "Report": {
+      "title": "Report",
+      "description": "Civic issues reported by citizens.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "reporterId": { "type": "string" },
+        "reporterName": { "type": "string" },
+        "category": { "type": "string", "enum": ["roads", "water", "waste", "lights", "parks", "build", "power", "traffic"] },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "location": {
+          "type": "object",
+          "properties": {
+            "latitude": { "type": "number" },
+            "longitude": { "type": "number" },
+            "address": { "type": "string" }
+          },
+          "required": ["latitude", "longitude", "address"]
+        },
+        "status": { "type": "string", "enum": ["open", "in_progress", "citizen_verify", "resolved"] },
+        "upvotes": { "type": "integer" },
+        "upvotedBy": { "type": "array", "items": { "type": "string" } },
+        "timeline": { "type": "array", "items": { "type": "object" } },
+        "assignedContractor": { "type": "string" },
+        "slaDeadline": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "reporterId", "category", "title", "status", "upvotes", "createdAt"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "Secure immutable logs for security compliance.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "userId": { "type": "string" },
+        "userEmail": { "type": "string" },
+        "action": { "type": "string" },
+        "details": { "type": "string" },
+        "ipAddress": { "type": "string" },
+        "severity": { "type": "string", "enum": ["info", "warning", "critical"] }
+      },
+      "required": ["id", "timestamp", "userId", "action", "severity"]
+    },
+    "CarbonFootprint": {
+      "title": "CarbonFootprint",
+      "description": "Carbon footprint entries and comparisons.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "transportationKm": { "type": "number" },
+        "electricityKwh": { "type": "number" },
+        "wasteKg": { "type": "number" },
+        "totalCo2Kg": { "type": "number" },
+        "tips": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["id", "userId", "date", "totalCo2Kg"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "Real-time user alerts and updates.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string", "enum": ["info", "success", "warning", "critical"] },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "title", "message", "read", "createdAt"]
+    }
+  },
+  "firestore": {
+    "users": {
+      "schema": "User",
+      "description": "Collection of user profile data."
+    },
+    "reports": {
+      "schema": "Report",
+      "description": "Collection of submitted civic reports."
+    },
+    "audit_logs": {
+      "schema": "AuditLog",
+      "description": "Collection of security and action logs."
+    },
+    "carbon_footprints": {
+      "schema": "CarbonFootprint",
+      "description": "Collection of user environmental footprints."
+    },
+    "notifications": {
+      "schema": "Notification",
+      "description": "Collection of user notifications."
+    }
+  }
+}

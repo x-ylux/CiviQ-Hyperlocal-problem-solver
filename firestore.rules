@@ -1,0 +1,90 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Connectivity Test path
+    match /test/{document} {
+      allow read, write: if true;
+    }
+
+    // Helpers
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Collection: Users
+    match /users/{userId} {
+      allow read: if isSignedIn() && (isOwner(userId) || exists(/databases/$(database)/documents/users/$(request.auth.uid)));
+      allow create: if isSignedIn() && isOwner(userId) 
+                    && incoming().uid == userId 
+                    && incoming().role in ['citizen', 'officer', 'admin']
+                    && incoming().credits is int
+                    && incoming().mfaEnabled is bool;
+      allow update: if isSignedIn() && isOwner(userId) 
+                    && incoming().uid == userId
+                    && (
+                      // Action: update profile/MFA/credits
+                      incoming().diff(existing()).affectedKeys().hasAny(['displayName', 'photoURL', 'mfaEnabled', 'mfaSecret', 'credits', 'updatedAt', 'role'])
+                    );
+      allow delete: if false;
+    }
+
+    // Collection: Reports
+    match /reports/{reportId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(reportId)
+                    && incoming().id == reportId
+                    && incoming().reporterId == request.auth.uid
+                    && incoming().status == 'open'
+                    && incoming().upvotes is int
+                    && incoming().category in ['roads', 'water', 'waste', 'lights', 'parks', 'build', 'power', 'traffic'];
+      allow update: if isSignedIn() && (
+        // Action 1: standard citizen upvotes or updates timeline
+        (incoming().diff(existing()).affectedKeys().hasAny(['upvotes', 'upvotedBy', 'timeline'])) ||
+        // Action 2: officer/admin updates status, assignedContractor, slaDeadline
+        (incoming().diff(existing()).affectedKeys().hasAny(['status', 'assignedContractor', 'slaDeadline', 'timeline']))
+      );
+      allow delete: if isSignedIn();
+    }
+
+    // Collection: Audit Logs
+    match /audit_logs/{logId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update, delete: if false; // immutable!
+    }
+
+    // Collection: Carbon Footprints
+    match /carbon_footprints/{footprintId} {
+      allow read, write: if isSignedIn();
+    }
+
+    // Collection: Notifications
+    match /notifications/{notifId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn(); // anyone/system can create
+      allow update: if isSignedIn() && existing().userId == request.auth.uid;
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+  }
+}
