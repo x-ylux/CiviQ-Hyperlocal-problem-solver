@@ -80,8 +80,57 @@ export function CiviQReport({
   const [reportTitle, setReportTitle] = useState<string>("New Issue Report");
   const [reportSeverity, setReportSeverity] = useState<string>("Medium");
   const [reportDescription, setReportDescription] = useState<string>("");
-  const [reportAddress, setReportAddress] = useState<string>("Rajouri Garden, Sector 5");
+  const [reportAddress, setReportAddress] = useState<string>("Detecting live location...");
   const [lastTicketNum, setLastTicketNum] = useState<number>(1089);
+
+  // Helper to reverse geocode coords using OSM Nominatim
+  const reverseGeocode = async (lat: number, lng: number) => {
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`, {
+        headers: {
+          "Accept-Language": "en"
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.display_name) {
+          setReportAddress(data.display_name);
+        } else if (data && data.address) {
+          const addr = data.address;
+          const parts = [
+            addr.road || addr.suburb || addr.neighbourhood,
+            addr.city || addr.town || addr.village,
+            addr.state
+          ].filter(Boolean);
+          setReportAddress(parts.join(", "));
+        }
+      }
+    } catch (e) {
+      console.warn("Reverse geocoding failed, using coordinates:", e);
+      setReportAddress(`${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E`);
+    }
+  };
+
+  // Fetch device live location immediately on mount
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const userLat = pos.coords.latitude;
+          const userLng = pos.coords.longitude;
+          setCoords({ lat: userLat, lng: userLng });
+          await reverseGeocode(userLat, userLng);
+        },
+        async (err) => {
+          console.log("Geolocation on mount failed, using fallback New Delhi", err);
+          await reverseGeocode(28.6139, 77.2090);
+        },
+        { enableHighAccuracy: true, timeout: 6000 }
+      );
+    } else {
+      reverseGeocode(28.6139, 77.2090);
+    }
+  }, []);
 
   // Voice recording state
   const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -143,18 +192,23 @@ export function CiviQReport({
       triggerToast("👁️", "Verifying image authenticity...");
 
       // Get current GPS coords on file upload
-      let userLat = 28.6139;
-      let userLng = 77.2090;
+      let userLat = coords.lat;
+      let userLng = coords.lng;
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          (pos) => {
+          async (pos) => {
             userLat = pos.coords.latitude;
             userLng = pos.coords.longitude;
             setCoords({ lat: userLat, lng: userLng });
-            setReportAddress(`Sector ${Math.floor(Math.random() * 12) + 1}, New Delhi`);
+            await reverseGeocode(userLat, userLng);
           },
-          (err) => console.log("Geoloc on upload fallback", err)
+          (err) => {
+            console.log("Geoloc on upload fallback", err);
+            reverseGeocode(userLat, userLng);
+          }
         );
+      } else {
+        reverseGeocode(userLat, userLng);
       }
 
       try {
@@ -324,12 +378,7 @@ export function CiviQReport({
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      processImageFile(file);
-    } else {
-      triggerToast("⚠️", "Please drop an image file!");
-    }
+    triggerToast("❌", "File drop disabled. Only live camera captures are accepted to ensure report authenticity!");
   };
 
   // Voice recording triggers
@@ -443,6 +492,8 @@ export function CiviQReport({
       address: reportAddress,
       image: imagePreview || undefined,
       voiceTranscription: voiceTranscript || undefined,
+      lat: coords.lat,
+      lng: coords.lng,
     });
   };
 
@@ -481,10 +532,10 @@ export function CiviQReport({
               {/* STEP 1: UPLOAD PHOTO */}
               <div className={`form-step ${reportStep === 1 ? "active" : ""}`}>
                 <div style={{ fontWeight: 700, fontFamily: "Poppins, sans-serif", fontSize: "1rem", marginBottom: ".35rem" }}>
-                  Upload photo or video
+                  Capture Live Photo of Issue
                 </div>
                 <div style={{ fontSize: ".82rem", color: "var(--muted)", marginBottom: "1rem" }}>
-                  AI auto-verifies and checks for duplicates within 15m radius
+                  Live-capture photos only. AI verifies authenticity and checks local coords for duplicates.
                 </div>
                 
                 <input
@@ -492,6 +543,7 @@ export function CiviQReport({
                   ref={fileInputRef}
                   onChange={handleFileChange}
                   accept="image/*"
+                  capture="environment"
                   style={{ display: "none" }}
                 />
 
@@ -580,13 +632,13 @@ export function CiviQReport({
                   ) : (
                     <>
                       <div className="upload-icon" style={{ fontSize: "2.5rem", color: "var(--leaf)", marginBottom: "0.5rem" }}>
-                        <i className="fas fa-camera-retro"></i>
+                        <i className="fas fa-camera"></i>
                       </div>
                       <div style={{ fontWeight: 600, fontSize: ".95rem", marginBottom: ".3rem" }}>
-                        Drag & Drop or Tap to Upload
+                        Tap to Capture Live Photo
                       </div>
-                      <div style={{ fontSize: ".78rem", color: "var(--muted)" }}>
-                        Supports JPG, PNG, GIF · GPS auto-tagged
+                      <div style={{ fontSize: ".75rem", color: "var(--muted)", textAlign: "center", padding: "0 1.5rem", lineHeight: "1.4" }}>
+                        Gallery uploads & file drops are disabled.<br />Only live device camera snaps are accepted.
                       </div>
                     </>
                   )}
@@ -756,7 +808,7 @@ export function CiviQReport({
                       style={{ padding: "0.3rem 0.6rem", fontSize: "0.85rem", height: "auto" }}
                     />
                     <div style={{ fontSize: ".72rem", color: "var(--muted)", marginTop: "0.2rem" }}>
-                      28.6648°N, 77.1167°E · GPS calibrated
+                      {coords.lat.toFixed(4)}°N, {coords.lng.toFixed(4)}°E · GPS calibrated
                     </div>
                   </div>
                 </div>

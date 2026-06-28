@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, onSnapshot, addDoc } from "firebase/firestore";
 import { auth, db } from "./firebase";
 import { UserProfile, OnboardingData, CivicIssue } from "./types";
 
@@ -248,6 +248,123 @@ export default function App() {
     open: false,
     type: "",
   });
+
+  // Dynamic Firestore Issues Sync
+  useEffect(() => {
+    const unsub = onSnapshot(collection(db, "issues"), (snapshot) => {
+      const fbIssues: CivicIssue[] = [];
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        fbIssues.push({
+          id: doc.id,
+          title: data.title || "Reported Incident",
+          category: data.category || "Roads",
+          address: data.address || "",
+          lat: data.lat || 28.6648,
+          lng: data.lng || 77.1167,
+          daysOpen: data.daysOpen || 0,
+          createdAt: data.createdAt || new Date().toISOString(),
+          slaDays: data.slaDays || 7,
+          upvotes: data.upvotes || 1,
+          status: data.status || "Open",
+          severity: data.severity || "Medium",
+          verifiedCount: data.verifiedCount || 0,
+          budget: data.budget || "₹45,000 (Allocating)",
+          contractorName: data.contractorName || "GreenBuild Pvt Ltd",
+          contractorRating: data.contractorRating || 94,
+          populationDensity: data.populationDensity || 15000,
+          weatherForecast: data.weatherForecast || "Slight Overcast",
+          assignedOfficer: data.assignedOfficer || "Zone Supervisor",
+          image: data.image || data.photoURL || "",
+          voiceTranscription: data.voiceTranscription || "",
+        } as CivicIssue);
+      });
+
+      // Default hardcoded issues
+      const defaultIssues: CivicIssue[] = [
+        {
+          id: "1042",
+          title: "Pothole cluster — Ward 7",
+          category: "Roads",
+          address: "Rajouri Garden Sector 5",
+          lat: 28.6648,
+          lng: 77.1167,
+          daysOpen: 14,
+          createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+          slaDays: 10,
+          upvotes: 143,
+          status: "In progress",
+          severity: "Critical",
+          verifiedCount: 38,
+          budget: "₹4,20,000",
+          contractorName: "Metro Roads Ltd",
+          contractorRating: 71,
+          populationDensity: 18400,
+          weatherForecast: "Heavy Rain & Storm Alert",
+          assignedOfficer: "Dy. Commissioner",
+          description: "Severe pothole cluster blocking traffic flow on Rajouri Garden Main Road. Highly hazardous during rainy hours.",
+        },
+        {
+          id: "1085",
+          title: "Broken street lamp grid",
+          category: "Lights",
+          address: "Dwarka Sector 11 Main Market",
+          lat: 28.5855,
+          lng: 77.0601,
+          daysOpen: 2,
+          createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+          slaDays: 7,
+          upvotes: 24,
+          status: "Open",
+          severity: "Medium",
+          verifiedCount: 4,
+          budget: "₹65,000",
+          contractorName: "BrightLite Systems",
+          contractorRating: 88,
+          populationDensity: 12500,
+          weatherForecast: "Clear Sky",
+          assignedOfficer: "Asst. Engineer Lights",
+          description: "A block of 5 streetlights is completely dark near Sector 11 metro station gate, creating dark zones for pedestrians.",
+        },
+        {
+          id: "1091",
+          title: "Water pipeline leakage",
+          category: "Water",
+          address: "Pitampura Block KP-23",
+          lat: 28.7032,
+          lng: 77.1325,
+          daysOpen: 1,
+          createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+          slaDays: 5,
+          upvotes: 68,
+          status: "In progress",
+          severity: "High",
+          verifiedCount: 12,
+          budget: "₹1,80,000",
+          contractorName: "AquaFlow Solutions",
+          contractorRating: 92,
+          populationDensity: 24000,
+          weatherForecast: "Thunderstorms Expected",
+          assignedOfficer: "Executive Engineer (DJB)",
+          description: "Clean drinking water bursting through the main pipeline beneath the pavement, wasting thousands of gallons hourly.",
+        }
+      ];
+
+      // Combine Firestore issues first (newest reports appear first) with the default ones
+      const combined = [...fbIssues];
+      defaultIssues.forEach((def) => {
+        if (!combined.some((x) => x.id === def.id)) {
+          combined.push(def);
+        }
+      });
+
+      setIssues(combined);
+    }, (err) => {
+      console.warn("Firestore issues listener failed gracefully:", err);
+    });
+
+    return () => unsub();
+  }, []);
 
   // Falling leaves effect
   useEffect(() => {
@@ -545,21 +662,24 @@ export default function App() {
     address: string;
     image?: string;
     voiceTranscription?: string;
+    lat?: number;
+    lng?: number;
   }) => {
     const newId = (1000 + Math.floor(Math.random() * 9000)).toString();
-    const newIssue: CivicIssue = {
-      id: newId,
+
+    // Prepare issue data for Firestore
+    const issueToSave = {
       title: reportData.title || "Reported Incident",
       category: reportData.category || "Roads",
       address: reportData.address || "Rajouri Garden, Sector 5",
-      lat: 28.6648,
-      lng: 77.1167,
+      lat: reportData.lat || 28.6648,
+      lng: reportData.lng || 77.1167,
       daysOpen: 0,
       createdAt: new Date().toISOString(),
       slaDays: reportData.severity === "Critical" ? 3 : reportData.severity === "High" ? 5 : 7,
       upvotes: 1,
       status: "Open",
-      severity: reportData.severity as any || "Medium",
+      severity: reportData.severity || "Medium",
       verifiedCount: 0,
       budget: "₹45,000 (Allocating)",
       contractorName: "GreenBuild Pvt Ltd",
@@ -567,12 +687,34 @@ export default function App() {
       populationDensity: 15000,
       weatherForecast: "Slight Overcast",
       assignedOfficer: "Zone Supervisor",
-      image: reportData.image,
-      voiceTranscription: reportData.voiceTranscription,
+      image: reportData.image || "",
+      photoURL: reportData.image || "",
+      reporterUID: auth.currentUser?.uid || "anonymous",
+      reporterName: userProfile?.displayName || "Anonymous Citizen",
+      voiceTranscription: reportData.voiceTranscription || "",
     };
 
+    // Save directly to Firestore (CiviQMap.tsx and App.tsx sync listeners will capture this immediately)
+    addDoc(collection(db, "issues"), issueToSave)
+      .then((docRef) => {
+        setSelectedIssueId(docRef.id);
+        console.log("Document successfully written to Firestore with ID:", docRef.id);
+      })
+      .catch((error) => {
+        console.error("Error saving reported issue to Firestore:", error);
+      });
+
+    // Also update local fallback for instant local navigation
+    const newIssue: CivicIssue = {
+      id: newId,
+      ...issueToSave,
+      severity: issueToSave.severity as any,
+      status: "Open",
+      image: reportData.image,
+    };
     setIssues((prev) => [newIssue, ...prev]);
     setSelectedIssueId(newId);
+
     setReportStep(4);
     handleUpdateCredits(credits + 150);
     triggerToast("⭐", "Report submitted! Background duplication checks passed! +150 XP");

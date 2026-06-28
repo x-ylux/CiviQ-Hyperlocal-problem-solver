@@ -156,6 +156,8 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
         } as IssueData);
       });
       setIssues(docs);
+    }, (error) => {
+      console.warn("Firestore snapshot listener failed gracefully:", error);
     });
 
     // Try to get user coordinates
