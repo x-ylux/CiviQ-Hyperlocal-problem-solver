@@ -3,17 +3,13 @@ export interface UserProfile {
   email: string;
   displayName: string;
   photoURL?: string;
-  role: "citizen" | "officer" | "admin" | "authority";
+  role: "citizen" | "officer" | "admin";
   credits: number;
   mfaEnabled: boolean;
   mfaSecret?: string;
   createdAt: string;
   loginStreak?: number;
   lastLoginDate?: string;
-  status?: "pending" | "active" | "rejected";
-  department?: string;
-  designation?: string;
-  ward?: string;
 }
 
 export interface ReportLocation {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { doc, getDoc, setDoc, collection, onSnapshot, addDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, onSnapshot, addDoc, query, where, getDocs } from "firebase/firestore";
 import { auth, db } from "./firebase";
 import { UserProfile, OnboardingData, CivicIssue } from "./types";
 
@@ -18,7 +18,6 @@ import { CiviQInsights } from "./components/CiviQInsights";
 import { CiviQCarbonTracker } from "./components/CiviQCarbonTracker";
 import { CiviQLogin } from "./components/CiviQLogin";
 import { CiviQAuthorityDashboard } from "./components/CiviQAuthorityDashboard";
-import { CiviQAdmin } from "./components/CiviQAdmin";
 
 // Static Games Data
 const items: GameItem[] = [
@@ -401,28 +400,16 @@ export default function App() {
       // Clean slate policy: do not pre-populate or mock data. Wait for genuine Firebase Auth.
       if (user && !user.isAnonymous) {
         try {
-          const userDoc = await getDoc(doc(db, "users", user.uid));
+          let userDoc = await getDoc(doc(db, "users", user.uid));
+          if (!userDoc.exists()) {
+            // Wait 1.5 seconds to avoid race condition with officer or citizen custom registration write
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+            userDoc = await getDoc(doc(db, "users", user.uid));
+          }
+
           if (userDoc.exists()) {
             const data = userDoc.data() as UserProfile;
             if (data) {
-              // Check if authority has pending/rejected status
-              if (data.role === "authority") {
-                if (data.status === "pending") {
-                  // Show pending message and sign out
-                  await auth.signOut();
-                  setUserProfile(null);
-                  triggerToast("⏳", "Your account is under verification (ETA < 24h). Please try again later.");
-                  return;
-                }
-                if (data.status === "rejected") {
-                  // Show rejected message and sign out
-                  await auth.signOut();
-                  setUserProfile(null);
-                  triggerToast("❌", "Your registration request has been declined. Please contact municipal support.");
-                  return;
-                }
-              }
-
               if (data.credits > 0 && localStorage.getItem("civiq_reset_credits") !== "done") {
                 await setDoc(doc(db, "users", user.uid), { credits: 0 }, { merge: true });
                 data.credits = 0;
@@ -463,6 +450,7 @@ export default function App() {
               }
 
               setUserProfile(data);
+              localStorage.setItem("civiq_active_user", JSON.stringify(data));
               if (typeof data.credits === "number") {
                 setCredits(data.credits);
               }
@@ -488,6 +476,7 @@ export default function App() {
             };
             await setDoc(doc(db, "users", user.uid), newProfile);
             setUserProfile(newProfile);
+            localStorage.setItem("civiq_active_user", JSON.stringify(newProfile));
             setCredits(10);
             setTimeout(() => triggerToast("🔥", `Streak Day 1! +10 XP`), 1000);
           }
@@ -503,6 +492,7 @@ export default function App() {
             createdAt: new Date().toISOString(),
           };
           setUserProfile(offlineProfile);
+          localStorage.setItem("civiq_active_user", JSON.stringify(offlineProfile));
           loadLocalProfile();
         }
       } else {
@@ -510,21 +500,6 @@ export default function App() {
         if (activeSandboxJson) {
           try {
             const sandboxProfile = JSON.parse(activeSandboxJson);
-            // Check sandbox authority status
-            if (sandboxProfile.role === "authority") {
-              if (sandboxProfile.status === "pending") {
-                triggerToast("⏳", "Your account is under verification (ETA < 24h). Please try again later.");
-                setUserProfile(null);
-                localStorage.removeItem("civiq_active_user");
-                return;
-              }
-              if (sandboxProfile.status === "rejected") {
-                triggerToast("❌", "Your registration request has been declined. Please contact municipal support.");
-                setUserProfile(null);
-                localStorage.removeItem("civiq_active_user");
-                return;
-              }
-            }
             setUserProfile(sandboxProfile);
             setCredits(sandboxProfile.credits || 0);
           } catch (e) {
@@ -711,7 +686,7 @@ export default function App() {
   };
 
   // Report Flow
-  const handleReportSubmit = (reportData: {
+  const handleReportSubmit = async (reportData: {
     title: string;
     category: string;
     severity: string;
@@ -723,6 +698,83 @@ export default function App() {
     lng?: number;
   }) => {
     const newId = (1000 + Math.floor(Math.random() * 9000)).toString();
+
+    // Determine issue's ward
+    const formatWard = (w: string) => {
+      if (!w) return "Ward 7";
+      const cleaned = w.trim();
+      if (cleaned.toLowerCase().startsWith("ward ")) return cleaned;
+      return `Ward ${cleaned}`;
+    };
+    const issueWard = formatWard(userProfile?.ward || onboarding?.ward || "Ward 7");
+    const issueCategory = reportData.category || "Roads";
+
+    // Matching department helper
+    const isCategoryDeptMatch = (cat: string, dept: string) => {
+      if (!cat || !dept) return false;
+      const c = cat.toLowerCase();
+      const d = dept.toLowerCase();
+      if (c === d) return true;
+      if (c.includes(d) || d.includes(c)) return true;
+      if (c === "waste" && d.includes("sanitation")) return true;
+      if (c === "sanitation" && d.includes("waste")) return true;
+      if (c === "roads" && d.includes("infrastructure")) return true;
+      return false;
+    };
+
+    let assignedTo: any = null;
+    let assignmentNote = "No matching active authority found for this ward and department. Marked as Unassigned.";
+
+    try {
+      // Query active authorities in the users collection
+      const authoritiesQuery = query(
+        collection(db, "users"),
+        where("role", "==", "authority")
+      );
+      const authSnap = await getDocs(authoritiesQuery);
+      const activeAuthorities = authSnap.docs
+        .map(d => ({ uid: d.id, ...d.data() } as any))
+        .filter(u => u.status === "active");
+
+      const matchingAuthorities = activeAuthorities.filter(u => {
+        const uWardNorm = formatWard(u.ward);
+        const issueWardNorm = formatWard(issueWard);
+        return uWardNorm === issueWardNorm && isCategoryDeptMatch(issueCategory, u.department);
+      });
+
+      if (matchingAuthorities.length > 0) {
+        // Load balancing: find current open issues count for each matching officer
+        const officersWithCounts = await Promise.all(
+          matchingAuthorities.map(async (officer) => {
+            const openIssuesQuery = query(
+              collection(db, "issues"),
+              where("assignedTo.uid", "==", officer.uid),
+              where("status", "in", ["Open", "In progress", "Acknowledged", "Contractor Assigned", "Work In Progress"])
+            );
+            const openIssuesSnap = await getDocs(openIssuesQuery);
+            return {
+              officer,
+              openCount: openIssuesSnap.size
+            };
+          })
+        );
+
+        // Sort by openCount ascending
+        officersWithCounts.sort((a, b) => a.openCount - b.openCount);
+        const bestOfficer = officersWithCounts[0].officer;
+
+        assignedTo = {
+          uid: bestOfficer.uid,
+          name: bestOfficer.displayName,
+          designation: bestOfficer.designation,
+          department: bestOfficer.department,
+          ward: bestOfficer.ward
+        };
+        assignmentNote = `Auto-assigned to ${bestOfficer.displayName}, ${bestOfficer.designation}`;
+      }
+    } catch (err) {
+      console.error("Auto-assignment query failed:", err);
+    }
 
     // Prepare issue data for Firestore
     const issueToSave = {
@@ -743,7 +795,9 @@ export default function App() {
       contractorRating: 94,
       populationDensity: 15000,
       weatherForecast: "Slight Overcast",
-      assignedOfficer: "Zone Supervisor",
+      assignedOfficer: assignedTo ? assignedTo.name : "Unassigned",
+      assignedTo: assignedTo,
+      ward: issueWard,
       image: reportData.image || "",
       photoURL: reportData.image || "",
       reporterUID: auth.currentUser?.uid || "anonymous",
@@ -751,37 +805,68 @@ export default function App() {
       voiceTranscription: reportData.voiceTranscription || "",
     };
 
-    // Save directly to Firestore (CiviQMap.tsx and App.tsx sync listeners will capture this immediately)
-    addDoc(collection(db, "issues"), issueToSave)
-      .then((docRef) => {
-        setSelectedIssueId(docRef.id);
-        console.log("Document successfully written to Firestore with ID:", docRef.id);
-      })
-      .catch((error) => {
-        console.error("Error saving reported issue to Firestore:", error);
+    try {
+      // Save directly to Firestore
+      const docRef = await addDoc(collection(db, "issues"), issueToSave);
+      const createdIssueId = docRef.id;
+      setSelectedIssueId(createdIssueId);
+      console.log("Document successfully written to Firestore with ID:", createdIssueId);
+
+      // Write status history entry
+      const historyRef = doc(collection(db, `issues/${createdIssueId}/statusHistory`));
+      await setDoc(historyRef, {
+        status: "Open",
+        note: assignmentNote,
+        changedBy: "CiviQ AI Dispatcher",
+        timestamp: new Date().toISOString()
       });
 
-    // Also update local fallback for instant local navigation
-    const newIssue: CivicIssue = {
-      id: newId,
-      ...issueToSave,
-      severity: issueToSave.severity as any,
-      status: "Open",
-      image: reportData.image,
-    };
-    setIssues((prev) => [newIssue, ...prev]);
-    setSelectedIssueId(newId);
+      // Write to authorities/{uid}/assignedIssues subcollection if assigned
+      if (assignedTo) {
+        await setDoc(doc(db, `authorities/${assignedTo.uid}/assignedIssues`, createdIssueId), {
+          issueId: createdIssueId,
+          title: issueToSave.title,
+          category: issueToSave.category,
+          status: "Open",
+          assignedAt: new Date().toISOString()
+        });
 
-    // Save coords for the map to zoom in on
-    localStorage.setItem(
-      "civiq_submitted_issue_coords",
-      JSON.stringify({ lat: reportData.lat || 28.6648, lng: reportData.lng || 77.1167, id: newId })
-    );
+        // Write a notification to notifications/{uid}/items
+        const notifRef = doc(collection(db, `notifications/${assignedTo.uid}/items`));
+        await setDoc(notifRef, {
+          type: "new_assignment",
+          issueId: createdIssueId,
+          issueTitle: issueToSave.title,
+          issueCategory: issueToSave.category,
+          read: false,
+          createdAt: new Date().toISOString()
+        });
+      }
 
-    setActiveTab("map");
-    setReportStep(1); // Reset for next time
-    handleUpdateCredits(credits + 150);
-    triggerToast("⭐", "Report submitted! Background duplication checks passed! +150 XP");
+      // Also update local fallback for instant local navigation
+      const newIssue: CivicIssue = {
+        id: createdIssueId,
+        ...issueToSave,
+        severity: issueToSave.severity as any,
+        status: "Open",
+        image: reportData.image,
+      };
+      setIssues((prev) => [newIssue, ...prev]);
+
+      // Save coords for the map to zoom in on
+      localStorage.setItem(
+        "civiq_submitted_issue_coords",
+        JSON.stringify({ lat: reportData.lat || 28.6648, lng: reportData.lng || 77.1167, id: createdIssueId })
+      );
+
+      setActiveTab("map");
+      setReportStep(1); // Reset for next time
+      handleUpdateCredits(credits + 150);
+      triggerToast("⭐", "Report submitted! AI Dispatcher completed auto-routing! +150 XP");
+
+    } catch (error) {
+      console.error("Error saving reported issue to Firestore:", error);
+    }
   };
 
   const handleUpvoteIssue = (id: string) => {
@@ -901,9 +986,6 @@ export default function App() {
               <button className={`nav-link ${activeTab === "dashboard" ? "active" : ""}`} onClick={() => setActiveTab("dashboard")}>
                 Official Dashboard
               </button>
-              <button className={`nav-link ${activeTab === "login" ? "active" : ""}`} onClick={() => setActiveTab("login")}>
-                My Profile
-              </button>
             </>
           ) : (
             <>
@@ -940,14 +1022,11 @@ export default function App() {
               <button className={`nav-link ${activeTab === "insights" ? "active" : ""}`} onClick={() => setActiveTab("insights")}>
                 AI Insights
               </button>
-              {userProfile?.role === "admin" && (
-                <button className={`nav-link ${activeTab === "admin" ? "active" : ""}`} onClick={() => setActiveTab("admin")}>
-                  Admin Panel
+              {!isUserLoggedIn && (
+                <button className={`nav-link ${activeTab === "login" ? "active" : ""}`} onClick={() => setActiveTab("login")}>
+                  Login
                 </button>
               )}
-              <button className={`nav-link ${activeTab === "login" ? "active" : ""}`} onClick={() => setActiveTab("login")}>
-                {isUserLoggedIn ? "My Profile" : "Login"}
-              </button>
             </>
           )}
         </div>
@@ -1001,6 +1080,8 @@ export default function App() {
                 onClick={async () => {
                   try {
                     localStorage.removeItem("civiq_active_user");
+                    setUserProfile(null);
+                    setCredits(0);
                     await signOut(auth);
                     triggerToast("🔓", "Logged out successfully!");
                     setActiveTab("login");
@@ -1153,15 +1234,30 @@ export default function App() {
 
         {activeTab === "insights" && <CiviQInsights triggerToast={triggerToast} />}
 
-        {activeTab === "login" && (
+         {activeTab === "login" && (
           <CiviQLogin
             onNavigate={setActiveTab}
             triggerToast={triggerToast}
+            onLoginSuccess={(role) => {
+              const activeUserJson = localStorage.getItem("civiq_active_user");
+              if (activeUserJson) {
+                try {
+                  const p = JSON.parse(activeUserJson);
+                  setUserProfile(p);
+                  if (typeof p.credits === "number") {
+                    setCredits(p.credits);
+                  }
+                  if (p.role === "authority") {
+                    setActiveTab("dashboard");
+                  } else {
+                    setActiveTab("home");
+                  }
+                } catch (e) {
+                  console.error("Error loading user profile on login success:", e);
+                }
+              }
+            }}
           />
-        )}
-
-        {activeTab === "admin" && (
-          <CiviQAdmin triggerToast={triggerToast} />
         )}
       </main>
 

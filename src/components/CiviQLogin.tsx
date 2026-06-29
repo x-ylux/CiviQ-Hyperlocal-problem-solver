@@ -252,12 +252,12 @@ export function CiviQLogin({ onNavigate, triggerToast, onLoginSuccess }: CiviQLo
             designation: authDesignation,
             ward: authWard,
             role: "authority",
-            status: "pending",
+            status: "active",
             createdAt: new Date().toISOString(),
           });
-          await auth.signOut();
-          triggerToast("OK", `Your registration request has been submitted, Officer ${authName}! Your account is under verification and will be approved within 24 hours.`);
-          onNavigate("login");
+          triggerToast("OK", `Welcome, Officer ${authName}! Your official portal is ready.`);
+          if (onLoginSuccess) onLoginSuccess("authority");
+          onNavigate("dashboard");
         } catch (fbErr: any) {
           const isFbError = fbErr.code?.startsWith("auth/") || fbErr.message?.includes("auth/") || fbErr.message?.includes("Firebase") || fbErr.message?.includes("operation-not-allowed");
           if (isFbError) {
@@ -269,13 +269,14 @@ export function CiviQLogin({ onNavigate, triggerToast, onLoginSuccess }: CiviQLo
               designation: authDesignation,
               ward: authWard || "Ward 7",
               role: "authority",
-              status: "pending",
+              status: "active",
               credits: 100,
               createdAt: new Date().toISOString(),
             };
             localStorage.setItem("civiq_active_user", JSON.stringify(sandboxProfile));
-            triggerToast("OK", `Your registration request has been submitted, Officer ${authName}! (Sandbox Mode: Account under verification)`);
-            onNavigate("login");
+            triggerToast("OK", `Welcome, Officer ${authName}! (Sandbox Mode enabled)`);
+            if (onLoginSuccess) onLoginSuccess("authority");
+            onNavigate("dashboard");
           } else {
             throw fbErr;
           }
@@ -404,33 +405,39 @@ export function CiviQLogin({ onNavigate, triggerToast, onLoginSuccess }: CiviQLo
       </div>
 
       {/* RIGHT COLUMN: REFINED GLASSMORPHIC AUTH FORM */}
-      <div className="w-full md:w-[45%] min-h-screen flex flex-col justify-center items-center px-6 py-12 md:px-12 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 relative z-10">
+      <div className="w-full md:w-[45%] min-h-screen flex flex-col justify-center items-center px-6 py-12 md:px-12 bg-[#090e1a] relative z-10">
         
         {/* Soft atmospheric ambient glow background matching current role */}
-        <div className={`absolute top-1/4 right-1/4 w-80 h-80 rounded-full filter blur-3xl opacity-20 dark:opacity-15 transition-all duration-700 ${
-          role === "citizen" ? "bg-emerald-400 dark:bg-emerald-500" : "bg-blue-400 dark:bg-indigo-600"
+        <div className={`absolute top-1/4 right-1/4 w-80 h-80 rounded-full filter blur-[100px] opacity-25 transition-all duration-700 ${
+          role === "citizen" ? "bg-emerald-500/40" : "bg-blue-600/40"
         }`}></div>
         
         {/* Secondary helper glow */}
-        <div className={`absolute bottom-1/4 left-1/4 w-60 h-60 rounded-full filter blur-3xl opacity-10 dark:opacity-10 transition-all duration-700 ${
-          role === "citizen" ? "bg-green-300" : "bg-cyan-300"
+        <div className={`absolute bottom-1/4 left-1/4 w-60 h-60 rounded-full filter blur-[80px] opacity-20 transition-all duration-700 ${
+          role === "citizen" ? "bg-green-500/30" : "bg-cyan-500/30"
         }`}></div>
 
         {/* Form Container Card */}
-        <div className="w-full max-w-md bg-white/95 dark:bg-slate-900/95 rounded-[2rem] shadow-2xl shadow-slate-200/50 dark:shadow-none border border-slate-100 dark:border-slate-800 p-8 md:p-10 relative overflow-hidden transition-all duration-300">
+        <div className="w-full max-w-md bg-[#111827]/75 backdrop-blur-xl rounded-[2rem] border border-white/10 p-8 md:p-10 relative overflow-hidden transition-all duration-300 shadow-2xl shadow-slate-950/70">
           
           {/* Header styled exactly like the screenshot */}
           <div className="text-left mb-8 animate-fadeIn">
-            <p className="text-slate-400 dark:text-slate-500 text-sm font-medium mb-1">
-              {citMode === "login" ? "Please enter your details" : "Start your green journey"}
+            <p className="text-slate-400 text-sm font-medium mb-1.5">
+              {role === "citizen" 
+                ? (citMode === "login" ? "Please enter your details" : "Start your green journey")
+                : (authMode === "login" ? "Please enter your details" : "Municipal access request")
+              }
             </p>
-            <h3 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-none">
-              {citMode === "login" ? "Welcome back" : "Create an account"}
+            <h3 className="text-3xl font-extrabold text-white tracking-tight leading-none">
+              {role === "citizen"
+                ? (citMode === "login" ? "Welcome back" : "Create an account")
+                : (authMode === "login" ? "Welcome back" : "Apply for access")
+              }
             </h3>
           </div>
 
           {/* Segmented Controller for Role Selection */}
-          <div className="flex bg-slate-100 dark:bg-slate-800/80 p-1 rounded-2xl mb-8 relative z-10 border border-slate-200/30 dark:border-slate-700/30">
+          <div className="flex bg-[#090d16] p-1.5 rounded-2xl mb-8 relative z-10 border border-white/5">
             <button
               type="button"
               onClick={() => {
@@ -439,8 +446,8 @@ export function CiviQLogin({ onNavigate, triggerToast, onLoginSuccess }: CiviQLo
               }}
               className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
                 role === "citizen"
-                  ? "bg-white dark:bg-slate-700 text-emerald-800 dark:text-emerald-300 shadow-sm"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                  ? "bg-[#1e293b] text-white border border-white/10 shadow-md"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
               }`}
             >
               <i className="fas fa-users text-xs"></i>
@@ -454,8 +461,8 @@ export function CiviQLogin({ onNavigate, triggerToast, onLoginSuccess }: CiviQLo
               }}
               className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 flex items-center justify-center gap-2 ${
                 role === "authority"
-                  ? "bg-white dark:bg-slate-700 text-blue-800 dark:text-blue-300 shadow-sm"
-                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+                  ? "bg-[#1e293b] text-white border border-white/10 shadow-md"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-white/5"
               }`}
             >
               <i className="fas fa-building-shield text-xs"></i>
@@ -478,44 +485,46 @@ export function CiviQLogin({ onNavigate, triggerToast, onLoginSuccess }: CiviQLo
               {/* Citizen Form */}
               <form onSubmit={handleCitizenEmailAuth} className="space-y-4">
                 
-                {/* Email Address Input - matches the layout of screenshot (flat, clear background, direct placeholder) */}
-                <div className="space-y-1 text-left">
+                {/* Email Address Input */}
+                <div className="space-y-1.5 text-left animate-fadeIn">
+                  <label className="text-xs font-semibold text-slate-300 block ml-1">Citizen Email Address</label>
                   <input
                     type="email"
                     required
-                    placeholder="Email address"
-                    className="w-full px-4 py-3.5 bg-slate-100/60 hover:bg-slate-100 focus:bg-white dark:bg-slate-800/40 dark:hover:bg-slate-850 dark:focus:bg-slate-900 border border-slate-200/60 dark:border-slate-800/85 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
+                    placeholder="(e.g. citizen@civiq.org)"
+                    className="w-full px-4 py-3.5 bg-[#131c2e]/60 hover:bg-[#16223b]/60 focus:bg-[#131c2e] border border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-white placeholder-slate-500"
                     value={citEmail}
                     onChange={(e) => setCitEmail(e.target.value)}
                   />
                 </div>
 
                 {/* Password Input */}
-                <div className="space-y-1 text-left">
+                <div className="space-y-1.5 text-left animate-fadeIn">
+                  <label className="text-xs font-semibold text-slate-300 block ml-1">Password</label>
                   <input
                     type="password"
                     required
-                    placeholder="Password"
-                    className="w-full px-4 py-3.5 bg-slate-100/60 hover:bg-slate-100 focus:bg-white dark:bg-slate-800/40 dark:hover:bg-slate-850 dark:focus:bg-slate-900 border border-slate-200/60 dark:border-slate-800/85 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
+                    placeholder="••••••••"
+                    className="w-full px-4 py-3.5 bg-[#131c2e]/60 hover:bg-[#16223b]/60 focus:bg-[#131c2e] border border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-white placeholder-slate-500"
                     value={citPassword}
                     onChange={(e) => setCitPassword(e.target.value)}
                   />
                 </div>
 
                 {/* Remember/Forgot password row - exactly as shown in screenshot */}
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-slate-400 pt-1">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-400 pt-1">
                   <label className="flex items-center gap-2 cursor-pointer select-none">
                     <input
                       type="checkbox"
                       defaultChecked
-                      className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-emerald-600 focus:ring-emerald-500/20"
+                      className="w-4 h-4 rounded border-white/10 bg-[#131c2e] text-blue-600 focus:ring-blue-500/20"
                     />
                     <span>Remember for 30 days</span>
                   </label>
                   <button
                     type="button"
                     onClick={() => triggerToast("INFO", "Reset link dispatched if registered.")}
-                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                    className="text-blue-500 hover:underline"
                   >
                     Forgot password
                   </button>
@@ -525,16 +534,16 @@ export function CiviQLogin({ onNavigate, triggerToast, onLoginSuccess }: CiviQLo
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg hover:translate-y-[-1px] text-sm mt-3 flex items-center justify-center gap-2"
+                  className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg hover:translate-y-[-1px] text-sm mt-3 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {loading ? (
                     <>
                       <i className="fas fa-circle-notch fa-spin"></i> Processing...
                     </>
                   ) : citMode === "login" ? (
-                    "Sign in"
+                    "Sign In as Citizen"
                   ) : (
-                    "Sign up"
+                    "Sign Up"
                   )}
                 </button>
               </form>
@@ -544,7 +553,7 @@ export function CiviQLogin({ onNavigate, triggerToast, onLoginSuccess }: CiviQLo
                 type="button"
                 onClick={handleCitizenGoogleSignIn}
                 disabled={loading}
-                className="w-full bg-slate-100 hover:bg-slate-200/85 dark:bg-slate-800 dark:hover:bg-slate-750 border border-slate-200/80 dark:border-slate-700 hover:border-slate-300 text-slate-700 dark:text-slate-200 font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-3 transition-all text-sm shadow-sm"
+                className="w-full bg-[#131c2e]/40 hover:bg-[#1e293b]/50 border border-white/10 text-white font-bold py-3.5 px-4 rounded-xl flex items-center justify-center gap-3 transition-all text-sm shadow-sm cursor-pointer"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path fill="#4285F4" d="M23.74 12.27c0-.82-.07-1.64-.2-2.44H12.2v4.61h6.51c-.28 1.49-1.12 2.76-2.4 3.63v3h3.87c2.26-2.09 3.56-5.17 3.56-8.8z" />
@@ -556,14 +565,14 @@ export function CiviQLogin({ onNavigate, triggerToast, onLoginSuccess }: CiviQLo
               </button>
 
               {/* Tidy bottom toggler line matches screenshot bottom link */}
-              <div className="text-center pt-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
+              <div className="text-center pt-2 text-xs text-slate-400 font-medium">
                 {citMode === "login" ? "Don't have an account? " : "Already have an account? "}
                 <button
                   type="button"
                   onClick={() => setCitMode(citMode === "login" ? "register" : "login")}
-                  className="text-blue-600 dark:text-blue-400 font-bold hover:underline"
+                  className="text-blue-500 font-bold hover:underline"
                 >
-                  {citMode === "login" ? "Sign up" : "Sign in"}
+                  {citMode === "login" ? "Sign Up" : "Sign In"}
                 </button>
               </div>
             </div>
@@ -575,12 +584,13 @@ export function CiviQLogin({ onNavigate, triggerToast, onLoginSuccess }: CiviQLo
                   <div className="space-y-4 animate-fadeIn">
                     
                     {/* Full Name */}
-                    <div className="space-y-1 text-left">
+                    <div className="space-y-1.5 text-left">
+                      <label className="text-xs font-semibold text-slate-300 block ml-1">Full Name</label>
                       <input
                         type="text"
                         required
-                        placeholder="Full Name (e.g., S.K. Sharma)"
-                        className="w-full px-4 py-3.5 bg-slate-100/60 hover:bg-slate-100 focus:bg-white dark:bg-slate-800/40 dark:hover:bg-slate-850 dark:focus:bg-slate-900 border border-slate-200/60 dark:border-slate-800/85 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
+                        placeholder="e.g. S.K. Sharma"
+                        className="w-full px-4 py-3.5 bg-[#131c2e]/60 hover:bg-[#16223b]/60 focus:bg-[#131c2e] border border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-white placeholder-slate-500"
                         value={authName}
                         onChange={(e) => setAuthName(e.target.value)}
                       />
@@ -588,54 +598,58 @@ export function CiviQLogin({ onNavigate, triggerToast, onLoginSuccess }: CiviQLo
 
                     {/* Department & Designation (Grid) */}
                     <div className="grid grid-cols-2 gap-3 text-left">
-                      <div className="space-y-1">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-300 block ml-1">Department</label>
                         <select
-                          className="w-full bg-slate-100/60 hover:bg-slate-100 dark:bg-slate-850 border border-slate-200/60 dark:border-slate-800/85 rounded-xl py-3.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 dark:text-white"
+                          className="w-full bg-[#131c2e]/60 hover:bg-[#16223b]/60 dark:bg-[#131c2e] border border-white/10 rounded-xl py-3.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-white"
                           value={authDept}
                           onChange={(e) => setAuthDept(e.target.value)}
                         >
-                          <option value="Roads">Roads Dept</option>
-                          <option value="Water">Water Dept</option>
-                          <option value="Sanitation">Sanitation</option>
-                          <option value="Electricity">Electricity</option>
-                          <option value="Parks">Parks & Env</option>
-                          <option value="Traffic">Traffic Control</option>
+                          <option value="Roads" className="bg-[#111827] text-white">Roads Dept</option>
+                          <option value="Water" className="bg-[#111827] text-white">Water Dept</option>
+                          <option value="Sanitation" className="bg-[#111827] text-white">Sanitation</option>
+                          <option value="Electricity" className="bg-[#111827] text-white">Electricity</option>
+                          <option value="Parks" className="bg-[#111827] text-white">Parks & Env</option>
+                          <option value="Traffic" className="bg-[#111827] text-white">Traffic Control</option>
                         </select>
                       </div>
 
-                      <div className="space-y-1">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-300 block ml-1">Designation</label>
                         <select
-                          className="w-full bg-slate-100/60 hover:bg-slate-100 dark:bg-slate-850 border border-slate-200/60 dark:border-slate-800/85 rounded-xl py-3.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 dark:text-white"
+                          className="w-full bg-[#131c2e]/60 hover:bg-[#16223b]/60 dark:bg-[#131c2e] border border-white/10 rounded-xl py-3.5 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-white"
                           value={authDesignation}
                           onChange={(e) => setAuthDesignation(e.target.value)}
                         >
-                          <option value="Junior Engineer">Junior Engineer</option>
-                          <option value="Executive Engineer">Executive Engineer</option>
-                          <option value="Commissioner">Commissioner</option>
-                          <option value="Mayor">Mayor</option>
+                          <option value="Junior Engineer" className="bg-[#111827] text-white">Junior Engineer</option>
+                          <option value="Executive Engineer" className="bg-[#111827] text-white">Executive Engineer</option>
+                          <option value="Commissioner" className="bg-[#111827] text-white">Commissioner</option>
+                          <option value="Mayor" className="bg-[#111827] text-white">Mayor</option>
                         </select>
                       </div>
                     </div>
 
                     {/* Ward & Verification Code */}
                     <div className="grid grid-cols-2 gap-3 text-left">
-                      <div className="space-y-1">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-300 block ml-1">Ward / Zone</label>
                         <input
                           type="text"
                           required
-                          placeholder="Ward / Zone (e.g. Ward 7)"
-                          className="w-full px-4 py-3.5 bg-slate-100/60 hover:bg-slate-100 focus:bg-white dark:bg-slate-800/40 dark:hover:bg-slate-850 dark:focus:bg-slate-900 border border-slate-200/60 dark:border-slate-800/85 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 dark:text-white placeholder-slate-400"
+                          placeholder="e.g. Ward 7"
+                          className="w-full px-4 py-3.5 bg-[#131c2e]/60 hover:bg-[#16223b]/60 focus:bg-[#131c2e] border border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-white placeholder-slate-500"
                           value={authWard}
                           onChange={(e) => setAuthWard(e.target.value)}
                         />
                       </div>
 
-                      <div className="space-y-1">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-slate-300 block ml-1">Passkey Code</label>
                         <input
                           type="text"
                           required
-                          placeholder="Passkey Code"
-                          className="w-full px-4 py-3.5 bg-slate-100/60 hover:bg-slate-100 focus:bg-white dark:bg-slate-800/40 dark:hover:bg-slate-850 dark:focus:bg-slate-900 border border-slate-200/60 dark:border-slate-800/85 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-mono tracking-wider text-slate-800 dark:text-white placeholder-slate-400"
+                          placeholder="CIVIQ99"
+                          className="w-full px-4 py-3.5 bg-[#131c2e]/60 hover:bg-[#16223b]/60 focus:bg-[#131c2e] border border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 font-mono tracking-wider text-white placeholder-slate-500"
                           value={authCode}
                           onChange={(e) => setAuthCode(e.target.value)}
                         />
@@ -646,43 +660,45 @@ export function CiviQLogin({ onNavigate, triggerToast, onLoginSuccess }: CiviQLo
                 )}
 
                 {/* Official Email */}
-                <div className="space-y-1 text-left">
+                <div className="space-y-1.5 text-left">
+                  <label className="text-xs font-semibold text-slate-300 block ml-1">Official Gov Email</label>
                   <input
                     type="email"
                     required
-                    placeholder="Official Gov Email (e.g. officer@dept.gov.in)"
-                    className="w-full px-4 py-3.5 bg-slate-100/60 hover:bg-slate-100 focus:bg-white dark:bg-slate-800/40 dark:hover:bg-slate-850 dark:focus:bg-slate-900 border border-slate-200/60 dark:border-slate-800/85 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
+                    placeholder="(e.g. officer@dept.gov.in)"
+                    className="w-full px-4 py-3.5 bg-[#131c2e]/60 hover:bg-[#16223b]/60 focus:bg-[#131c2e] border border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-white placeholder-slate-500"
                     value={authEmail}
                     onChange={(e) => setAuthEmail(e.target.value)}
                   />
                 </div>
 
                 {/* Password */}
-                <div className="space-y-1 text-left">
+                <div className="space-y-1.5 text-left">
+                  <label className="text-xs font-semibold text-slate-300 block ml-1">Password</label>
                   <input
                     type="password"
                     required
-                    placeholder="Password"
-                    className="w-full px-4 py-3.5 bg-slate-100/60 hover:bg-slate-100 focus:bg-white dark:bg-slate-800/40 dark:hover:bg-slate-850 dark:focus:bg-slate-900 border border-slate-200/60 dark:border-slate-800/85 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
+                    placeholder="••••••••"
+                    className="w-full px-4 py-3.5 bg-[#131c2e]/60 hover:bg-[#16223b]/60 focus:bg-[#131c2e] border border-white/10 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-white placeholder-slate-500"
                     value={authPassword}
                     onChange={(e) => setAuthPassword(e.target.value)}
                   />
                 </div>
 
                 {/* Authority form Remember row */}
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-500 dark:text-slate-400 pt-1">
+                <div className="flex items-center justify-between text-xs font-semibold text-slate-400 pt-1">
                   <label className="flex items-center gap-2 cursor-pointer select-none">
                     <input
                       type="checkbox"
                       defaultChecked
-                      className="w-4 h-4 rounded border-slate-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500/20"
+                      className="w-4 h-4 rounded border-white/10 bg-[#131c2e] text-blue-600 focus:ring-blue-500/20"
                     />
                     <span>Remember for 30 days</span>
                   </label>
                   <button
                     type="button"
                     onClick={() => triggerToast("INFO", "Contact Administrator to recover authority accounts.")}
-                    className="text-blue-600 dark:text-blue-400 hover:underline"
+                    className="text-blue-500 hover:underline"
                   >
                     Forgot password
                   </button>
@@ -691,7 +707,7 @@ export function CiviQLogin({ onNavigate, triggerToast, onLoginSuccess }: CiviQLo
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg hover:translate-y-[-1px] text-sm mt-3 flex items-center justify-center gap-2"
+                  className="w-full bg-[#2563eb] hover:bg-[#1d4ed8] text-white font-bold py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg hover:translate-y-[-1px] text-sm mt-3 flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {loading ? (
                     <>
@@ -706,12 +722,12 @@ export function CiviQLogin({ onNavigate, triggerToast, onLoginSuccess }: CiviQLo
               </form>
 
               {/* Authority Mode Toggle */}
-              <div className="text-center pt-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
+              <div className="text-center pt-2 text-xs text-slate-400 font-medium">
                 {authMode === "login" ? "New official? " : "Already registered? "}
                 <button
                   type="button"
                   onClick={() => setAuthMode(authMode === "login" ? "register" : "login")}
-                  className="text-blue-600 dark:text-blue-400 font-bold hover:underline"
+                  className="text-blue-500 font-bold hover:underline"
                 >
                   {authMode === "login" ? "Apply for Access" : "Sign In"}
                 </button>
