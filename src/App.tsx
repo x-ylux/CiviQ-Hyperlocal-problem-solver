@@ -18,6 +18,7 @@ import { CiviQInsights } from "./components/CiviQInsights";
 import { CiviQCarbonTracker } from "./components/CiviQCarbonTracker";
 import { CiviQLogin } from "./components/CiviQLogin";
 import { CiviQAuthorityDashboard } from "./components/CiviQAuthorityDashboard";
+import { CiviQAdmin } from "./components/CiviQAdmin";
 
 // Static Games Data
 const items: GameItem[] = [
@@ -404,6 +405,24 @@ export default function App() {
           if (userDoc.exists()) {
             const data = userDoc.data() as UserProfile;
             if (data) {
+              // Check if authority has pending/rejected status
+              if (data.role === "authority") {
+                if (data.status === "pending") {
+                  // Show pending message and sign out
+                  await auth.signOut();
+                  setUserProfile(null);
+                  triggerToast("⏳", "Your account is under verification (ETA < 24h). Please try again later.");
+                  return;
+                }
+                if (data.status === "rejected") {
+                  // Show rejected message and sign out
+                  await auth.signOut();
+                  setUserProfile(null);
+                  triggerToast("❌", "Your registration request has been declined. Please contact municipal support.");
+                  return;
+                }
+              }
+
               if (data.credits > 0 && localStorage.getItem("civiq_reset_credits") !== "done") {
                 await setDoc(doc(db, "users", user.uid), { credits: 0 }, { merge: true });
                 data.credits = 0;
@@ -491,6 +510,21 @@ export default function App() {
         if (activeSandboxJson) {
           try {
             const sandboxProfile = JSON.parse(activeSandboxJson);
+            // Check sandbox authority status
+            if (sandboxProfile.role === "authority") {
+              if (sandboxProfile.status === "pending") {
+                triggerToast("⏳", "Your account is under verification (ETA < 24h). Please try again later.");
+                setUserProfile(null);
+                localStorage.removeItem("civiq_active_user");
+                return;
+              }
+              if (sandboxProfile.status === "rejected") {
+                triggerToast("❌", "Your registration request has been declined. Please contact municipal support.");
+                setUserProfile(null);
+                localStorage.removeItem("civiq_active_user");
+                return;
+              }
+            }
             setUserProfile(sandboxProfile);
             setCredits(sandboxProfile.credits || 0);
           } catch (e) {
@@ -906,6 +940,11 @@ export default function App() {
               <button className={`nav-link ${activeTab === "insights" ? "active" : ""}`} onClick={() => setActiveTab("insights")}>
                 AI Insights
               </button>
+              {userProfile?.role === "admin" && (
+                <button className={`nav-link ${activeTab === "admin" ? "active" : ""}`} onClick={() => setActiveTab("admin")}>
+                  Admin Panel
+                </button>
+              )}
               <button className={`nav-link ${activeTab === "login" ? "active" : ""}`} onClick={() => setActiveTab("login")}>
                 {isUserLoggedIn ? "My Profile" : "Login"}
               </button>
@@ -1119,6 +1158,10 @@ export default function App() {
             onNavigate={setActiveTab}
             triggerToast={triggerToast}
           />
+        )}
+
+        {activeTab === "admin" && (
+          <CiviQAdmin triggerToast={triggerToast} />
         )}
       </main>
 

@@ -252,12 +252,12 @@ export function CiviQLogin({ onNavigate, triggerToast, onLoginSuccess }: CiviQLo
             designation: authDesignation,
             ward: authWard,
             role: "authority",
-            status: "active",
+            status: "pending",
             createdAt: new Date().toISOString(),
           });
-          triggerToast("OK", `Welcome, Officer ${authName}! Your official portal is ready.`);
-          if (onLoginSuccess) onLoginSuccess("authority");
-          onNavigate("dashboard");
+          await auth.signOut();
+          triggerToast("OK", `Your registration request has been submitted, Officer ${authName}! Your account is under verification and will be approved within 24 hours.`);
+          onNavigate("login");
         } catch (fbErr: any) {
           const isFbError = fbErr.code?.startsWith("auth/") || fbErr.message?.includes("auth/") || fbErr.message?.includes("Firebase") || fbErr.message?.includes("operation-not-allowed");
           if (isFbError) {
@@ -269,14 +269,13 @@ export function CiviQLogin({ onNavigate, triggerToast, onLoginSuccess }: CiviQLo
               designation: authDesignation,
               ward: authWard || "Ward 7",
               role: "authority",
-              status: "active",
+              status: "pending",
               credits: 100,
               createdAt: new Date().toISOString(),
             };
             localStorage.setItem("civiq_active_user", JSON.stringify(sandboxProfile));
-            triggerToast("OK", `Welcome, Officer ${authName}! (Sandbox Mode enabled)`);
-            if (onLoginSuccess) onLoginSuccess("authority");
-            onNavigate("dashboard");
+            triggerToast("OK", `Your registration request has been submitted, Officer ${authName}! (Sandbox Mode: Account under verification)`);
+            onNavigate("login");
           } else {
             throw fbErr;
           }

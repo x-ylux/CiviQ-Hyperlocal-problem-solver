@@ -20,6 +20,11 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isAdmin() {
+      // Hardcoded admin UID
+      return isSignedIn() && request.auth.uid == "admin-uid-123";
+    }
+
     function isValidId(id) {
       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
     }
@@ -34,18 +39,18 @@ service cloud.firestore {
 
     // Collection: Users
     match /users/{userId} {
-      allow read: if isSignedIn() && (isOwner(userId) || exists(/databases/$(database)/documents/users/$(request.auth.uid)));
+      allow read: if isSignedIn() && (isOwner(userId) || isAdmin());
       allow create: if isSignedIn() && isOwner(userId) 
                     && incoming().uid == userId 
-                    && incoming().role in ['citizen', 'officer', 'admin']
+                    && incoming().role in ['citizen', 'officer', 'admin', 'authority']
                     && incoming().credits is int
                     && incoming().mfaEnabled is bool;
-      allow update: if isSignedIn() && isOwner(userId) 
+      allow update: if (isSignedIn() && isOwner(userId) 
                     && incoming().uid == userId
                     && (
-                      // Action: update profile/MFA/credits
-                      incoming().diff(existing()).affectedKeys().hasAny(['displayName', 'photoURL', 'mfaEnabled', 'mfaSecret', 'credits', 'updatedAt', 'role'])
-                    );
+                      // Action: update profile/MFA/credits, but NOT status!
+                      incoming().diff(existing()).affectedKeys().hasAny(['displayName', 'photoURL', 'mfaEnabled', 'mfaSecret', 'credits', 'updatedAt', 'role', 'department', 'designation', 'ward'])
+                    )) || (isAdmin()); // Admin can update anything, including status
       allow delete: if false;
     }
 
