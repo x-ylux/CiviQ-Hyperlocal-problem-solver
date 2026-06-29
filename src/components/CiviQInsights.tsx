@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 interface CiviQInsightsProps {
@@ -21,31 +21,59 @@ interface WardReportData {
 
 export function CiviQInsights({ triggerToast }: CiviQInsightsProps) {
   // Report Generator State
-  const [selectedWard, setSelectedWard] = useState<string>("7");
   const [selectedMonth, setSelectedMonth] = useState<string>("June 2026");
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [reportData, setReportData] = useState<WardReportData | null>(null);
+  const [exactLocation, setExactLocation] = useState<string>("Locating...");
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`);
+            const data = await res.json();
+            if (data && data.address) {
+              const locParts = [data.address.road, data.address.suburb || data.address.city, data.address.state].filter(Boolean);
+              const locStr = locParts.join(", ");
+              setExactLocation(locStr || `${pos.coords.latitude.toFixed(4)}°N, ${pos.coords.longitude.toFixed(4)}°E`);
+            } else {
+              setExactLocation(`${pos.coords.latitude.toFixed(4)}°N, ${pos.coords.longitude.toFixed(4)}°E`);
+            }
+          } catch (e) {
+            setExactLocation(`${pos.coords.latitude.toFixed(4)}°N, ${pos.coords.longitude.toFixed(4)}°E`);
+          }
+        },
+        (err) => {
+          setExactLocation("Location permission denied or unavailable");
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      );
+    } else {
+      setExactLocation("Geolocation not supported");
+    }
+  }, []);
 
   const handleGenerateReport = async () => {
     setIsGenerating(true);
-    triggerToast("🤖", `Querying Gemini to synthesize Ward ${selectedWard} metrics...`);
+    triggerToast("🤖", `Querying Gemini to synthesize metrics for ${exactLocation}...`);
 
     try {
       const res = await fetch("/api/gemini/ward-report", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ward: selectedWard, month: selectedMonth }),
+        body: JSON.stringify({ location: exactLocation, month: selectedMonth }),
       });
       const data = await res.json();
       setReportData(data);
       setIsGenerating(false);
-      triggerToast("📄", `Ward ${selectedWard} Health Report successfully generated!`);
+      triggerToast("📄", `Health Report for ${exactLocation} successfully generated!`);
     } catch (err) {
       console.error("Failed to generate ward report:", err);
       setIsGenerating(false);
       // Fallback
       setReportData({
-        scoreCommentary: `Ward ${selectedWard} achieved robust citizen response this month. Active verifications successfully flagged contractor closure claims, ensuring full taxpayer value.`,
+        scoreCommentary: `${exactLocation} achieved robust citizen response this month. Active verifications successfully flagged contractor closure claims, ensuring full taxpayer value.`,
         contractorCommentary: `Contractor performance reviews show steady marks for local gardening teams, but paving crews remain subject to ongoing audit reviews due to consecutive project delays.`,
         actionPlan: [
           "Establish secondary composting bin clusters in dense high-rise developments.",
@@ -69,7 +97,7 @@ export function CiviQInsights({ triggerToast }: CiviQInsightsProps) {
       printWindow.document.write(`
         <html>
           <head>
-            <title>Ward_${selectedWard}_Health_Report_${selectedMonth.replace(" ", "_")}</title>
+            <title>Health_Report_${exactLocation.replace(/[^a-zA-Z0-9]/g, "_")}_${selectedMonth.replace(" ", "_")}</title>
             <style>
               body { font-family: 'Inter', sans-serif; color: #1e293b; padding: 40px; }
               .header { border-bottom: 2px solid #2e7d32; padding-bottom: 20px; margin-bottom: 20px; }
@@ -117,7 +145,7 @@ export function CiviQInsights({ triggerToast }: CiviQInsightsProps) {
                 <div className="insight-text">
                   <strong>Pothole surge predicted</strong>
                   <br />
-                  Based on monsoon patterns + 3 years of data, Ward 7 is likely to see a 340% spike in road damage in the next 21 days.
+                  Based on monsoon patterns + 3 years of data, this area is likely to see a 340% spike in road damage in the next 21 days.
                   Pre-emptive repair recommended before July 15.
                 </div>
               </div>
@@ -149,7 +177,7 @@ export function CiviQInsights({ triggerToast }: CiviQInsightsProps) {
                 <div className="insight-text">
                   <strong>Engagement opportunity</strong>
                   <br />
-                  Ward 12 has 0 active Green Champions despite 78 registered users. Targeted in-app nudge could convert 12 users based on
+                  This area has 0 active Green Champions despite 78 registered users. Targeted in-app nudge could convert 12 users based on
                   report history.
                 </div>
               </div>
@@ -160,7 +188,7 @@ export function CiviQInsights({ triggerToast }: CiviQInsightsProps) {
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.85rem" }}>
                 <div style={{ fontWeight: 700, fontFamily: "Poppins, sans-serif", fontSize: "0.95rem", color: "var(--forest)", display: "flex", alignItems: "center", gap: "0.4rem" }}>
                   <i className="fas fa-file-contract"></i>
-                  <span>AI Executive Ward Health Synthesizer</span>
+                  <span>AI Executive Location Health Synthesizer</span>
                 </div>
                 <span className="badge badge-ai" style={{ background: "rgba(76,175,80,0.12)", color: "var(--leaf)" }}>
                   PDF Export
@@ -170,21 +198,7 @@ export function CiviQInsights({ triggerToast }: CiviQInsightsProps) {
                 Instantly aggregate active citizen verifications, contractor compliance penalties, carbon footprints, and budget utilization rates into a downloadable PDF report.
               </div>
 
-              <div className="grid g2" style={{ gap: "0.75rem", marginBottom: "1rem" }}>
-                <div className="form-field">
-                  <label className="form-label" style={{ fontSize: "0.72rem" }}>Target Ward</label>
-                  <select
-                    className="form-input"
-                    value={selectedWard}
-                    onChange={(e) => setSelectedWard(e.target.value)}
-                    style={{ fontSize: "0.82rem", padding: "0.4rem 0.6rem", height: "auto" }}
-                  >
-                    <option value="7">Ward 7 (Rajouri Garden)</option>
-                    <option value="3">Ward 3 (Pitampura)</option>
-                    <option value="11">Ward 11 (Dwarka)</option>
-                    <option value="5">Ward 5 (Malviya Nagar)</option>
-                  </select>
-                </div>
+              <div style={{ marginBottom: "1rem" }}>
                 <div className="form-field">
                   <label className="form-label" style={{ fontSize: "0.72rem" }}>Report Month</label>
                   <select
@@ -200,6 +214,12 @@ export function CiviQInsights({ triggerToast }: CiviQInsightsProps) {
                 </div>
               </div>
 
+              {/* EXACT LIVE LOCATION */}
+              <div style={{ marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.8rem", color: "var(--muted)", background: "white", padding: "0.5rem 0.75rem", borderRadius: "6px", border: "1px solid rgba(0,0,0,0.05)" }}>
+                <i className="fas fa-location-dot" style={{ color: "#166534" }}></i>
+                <span><strong>Live Location:</strong> {exactLocation}</span>
+              </div>
+
               <button
                 className="btn btn-green"
                 onClick={handleGenerateReport}
@@ -212,7 +232,7 @@ export function CiviQInsights({ triggerToast }: CiviQInsightsProps) {
                   </>
                 ) : (
                   <>
-                    <i className="fas fa-microchip"></i> Generate Executive Ward Health Report
+                    <i className="fas fa-microchip"></i> Generate Executive Location Health Report
                   </>
                 )}
               </button>
@@ -242,10 +262,10 @@ export function CiviQInsights({ triggerToast }: CiviQInsightsProps) {
                         </span>
                       </div>
                       <h4 style={{ fontSize: "1.1rem", fontWeight: 800, margin: "0.25rem 0 0", color: "#1b5e20", fontFamily: "Poppins, sans-serif" }}>
-                        Ward {selectedWard} Health Audit & SLA Compliance Report
+                        {exactLocation} Health Audit & SLA Compliance Report
                       </h4>
                       <p style={{ fontSize: "0.72rem", color: "#64748b", margin: 0 }}>
-                        Synthesized on {selectedMonth} by CivicAI Insight Engine
+                        Synthesized on {selectedMonth} by CiviQ Insight Engine
                       </p>
                     </div>
 
@@ -361,7 +381,7 @@ export function CiviQInsights({ triggerToast }: CiviQInsightsProps) {
                 +180 road issues expected
               </div>
               <div style={{ fontSize: ".85rem", color: "var(--muted)", marginBottom: ".85rem", lineHeight: 1.6 }}>
-                Based on monsoon onset, traffic density, and historical SLA patterns in Wards 3, 7, and 11.
+                Based on monsoon onset, traffic density, and historical SLA patterns.
               </div>
               <button className="btn btn-outline btn-sm" onClick={() => triggerToast("📊", "Generating pre-monsoon civic action plan...")}>
                 <i className="fas fa-download"></i> Generate action plan

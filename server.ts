@@ -93,7 +93,7 @@ app.post("/api/mfa/decrypt", (req, res) => {
 app.post("/api/gemini/analyze-report", async (req, res) => {
   const { title, description, category, imageBase64 } = req.body;
   
-  const prompt = `You are the CivicAI Incident Classifier. Analyze this civic complaint report:
+  const prompt = `You are the CiviQ Incident Classifier. Analyze this civic complaint report:
 Title: ${title}
 Description: ${description || "None provided"}
 User-selected Category: ${category || "None"}
@@ -162,7 +162,7 @@ Ensure the output is valid JSON only.`;
 app.post("/api/gemini/carbon-tips", async (req, res) => {
   const { transportationKm, electricityKwh, wasteKg, totalCo2Kg } = req.body;
 
-  const prompt = `You are the CivicAI Carbon Reduction Specialist.
+  const prompt = `You are the CiviQ Carbon Reduction Specialist.
 A user logged the following daily footprint metrics:
 - Transportation: ${transportationKm} km
 - Electricity usage: ${electricityKwh} kWh
@@ -212,7 +212,7 @@ Ensure output is valid JSON only.`;
 app.post("/api/gemini/chat", async (req, res) => {
   const { message, history } = req.body;
 
-  const systemInstructions = `You are CivicAI Assistant, a friendly, professional AI civic advocate and municipal expert.
+  const systemInstructions = `You are CiviQ Assistant, a friendly, professional AI civic advocate and municipal expert.
 Your goal is to answer questions about civic duties, recycling guidelines, RTI Act processes, carbon footprints, composting, and community empowerment.
 Keep your answers actionable, objective, concise, and professional. Avoid raw technical jargon where possible, and guide citizens on how to report issues or earn credits.`;
 
@@ -251,7 +251,21 @@ Keep your answers actionable, objective, concise, and professional. Avoid raw te
     res.json({ text: response.text || "I'm processing your request. Could you clarify your question?" });
   } catch (error: any) {
     console.error("Gemini assistant error:", error);
-    res.status(500).json({ error: "Failed to process chat message.", details: error.message });
+    
+    // Fallback to direct simulation
+    const msg = (message || "").toLowerCase();
+    let responseText = "I'm experiencing high demand right now, but I'm still here to help! Ask me about reporting issues, recycling, or RTI applications.";
+    if (msg.includes("report") || msg.includes("issue")) {
+      responseText = "To report an issue: head to the Incidents tab, capture/upload a photo, tag GPS, and click submit. You'll instantly receive +150 credits! Our background AI will check for duplicates within a 15-meter range.";
+    } else if (msg.includes("rti") || msg.includes("right to information")) {
+      responseText = "The Right to Information (RTI) Act allows you to request government records. If an incident misses its SLA deadline, you can auto-generate an RTI template and file it with the Public Information Officer.";
+    } else if (msg.includes("recycle") || msg.includes("bin")) {
+      responseText = "Our 3-bin system is simple: 🟢 Green for Biodegradables, 🔵 Blue for Dry Recyclables, and 🔴 Red for Hazardous items. Let's make our city cleaner!";
+    } else if (msg.includes("credit") || msg.includes("xp") || msg.includes("earn")) {
+      responseText = "You earn credits by logging carbon entries, completing civic learning modules, sorting waste in our interactive Bin Sorter game, or enlisting in local volunteer campaigns!";
+    }
+    
+    res.json({ text: responseText });
   }
 });
 
@@ -552,7 +566,7 @@ app.post("/api/gemini/transcribe-voice", async (req, res) => {
     return res.status(400).json({ error: "Audio data is required" });
   }
 
-  const prompt = `You are the CivicAI voice-reporting assistant.
+  const prompt = `You are the CiviQ voice-reporting assistant.
   Please transcribe the user's audio reporting a municipal issue.
   Then, analyze the transcription and extract:
   - "transcription": The exact typed speech
@@ -622,7 +636,7 @@ app.post("/api/gemini/transcribe-voice", async (req, res) => {
 app.post("/api/gemini/onboarding-suggest", async (req, res) => {
   const { ward, interests, reportedBefore } = req.body;
 
-  const prompt = `You are the CivicAI friendly onboarding mentor.
+  const prompt = `You are the CiviQ friendly onboarding mentor.
   Create a personalized onboarding brief for a citizen with these properties:
   - Ward: ${ward}
   - Civic Interests: ${JSON.stringify(interests)}
@@ -691,14 +705,14 @@ app.post("/api/gemini/onboarding-suggest", async (req, res) => {
 
 // AI Ward Health Report: Generate Executive Summary
 app.post("/api/gemini/ward-report", async (req, res) => {
-  const { ward, month } = req.body;
+  const { location, month } = req.body;
 
   const prompt = `You are a Senior Urban Planner and Municipal Policy Expert.
-  Write official executive commentary for the Monthly Ward Health Report of Ward ${ward} for ${month}.
+  Write official executive commentary for the Monthly Health Report of ${location} for ${month}.
   Provide:
-  - "scoreCommentary": Analysis of the ward's civic health score, highlighting citizen reporting.
+  - "scoreCommentary": Analysis of the location's civic health score, highlighting citizen reporting.
   - "contractorCommentary": Direct critique on active contractor compliance, particularly highlight the delays of Metro Roads Ltd or praise GreenBuild Pvt Ltd.
-  - "actionPlan": Top 3 strategic recommendations for the upcoming Ward Council meeting.
+  - "actionPlan": Top 3 strategic recommendations for the upcoming local Council meeting.
   
   Return as valid JSON.`;
 
@@ -706,12 +720,12 @@ app.post("/api/gemini/ward-report", async (req, res) => {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return res.json({
-        scoreCommentary: `Ward ${ward} has shown outstanding civic engagement this month, achieving an 84% citizen response rate. Active crowdsourced verifications successfully blocked 3 fraudulent contractor closure claims, ensuring taxpayer funds are only spent on fully completed fixes.`,
+        scoreCommentary: `${location} has shown outstanding civic engagement this month, achieving an 84% citizen response rate. Active crowdsourced verifications successfully blocked 3 fraudulent contractor closure claims, ensuring taxpayer funds are only spent on fully completed fixes.`,
         contractorCommentary: `While GreenBuild Pvt Ltd maintained an excellent compliance score of 94% on parks and waste management, Metro Roads Ltd has shown critical negligence with 19 consecutive project delays. We recommend a formal performance audit on all road development contracts under Metro Roads Ltd before sanctioning further budget.`,
         actionPlan: [
-          "Pre-emptive deployment of municipal crews to low-lying sections of Rajouri Garden to handle pre-monsoon water logging.",
-          "Suspend bidding privileges for Metro Roads Ltd pending complete review of delayed Ward road projects.",
-          "Establish 3 new dedicated composting clusters near residential areas in Ward to support the 34% rise in organic waste collection."
+          `Pre-emptive deployment of municipal crews to low-lying sections of ${location} to handle pre-monsoon water logging.`,
+          "Suspend bidding privileges for Metro Roads Ltd pending complete review of delayed local road projects.",
+          `Establish 3 new dedicated composting clusters near residential areas in ${location} to support the 34% rise in organic waste collection.`
         ]
       });
     }
@@ -741,12 +755,12 @@ app.post("/api/gemini/ward-report", async (req, res) => {
   } catch (error: any) {
     console.error("Gemini ward report error, falling back to simulated output:", error);
     res.json({
-      scoreCommentary: `Ward ${ward} has shown outstanding civic engagement this month, achieving an 84% citizen response rate. Active crowdsourced verifications successfully blocked 3 fraudulent contractor closure claims, ensuring taxpayer funds are only spent on fully completed fixes.`,
+      scoreCommentary: `${location} has shown outstanding civic engagement this month, achieving an 84% citizen response rate. Active crowdsourced verifications successfully blocked 3 fraudulent contractor closure claims, ensuring taxpayer funds are only spent on fully completed fixes.`,
       contractorCommentary: `While GreenBuild Pvt Ltd maintained an excellent compliance score of 94% on parks and waste management, Metro Roads Ltd has shown critical negligence with 19 consecutive project delays. We recommend a formal performance audit on all road development contracts under Metro Roads Ltd before sanctioning further budget.`,
       actionPlan: [
-        "Pre-emptive deployment of municipal crews to low-lying sections of Rajouri Garden to handle pre-monsoon water logging.",
-        "Suspend bidding privileges for Metro Roads Ltd pending complete review of delayed Ward road projects.",
-        "Establish 3 new dedicated composting clusters near residential areas in Ward to support the 34% rise in organic waste collection."
+        `Pre-emptive deployment of municipal crews to low-lying sections of ${location} to handle pre-monsoon water logging.`,
+        "Suspend bidding privileges for Metro Roads Ltd pending complete review of delayed local road projects.",
+        `Establish 3 new dedicated composting clusters near residential areas in ${location} to support the 34% rise in organic waste collection.`
       ]
     });
   }
@@ -783,14 +797,14 @@ app.post("/api/export/pdf", (req, res) => {
   res.setHeader("Content-Type", "application/json");
   // PDF generator returns a beautiful simulated printable payload
   res.json({
-    title: `CivicAI Carbon & Civic Impact Report - ${new Date().toLocaleDateString()}`,
+    title: `CiviQ Carbon & Civic Impact Report - ${new Date().toLocaleDateString()}`,
     type,
     exportDate: new Date().toISOString(),
     totalRecords: Array.isArray(data) ? data.length : 0,
-    generatedBy: "CivicAI Smart Systems",
+    generatedBy: "CiviQ Smart Systems",
     integrityHash: crypto.createHash("sha256").update(JSON.stringify(data)).digest("hex"),
     documentStructure: {
-      header: "CivicAI — Clean Cities, Smart Citizens",
+      header: "CiviQ — Clean Cities, Smart Citizens",
       brandingColor: "#1B5E20",
       content: data,
     }
@@ -814,7 +828,7 @@ async function startServer() {
   }
 
   app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[CivicAI Backend] Server running on http://localhost:${PORT} under NODE_ENV=${process.env.NODE_ENV}`);
+    console.log(`[CiviQ Backend] Server running on http://localhost:${PORT} under NODE_ENV=${process.env.NODE_ENV}`);
   });
 }
 

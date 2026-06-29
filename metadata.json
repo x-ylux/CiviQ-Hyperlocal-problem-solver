@@ -1,5 +1,5 @@
 {
-  "name": "CivicAI",
+  "name": "CiviQ",
   "description": "An AI-powered full-stack civic action platform with automated incident categorization, security audit logging, multi-factor authentication, real-time location services, and interactive carbon footprint calculators.",
   "requestFramePermissions": ["geolocation"],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

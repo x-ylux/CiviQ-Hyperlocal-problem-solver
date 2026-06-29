@@ -17,6 +17,7 @@ import { CiviQCredits } from "./components/CiviQCredits";
 import { CiviQInsights } from "./components/CiviQInsights";
 import { CiviQCarbonTracker } from "./components/CiviQCarbonTracker";
 import { CiviQLogin } from "./components/CiviQLogin";
+import { CiviQAuthorityDashboard } from "./components/CiviQAuthorityDashboard";
 
 // Static Games Data
 const items: GameItem[] = [
@@ -58,7 +59,7 @@ const quizQs = [
     exp: "Batteries contain toxic chemicals. They belong in the Red bin for hazardous waste and should be taken to designated e-waste collection points.",
   },
   {
-    q: "What does the SLA Breach mean in CivicAI?",
+    q: "What does the SLA Breach mean in CiviQ?",
     opts: [
       "A new law passed",
       "A Service Level Agreement deadline missed by authorities",
@@ -86,7 +87,7 @@ const aiReplies: Record<string, string> = {
   report:
     "To report an issue: tap the Report tab, upload a photo, select category, confirm GPS location, and submit. You earn +50–150 XP per report. Our AI will verify the image and check for nearby duplicates! 📷",
   rti:
-    "The RTI (Right to Information) Act lets you request information from any government body within 30 days. On CivicAI, if your issue is ignored past the SLA deadline, tap 'Generate RTI' on the ticket page and we auto-draft it for you! ⚖️",
+    "The RTI (Right to Information) Act lets you request information from any government body within 30 days. On CiviQ, if your issue is ignored past the SLA deadline, tap 'Generate RTI' on the ticket page and we auto-draft it for you! ⚖️",
   recycl:
     "I found 3 recycling plants near Jaipur: (1) GreenCycle Malviya Nagar — 2.3km, (2) EcoSort Vaishali Nagar — 3.8km, (3) PureRecycle Tonk Road — 5.1km. Tap the Map tab to see them on the live map! ♻️",
   xp:
@@ -98,11 +99,21 @@ const aiReplies: Record<string, string> = {
 };
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<string>("login");
+  const [activeTab, setActiveTab] = useState<string>(() => localStorage.getItem("civiq_active_user") ? "home" : "login");
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     return localStorage.getItem("civiq_theme") === "dark";
   });
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(() => {
+    const activeSandboxJson = localStorage.getItem("civiq_active_user");
+    if (activeSandboxJson) {
+      try {
+        return JSON.parse(activeSandboxJson) as UserProfile;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  });
 
   useEffect(() => {
     if (isDarkMode) {
@@ -230,7 +241,7 @@ export default function App() {
   const [chatInput, setChatInput] = useState<string>("");
   const [chatMessages, setChatMessages] = useState<Array<{ text: string; role: "bot" | "user" }>>([
     {
-      text: "👋 Hi! I'm your CivicAI assistant. I can help you report issues, generate RTIs, find recycling centers, or answer civic questions!",
+      text: "👋 Hi! I'm your CiviQ assistant. I can help you report issues, generate RTIs, find recycling centers, or answer civic questions!",
       role: "bot",
     },
   ]);
@@ -476,8 +487,20 @@ export default function App() {
           loadLocalProfile();
         }
       } else {
-        setUserProfile(null);
-        setCredits(0);
+        const activeSandboxJson = localStorage.getItem("civiq_active_user");
+        if (activeSandboxJson) {
+          try {
+            const sandboxProfile = JSON.parse(activeSandboxJson);
+            setUserProfile(sandboxProfile);
+            setCredits(sandboxProfile.credits || 0);
+          } catch (e) {
+            setUserProfile(null);
+            setCredits(0);
+          }
+        } else {
+          setUserProfile(null);
+          setCredits(0);
+        }
       }
     });
 
@@ -715,7 +738,14 @@ export default function App() {
     setIssues((prev) => [newIssue, ...prev]);
     setSelectedIssueId(newId);
 
-    setReportStep(4);
+    // Save coords for the map to zoom in on
+    localStorage.setItem(
+      "civiq_submitted_issue_coords",
+      JSON.stringify({ lat: reportData.lat || 28.6648, lng: reportData.lng || 77.1167, id: newId })
+    );
+
+    setActiveTab("map");
+    setReportStep(1); // Reset for next time
     handleUpdateCredits(credits + 150);
     triggerToast("⭐", "Report submitted! Background duplication checks passed! +150 XP");
   };
@@ -777,28 +807,38 @@ export default function App() {
     sendChatMessage(text);
   };
 
-  const sendChatMessage = (text: string) => {
+  const sendChatMessage = async (text: string) => {
     setChatMessages((prev) => [...prev, { text, role: "user" }]);
     setChatInput("");
     setTyping(true);
 
-    setTimeout(() => {
+    try {
+      // Map existing messages to the expected backend format
+      const history = chatMessages.map((msg) => ({
+        role: msg.role === "bot" ? "model" : "user",
+        parts: [{ text: msg.text }],
+      }));
+
+      const res = await fetch("/api/gemini/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text, history }),
+      });
+
+      if (!res.ok) throw new Error("Chat request failed");
+      const data = await res.json();
+
+      setChatMessages((prev) => [...prev, { text: data.text, role: "bot" }]);
+    } catch (error) {
+      console.error("Failed to send chat message:", error);
+      // Fallback
+      setChatMessages((prev) => [
+        ...prev,
+        { text: "Sorry, I'm having trouble connecting to the network right now. Please try again later.", role: "bot" },
+      ]);
+    } finally {
       setTyping(false);
-      const cleaned = text.toLowerCase();
-      let reply = aiReplies.default;
-      if (cleaned.includes("report") || cleaned.includes("issue")) {
-        reply = aiReplies.report;
-      } else if (cleaned.includes("rti")) {
-        reply = aiReplies.rti;
-      } else if (cleaned.includes("recycl") || cleaned.includes("plant") || cleaned.includes("center")) {
-        reply = aiReplies.recycl;
-      } else if (cleaned.includes("xp") || cleaned.includes("credit") || cleaned.includes("earn")) {
-        reply = aiReplies.xp;
-      } else if (cleaned.includes("bin") || cleaned.includes("trash") || cleaned.includes("segregat")) {
-        reply = aiReplies.bin;
-      }
-      setChatMessages((prev) => [...prev, { text: reply, role: "bot" }]);
-    }, 800);
+    }
   };
 
   return (
@@ -819,45 +859,58 @@ export default function App() {
           <div className="nav-logo-icon">
             <i className="fas fa-leaf"></i>
           </div>
-          CivicAI
+          CiviQ
         </a>
         <div className="nav-links">
-          <button className={`nav-link ${activeTab === "home" ? "active" : ""}`} onClick={() => setActiveTab("home")}>
-            Home
-          </button>
-          <button className={`nav-link ${activeTab === "dashboard" ? "active" : ""}`} onClick={() => setActiveTab("dashboard")}>
-            Dashboard
-          </button>
-          <button className={`nav-link ${activeTab === "report" ? "active" : ""}`} onClick={() => setActiveTab("report")}>
-            Report
-          </button>
-          <button className={`nav-link ${activeTab === "map" ? "active" : ""}`} onClick={() => setActiveTab("map")}>
-            Map
-          </button>
-          <button className={`nav-link ${activeTab === "track" ? "active" : ""}`} onClick={() => setActiveTab("track")}>
-            Track
-          </button>
-          <button className={`nav-link ${activeTab === "campaigns" ? "active" : ""}`} onClick={() => setActiveTab("campaigns")}>
-            Campaigns
-          </button>
-          <button className={`nav-link ${activeTab === "games" ? "active" : ""}`} onClick={() => setActiveTab("games")}>
-            Games
-          </button>
-          <button className={`nav-link ${activeTab === "waste" ? "active" : ""}`} onClick={() => setActiveTab("waste")}>
-            Waste Hub
-          </button>
-          <button className={`nav-link ${activeTab === "carbon" ? "active" : ""}`} onClick={() => setActiveTab("carbon")}>
-            Carbon Tracker
-          </button>
-          <button className={`nav-link ${activeTab === "gamify" ? "active" : ""}`} onClick={() => setActiveTab("gamify")}>
-            Credits
-          </button>
-          <button className={`nav-link ${activeTab === "insights" ? "active" : ""}`} onClick={() => setActiveTab("insights")}>
-            AI Insights
-          </button>
-          <button className={`nav-link ${activeTab === "login" ? "active" : ""}`} onClick={() => setActiveTab("login")}>
-            {isUserLoggedIn ? "My Profile" : "Login"}
-          </button>
+          {userProfile?.role === "authority" ? (
+            <>
+              <button className={`nav-link ${activeTab === "dashboard" ? "active" : ""}`} onClick={() => setActiveTab("dashboard")}>
+                Official Dashboard
+              </button>
+              <button className={`nav-link ${activeTab === "login" ? "active" : ""}`} onClick={() => setActiveTab("login")}>
+                My Profile
+              </button>
+            </>
+          ) : (
+            <>
+              <button className={`nav-link ${activeTab === "home" ? "active" : ""}`} onClick={() => setActiveTab("home")}>
+                Home
+              </button>
+              <button className={`nav-link ${activeTab === "dashboard" ? "active" : ""}`} onClick={() => setActiveTab("dashboard")}>
+                Dashboard
+              </button>
+              <button className={`nav-link ${activeTab === "report" ? "active" : ""}`} onClick={() => setActiveTab("report")}>
+                Report
+              </button>
+              <button className={`nav-link ${activeTab === "map" ? "active" : ""}`} onClick={() => setActiveTab("map")}>
+                Map
+              </button>
+              <button className={`nav-link ${activeTab === "track" ? "active" : ""}`} onClick={() => setActiveTab("track")}>
+                Track
+              </button>
+              <button className={`nav-link ${activeTab === "campaigns" ? "active" : ""}`} onClick={() => setActiveTab("campaigns")}>
+                Campaigns
+              </button>
+              <button className={`nav-link ${activeTab === "games" ? "active" : ""}`} onClick={() => setActiveTab("games")}>
+                Games
+              </button>
+              <button className={`nav-link ${activeTab === "waste" ? "active" : ""}`} onClick={() => setActiveTab("waste")}>
+                Waste Hub
+              </button>
+              <button className={`nav-link ${activeTab === "carbon" ? "active" : ""}`} onClick={() => setActiveTab("carbon")}>
+                Carbon Tracker
+              </button>
+              <button className={`nav-link ${activeTab === "gamify" ? "active" : ""}`} onClick={() => setActiveTab("gamify")}>
+                Credits
+              </button>
+              <button className={`nav-link ${activeTab === "insights" ? "active" : ""}`} onClick={() => setActiveTab("insights")}>
+                AI Insights
+              </button>
+              <button className={`nav-link ${activeTab === "login" ? "active" : ""}`} onClick={() => setActiveTab("login")}>
+                {isUserLoggedIn ? "My Profile" : "Login"}
+              </button>
+            </>
+          )}
         </div>
         <div className="nav-right">
           <button
@@ -868,14 +921,16 @@ export default function App() {
           >
             {isDarkMode ? "🌙" : "☀️"}
           </button>
-          {isUserLoggedIn && (
+          {isUserLoggedIn && userProfile?.role !== "authority" && (
             <div className="xp-badge">
               <i className="fas fa-star"></i> {credits.toLocaleString()} XP
             </div>
           )}
-          <button className="nav-btn" onClick={() => setActiveTab("report")}>
-            <i className="fas fa-plus"></i> Report
-          </button>
+          {userProfile?.role !== "authority" && (
+            <button className="nav-btn" onClick={() => setActiveTab("report")}>
+              <i className="fas fa-plus"></i> Report
+            </button>
+          )}
           {isUserLoggedIn ? (
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <div
@@ -945,7 +1000,7 @@ export default function App() {
       </nav>
 
       {/* Main page view containers matching civiQ.html active class and display toggles */}
-      <main style={{ marginTop: "70px", paddingBottom: "80px" }}>
+      <main className="main max-w-7xl mx-auto px-4 sm:px-6 md:px-8" style={{ paddingBottom: "80px" }}>
         {activeTab === "home" && (
           <CiviQHome
             onNavigate={setActiveTab}
@@ -956,7 +1011,11 @@ export default function App() {
         )}
 
         {activeTab === "dashboard" && (
-          <CiviQDashboard onNavigate={setActiveTab} openModal={openModal} triggerToast={triggerToast} />
+          userProfile?.role === "authority" ? (
+            <CiviQAuthorityDashboard triggerToast={triggerToast} userProfile={userProfile} />
+          ) : (
+            <CiviQDashboard onNavigate={setActiveTab} openModal={openModal} triggerToast={triggerToast} />
+          )
         )}
 
         {activeTab === "report" && (
@@ -1071,7 +1130,7 @@ export default function App() {
               <i className="fas fa-robot"></i>
             </div>
             <div>
-              <div className="ai-chat-name">CivicAI Assistant</div>
+              <div className="ai-chat-name">CiviQ Assistant</div>
               <div className="ai-chat-status">
                 <span className="ai-dot"></span> Always online
               </div>
@@ -1124,7 +1183,7 @@ export default function App() {
             </button>
           </div>
         </div>
-        <button className="ai-orb-btn" onClick={() => setChatOpen(!chatOpen)} title="Chat with CivicAI">
+        <button className="ai-orb-btn" onClick={() => setChatOpen(!chatOpen)} title="Chat with CiviQ">
           <i className="fas fa-robot"></i>
         </button>
       </div>

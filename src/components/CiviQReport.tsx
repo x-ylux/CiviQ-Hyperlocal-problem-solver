@@ -113,6 +113,21 @@ export function CiviQReport({
 
   // Fetch device live location immediately on mount
   useEffect(() => {
+    const handleFallback = async () => {
+      const savedLoc = localStorage.getItem("civiq_last_location");
+      if (savedLoc) {
+        try {
+          const parsed = JSON.parse(savedLoc);
+          if (parsed.latitude && parsed.longitude) {
+            setCoords({ lat: parsed.latitude, lng: parsed.longitude });
+            await reverseGeocode(parsed.latitude, parsed.longitude);
+            return;
+          }
+        } catch (e) {}
+      }
+      await reverseGeocode(28.6139, 77.2090);
+    };
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (pos) => {
@@ -122,13 +137,13 @@ export function CiviQReport({
           await reverseGeocode(userLat, userLng);
         },
         async (err) => {
-          console.log("Geolocation on mount failed, using fallback New Delhi", err);
-          await reverseGeocode(28.6139, 77.2090);
+          console.log("Geolocation on mount failed, trying saved loc", err);
+          await handleFallback();
         },
-        { enableHighAccuracy: true, timeout: 6000 }
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
       );
     } else {
-      reverseGeocode(28.6139, 77.2090);
+      handleFallback();
     }
   }, []);
 
@@ -142,6 +157,28 @@ export function CiviQReport({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
 
   // Trigger file selection
+  const fetchExactLocation = () => {
+    triggerToast("📍", "Fetching your exact location...");
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const userLat = pos.coords.latitude;
+          const userLng = pos.coords.longitude;
+          setCoords({ lat: userLat, lng: userLng });
+          await reverseGeocode(userLat, userLng);
+          triggerToast("✅", "Location updated!");
+        },
+        (err) => {
+          console.warn("Location fetch failed", err);
+          triggerToast("⚠️", "Could not fetch exact location. Ensure permissions are granted.");
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      );
+    } else {
+      triggerToast("⚠️", "Geolocation is not supported by your browser.");
+    }
+  };
+
   const handleZoneClick = () => {
     fileInputRef.current?.click();
   };
@@ -205,7 +242,8 @@ export function CiviQReport({
           (err) => {
             console.log("Geoloc on upload fallback", err);
             reverseGeocode(userLat, userLng);
-          }
+          },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
         );
       } else {
         reverseGeocode(userLat, userLng);
@@ -495,6 +533,13 @@ export function CiviQReport({
       lat: coords.lat,
       lng: coords.lng,
     });
+
+    // Reset local state for next report since we're immediately redirecting
+    setReportTitle("");
+    setReportDescription("");
+    setReportAddress("");
+    setImagePreview(null);
+    setVoiceTranscript("");
   };
 
   const currentIssue = detectedIssues[selectedIssueIdx];
@@ -811,6 +856,9 @@ export function CiviQReport({
                       {coords.lat.toFixed(4)}°N, {coords.lng.toFixed(4)}°E · GPS calibrated
                     </div>
                   </div>
+                  <button onClick={fetchExactLocation} className="btn btn-ghost" style={{ padding: "0.5rem", borderRadius: "50%", background: "#e2e8f0" }} title="Fetch Exact Live Location">
+                    <i className="fas fa-crosshairs text-slate-700"></i>
+                  </button>
                 </div>
 
                 {/* VOICE RECORDING BUTTON SECTION */}

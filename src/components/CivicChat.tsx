@@ -14,7 +14,7 @@ export function CivicChat() {
     {
       id: "initial_1",
       role: "bot",
-      text: "👋 Hi! I'm your CivicAI assistant. I can help you report issues, understand RTI rights, search local recycling guidelines, or calculate carbon offsets!",
+      text: "👋 Hi! I'm your CiviQ assistant. I can help you report issues, understand RTI rights, search local recycling guidelines, or calculate carbon offsets!",
     },
   ]);
   const [typing, setTyping] = useState<boolean>(false);
@@ -86,7 +86,7 @@ export function CivicChat() {
                 <Bot className="w-4 h-4 text-emerald-300" />
               </div>
               <div>
-                <h4 className="text-xs font-bold font-sans">CivicAI Assistant</h4>
+                <h4 className="text-xs font-bold font-sans">CiviQ Assistant</h4>
                 <div className="flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
                   <span className="text-[8px] text-emerald-300 font-medium">Always Online</span>

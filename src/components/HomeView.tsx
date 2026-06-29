@@ -43,7 +43,7 @@ export function HomeView({ onNavigate, credits }: HomeViewProps) {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-lg text-emerald-900/80 max-w-lg leading-relaxed font-light"
           >
-            CivicAI is a sustainable community platform enabling real-time issue tracking, AI-powered automated categorization, and intelligent carbon footprint offsets.
+            CiviQ is a sustainable community platform enabling real-time issue tracking, AI-powered automated categorization, and intelligent carbon footprint offsets.
           </motion.p>
 
           <motion.div
@@ -165,7 +165,7 @@ export function HomeView({ onNavigate, credits }: HomeViewProps) {
           </div>
           <h2 className="text-3xl font-extrabold text-emerald-950">Our Sustainable Core</h2>
           <p className="text-sm text-emerald-800/70 font-light">
-            CivicAI integrates the pillars of Reduce, Reuse, and Recycle directly into local community actions.
+            CiviQ integrates the pillars of Reduce, Reuse, and Recycle directly into local community actions.
           </p>
         </div>
 

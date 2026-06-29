@@ -22,7 +22,7 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
     {
       id: "m0",
       sender: "ai",
-      text: "👋 Namaste! Welcome to CivicAI. I'm your AI Civic Guide. To help personalize your dashboard and optimize your civic impact, let's complete a quick 30-second onboarding. First, what Ward do you live in?",
+      text: "👋 Namaste! Welcome to CiviQ. I'm your AI Civic Guide. To help personalize your dashboard and optimize your civic impact, let's complete a quick 30-second onboarding. First, what Ward do you live in?",
       options: ["Ward 7 (Rajouri Garden)", "Ward 3 (Pitampura)", "Ward 11 (Dwarka)", "Ward 5 (Malviya Nagar)"],
     },
   ]);
@@ -200,7 +200,7 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
               <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
                 <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: "var(--leaf)", animation: "pulse 1.5s infinite" }}></div>
                 <span style={{ fontSize: "0.95rem", fontWeight: 700, color: "white", fontFamily: "Poppins, sans-serif" }}>
-                  CivicAI Personalized Onboarding
+                  CiviQ Personalized Onboarding
                 </span>
               </div>
               <span className="badge badge-ai" style={{ background: "rgba(124, 58, 237, 0.2)", color: "#C084FC" }}>
@@ -315,12 +315,17 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
         </div>
       ) : (
         // PERSONALIZED WELCOME SCREEN
-        <div className="hero" style={{ padding: "4rem 2rem", position: "relative" }}>
-          <div className="hero-bg-circles">
-            <div className="hero-circle" style={{ width: "550px", height: "550px", top: "-150px", left: "-100px" }}></div>
-            <div className="hero-circle" style={{ width: "350px", height: "350px", bottom: "-80px", right: "-80px" }}></div>
+        <div className="hero relative overflow-hidden rounded-[2rem] p-8 md:p-12 mb-10" style={{ minHeight: "440px" }}>
+          <div className="absolute inset-0">
+            <img
+              src="/src/assets/images/civiq_earth_forest_1782730719834.jpg"
+              alt="Eco-civic forest backdrop"
+              className="w-full h-full object-cover opacity-50"
+              referrerPolicy="no-referrer"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-slate-950/45"></div>
           </div>
-          <div className="hero-content" style={{ maxWidth: "800px", margin: "0 auto", textAlign: "left" }}>
+          <div className="hero-content relative z-10" style={{ maxWidth: "800px", margin: "0 auto", textAlign: "left" }}>
             <div style={{ display: "flex", gap: "0.8rem", flexWrap: "wrap", marginBottom: "1rem" }}>
               <div className="hero-tag" style={{ marginBottom: 0 }}>
                 <i className="fas fa-location-dot"></i> Ward {onboarding.ward} Citizen Hub
@@ -428,7 +433,7 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
       )}
 
       {/* HOW IT WORKS */}
-      <div className="section" style={{ background: "white" }}>
+      <div className="section" style={{ background: "transparent" }}>
         <div className="section-inner">
           <div className="section-header">
             <div className="section-tag">
@@ -444,7 +449,7 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
                   width: "64px",
                   height: "64px",
                   borderRadius: "20px",
-                  background: "linear-gradient(135deg,#E8F5E9,#C8E6C9)",
+                  background: "linear-gradient(135deg, rgba(16,185,129,0.15), rgba(52,211,153,0.15))",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -465,7 +470,7 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
                   width: "64px",
                   height: "64px",
                   borderRadius: "20px",
-                  background: "linear-gradient(135deg,#EDE7F6,#D1C4E9)",
+                  background: "linear-gradient(135deg, rgba(139,92,246,0.15), rgba(167,139,250,0.15))",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -486,7 +491,7 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
                   width: "64px",
                   height: "64px",
                   borderRadius: "20px",
-                  background: "linear-gradient(135deg,#FEF3C7,#FDE68A)",
+                  background: "linear-gradient(135deg, rgba(245,158,11,0.15), rgba(251,191,36,0.15))",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -509,7 +514,7 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
                   width: "64px",
                   height: "64px",
                   borderRadius: "20px",
-                  background: "linear-gradient(135deg,#FFEBEE,#FFCDD2)",
+                  background: "linear-gradient(135deg, rgba(239,68,68,0.15), rgba(248,113,113,0.15))",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -529,60 +534,60 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
       </div>
 
       {/* 3R SECTION */}
-      <div className="section" style={{ background: "rgba(46, 125, 50, 0.12)" }}>
-        <div className="section-inner" style={{ background: "rgba(0, 0, 0, 0.03)", padding: "2rem", borderRadius: "var(--radius)" }}>
+      <div className="section" style={{ background: "transparent" }}>
+        <div className="section-inner" style={{ background: "var(--bg2)", padding: "2.5rem", borderRadius: "var(--radius)" }}>
           <div className="section-header">
             <div className="section-tag">
               <i className="fas fa-recycle"></i> The 3R principle
             </div>
             <h2 className="section-title">Reduce · Reuse · Recycle</h2>
             <p className="section-sub">
-              Our platform is built around the 3R philosophy. Every action on CivicAI maps to one of these pillars.
+              Our platform is built around the 3R philosophy. Every action on CiviQ maps to one of these pillars.
             </p>
           </div>
           <div className="grid g3">
             <div
               style={{
-                background: "linear-gradient(135deg,#E3F2FD,#BBDEFB)",
+                background: "linear-gradient(135deg, rgba(59,130,246,0.1), rgba(96,165,250,0.1))",
                 borderRadius: "var(--radius)",
                 padding: "2rem",
                 textAlign: "center",
-                border: "1px solid #90CAF9",
+                border: "1px solid var(--border)",
               }}
             >
               <div style={{ fontSize: "3rem", marginBottom: ".75rem" }}>♻️</div>
-              <h3 style={{ fontFamily: "Poppins, sans-serif", color: "#0D47A1", marginBottom: ".5rem" }}>Reduce</h3>
-              <p style={{ fontSize: ".85rem", color: "#1565C0", lineHeight: 1.6 }}>
+              <h3 style={{ fontFamily: "Poppins, sans-serif", color: "var(--sky)", marginBottom: ".5rem" }}>Reduce</h3>
+              <p style={{ fontSize: ".85rem", color: "var(--text)", opacity: 0.8, lineHeight: 1.6 }}>
                 AI predicts waste hotspots before they form. Proactive prevention over reactive cleanup.
               </p>
             </div>
             <div
               style={{
-                background: "linear-gradient(135deg,#FEF3C7,#FDE68A)",
+                background: "linear-gradient(135deg, rgba(245,158,11,0.1), rgba(251,191,36,0.1))",
                 borderRadius: "var(--radius)",
                 padding: "2rem",
                 textAlign: "center",
-                border: "1px solid #FCD34D",
+                border: "1px solid var(--border)",
               }}
             >
               <div style={{ fontSize: "3rem", marginBottom: ".75rem" }}>🔄</div>
-              <h3 style={{ fontFamily: "Poppins, sans-serif", color: "#78350F", marginBottom: ".5rem" }}>Reuse</h3>
-              <p style={{ fontSize: ".85rem", color: "#92400E", lineHeight: 1.6 }}>
+              <h3 style={{ fontFamily: "Poppins, sans-serif", color: "var(--amber)", marginBottom: ".5rem" }}>Reuse</h3>
+              <p style={{ fontSize: ".85rem", color: "var(--text)", opacity: 0.8, lineHeight: 1.6 }}>
                 Connect citizens with e-scrap dealers, compost kits, and material exchange programs.
               </p>
             </div>
             <div
               style={{
-                background: "linear-gradient(135deg,#E8F5E9,#C8E6C9)",
+                background: "linear-gradient(135deg, rgba(16,185,129,0.1), rgba(52,211,153,0.1))",
                 borderRadius: "var(--radius)",
                 padding: "2rem",
                 textAlign: "center",
-                border: "1px solid #A5D6A7",
+                border: "1px solid var(--border)",
               }}
             >
               <div style={{ fontSize: "3rem", marginBottom: ".75rem" }}>🌱</div>
-              <h3 style={{ fontFamily: "Poppins, sans-serif", color: "#1B5E20", marginBottom: ".5rem" }}>Recycle</h3>
-              <p style={{ fontSize: ".85rem", color: "#2E7D32", lineHeight: 1.6 }}>
+              <h3 style={{ fontFamily: "Poppins, sans-serif", color: "var(--leaf)", marginBottom: ".5rem" }}>Recycle</h3>
+              <p style={{ fontSize: ".85rem", color: "var(--text)", opacity: 0.8, lineHeight: 1.6 }}>
                 Track recycling pickups live. Earn XP for segregation. Map nearest recycling plants.
               </p>
             </div>
@@ -591,7 +596,7 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
       </div>
 
       {/* AI ROLES */}
-      <div className="section" style={{ background: "white" }}>
+      <div className="section" style={{ background: "transparent" }}>
         <div className="section-inner">
           <div className="section-header">
             <div className="section-tag">

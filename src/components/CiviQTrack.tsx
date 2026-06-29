@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { CivicIssue } from "../types";
+import { collection, query, orderBy, onSnapshot, updateDoc, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { db, auth } from "../firebase";
 
 interface CiviQTrackProps {
   issues: CivicIssue[];
@@ -19,6 +21,7 @@ export function CiviQTrack({
   onUpvoteIssue,
 }: CiviQTrackProps) {
   const [ticker, setTicker] = useState<number>(0);
+  const [history, setHistory] = useState<any[]>([]);
 
   // Live ticking counter
   useEffect(() => {
@@ -29,6 +32,52 @@ export function CiviQTrack({
   }, []);
 
   const activeIssue = issues.find((i) => i.id === selectedIssueId) || issues[0];
+
+  useEffect(() => {
+    if (!activeIssue) return;
+    const q = query(collection(db, `issues/${activeIssue.id}/statusHistory`), orderBy("timestamp", "asc"));
+    const unsub = onSnapshot(q, (snap) => {
+      setHistory(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+    return () => unsub();
+  }, [activeIssue?.id]);
+
+  const handleVerify = async (action: "Yes" | "No" | "Partial") => {
+    if (!activeIssue) return;
+    try {
+      const issueRef = doc(db, "issues", activeIssue.id);
+      
+      // Update logic based on verification
+      if (action === "No") {
+        await updateDoc(issueRef, { 
+          status: "Reopened",
+          pendingVerification: false
+        });
+        await setDoc(doc(collection(issueRef, "statusHistory")), {
+          status: "Reopened",
+          note: "Citizens rejected the resolution — issue has been reopened.",
+          changedBy: "Citizen Verification Network",
+          timestamp: serverTimestamp()
+        });
+        triggerToast("❌", "Resolution rejected. Issue reopened.");
+      } else {
+        await updateDoc(issueRef, { 
+          status: "Closed",
+          pendingVerification: false
+        });
+        await setDoc(doc(collection(issueRef, "statusHistory")), {
+          status: "Closed",
+          note: "Citizens verified the resolution.",
+          changedBy: "Citizen Verification Network",
+          timestamp: serverTimestamp()
+        });
+        triggerToast("✅", "Resolution verified. Issue closed! +30 XP");
+      }
+    } catch (e) {
+      console.error(e);
+      triggerToast("❌", "Verification failed.");
+    }
+  };
 
   // Helper to calculate risk score breakdown
   const getRiskBreakdown = (issue: CivicIssue) => {
@@ -432,32 +481,88 @@ export function CiviQTrack({
                   );
                 })()}
 
-                  {/* COMMUNITY VERIFICATION CARD */}
+                  {/* OFFICIAL UPDATES & TIMELINE */}
                   <div className="card card-body">
-                    <div style={{ fontWeight: 700, fontFamily: "Poppins, sans-serif", fontSize: ".9rem", marginBottom: ".85rem" }}>
-                      <i className="fas fa-users" style={{ color: "var(--sky)" }}></i> Citizen Crowdsourced Verification
+                    <div style={{ fontWeight: 700, fontFamily: "Poppins, sans-serif", fontSize: ".9rem", marginBottom: ".85rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <i className="fas fa-bullhorn" style={{ color: "var(--blue)" }}></i> Official Updates
                     </div>
-                    <div style={{ fontSize: ".82rem", color: "var(--muted)", marginBottom: ".85rem" }}>
-                      Active peer verification network confirms true resolution state:
-                    </div>
-                    <div style={{ display: "flex", flexDirection: "column", gap: ".6rem", fontSize: ".85rem" }}>
-                      <div style={{ display: "flex", gap: ".5rem", alignItems: "flex-start" }}>
-                        <i className="fas fa-xmark" style={{ color: "var(--red-bin)", marginTop: ".15rem", flexShrink: 0 }}></i>
-                        <div>
-                          <strong>Arnav S.</strong> — "Unfinished. Contractor has left gravel pile on the road."
-                        </div>
+                    {history.length === 0 ? (
+                      <div style={{ fontSize: ".85rem", color: "var(--muted)", fontStyle: "italic" }}>
+                        No official updates yet.
                       </div>
-                      <div style={{ display: "flex", gap: ".5rem", alignItems: "flex-start" }}>
-                        <i className="fas fa-xmark" style={{ color: "var(--red-bin)", marginTop: ".15rem", flexShrink: 0 }}></i>
-                        <div>
-                          <strong>Meera K.</strong> — "AI verification failed claim yesterday. Still open and hazardous."
-                        </div>
+                    ) : (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                        {history.map((h, i) => (
+                          <div key={h.id || i} style={{ 
+                            borderLeft: h.changedBy !== "Citizen Verification Network" ? "3px solid var(--blue)" : "3px solid var(--green)", 
+                            paddingLeft: "1rem", 
+                            background: h.changedBy !== "Citizen Verification Network" ? "#F5F8FF" : "#F6FFED", 
+                            padding: "0.85rem", 
+                            borderRadius: "0 8px 8px 0" 
+                          }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.4rem" }}>
+                              <span style={{ fontWeight: 700, fontSize: "0.85rem", color: h.changedBy !== "Citizen Verification Network" ? "#1565C0" : "#2E7D32" }}>
+                                {h.status}
+                              </span>
+                              <span style={{ fontSize: "0.75rem", color: "var(--muted)" }}>
+                                {h.timestamp?.toDate ? h.timestamp.toDate().toLocaleDateString() : new Date().toLocaleDateString()}
+                              </span>
+                            </div>
+                            <p style={{ fontSize: "0.85rem", color: "var(--text)", margin: "0 0 0.5rem 0", lineHeight: "1.5" }}>
+                              {h.note}
+                            </p>
+                            <div style={{ fontSize: "0.75rem", color: "var(--muted)", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                              {h.changedBy !== "Citizen Verification Network" ? <i className="fas fa-shield-halved text-blue-500"></i> : <i className="fas fa-users text-green-500"></i>}
+                              By {h.changedBy}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    </div>
-                    <div style={{ background: "#FFEBEE", borderRadius: "10px", padding: ".85rem", marginTop: ".85rem", fontSize: ".82rem", color: "#B71C1C" }}>
-                      <i className="fas fa-triangle-exclamation"></i> <strong>SLA Failure Penalty Warning active.</strong> Liquidated damages are being charged daily to {activeIssue.contractorName}.
-                    </div>
+                    )}
                   </div>
+
+                  {/* COMMUNITY VERIFICATION CARD (Dynamic) */}
+                  {(activeIssue as any).pendingVerification && (
+                    <div className="card card-body" style={{ border: "2px solid var(--leaf)", background: "#F6FFED" }}>
+                      <div style={{ fontWeight: 700, fontFamily: "Poppins, sans-serif", fontSize: ".9rem", marginBottom: ".5rem", color: "#2E7D32" }}>
+                        <i className="fas fa-clipboard-check"></i> Authority has marked this issue resolved — can you confirm the fix?
+                      </div>
+                      <div style={{ fontSize: ".82rem", color: "var(--text)", marginBottom: "1rem" }}>
+                        As a verified citizen near this location, your confirmation is needed to officially close this ticket and release contractor funds.
+                      </div>
+                      
+                      <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                        <button 
+                          className="btn btn-primary btn-sm flex-1"
+                          onClick={() => handleVerify("Yes")}
+                        >
+                          <i className="fas fa-check"></i> Yes, it's fixed
+                        </button>
+                        <button 
+                          className="btn btn-outline btn-sm flex-1"
+                          onClick={() => handleVerify("Partial")}
+                        >
+                          <i className="fas fa-minus"></i> Partially fixed
+                        </button>
+                        <button 
+                          className="btn btn-danger btn-sm flex-1"
+                          onClick={() => handleVerify("No")}
+                        >
+                          <i className="fas fa-xmark"></i> No, still broken
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STATIC PENALTY WARNING IF OVERDUE */}
+                  {(() => {
+                    const sla = getSLATimer(activeIssue);
+                    return sla.isOverdue ? (
+                      <div style={{ background: "#FFEBEE", borderRadius: "10px", padding: ".85rem", marginTop: ".85rem", fontSize: ".82rem", color: "#B71C1C" }}>
+                        <i className="fas fa-triangle-exclamation"></i> <strong>SLA Failure Penalty Warning active.</strong> Liquidated damages are being charged daily to {activeIssue.contractorName}.
+                      </div>
+                    ) : null;
+                  })()}
                 </div>
             ) : (
               <div style={{ textAlign: "center", padding: "3rem" }}>

@@ -50,9 +50,21 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
     return (localStorage.getItem("civiq_map_layer") as any) || "cluster";
   });
   const [issues, setIssues] = useState<IssueData[]>([]);
-  const [userCoords, setUserCoords] = useState<[number, number]>([28.6139, 77.2090]); // Default New Delhi (All India)
+  const [userCoords, setUserCoords] = useState<[number, number]>(() => {
+    const savedLoc = localStorage.getItem("civiq_last_location");
+    if (savedLoc) {
+      try {
+        const parsed = JSON.parse(savedLoc);
+        if (parsed.latitude && parsed.longitude) {
+          return [parsed.latitude, parsed.longitude];
+        }
+      } catch (e) {}
+    }
+    return [28.6139, 77.2090];
+  });
   const [permissionState, setPermissionState] = useState<"prompt" | "granted" | "denied">("prompt");
   const [showLocationInfo, setShowLocationInfo] = useState<boolean>(false);
+  const [autoOpenIssueId, setAutoOpenIssueId] = useState<string | null>(null);
 
   // Tile layers refs
   const standardTileRef = useRef<L.TileLayer | null>(null);
@@ -105,12 +117,29 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
           }
         },
         (err) => {
-          console.warn("Geolocation denied, using city center", err);
+          console.warn("Geolocation denied, checking saved location...", err);
+          const savedLoc = localStorage.getItem("civiq_last_location");
+          if (savedLoc) {
+            try {
+              const parsed = JSON.parse(savedLoc);
+              if (parsed.latitude && parsed.longitude) {
+                const latlng: [number, number] = [parsed.latitude, parsed.longitude];
+                setUserCoords(latlng);
+                setPermissionState("granted");
+                if (mapRef.current) {
+                  mapRef.current.flyTo(latlng, 16);
+                  triggerToast("🎯", "Centered on your saved location.");
+                }
+                return;
+              }
+            } catch (e) {}
+          }
           triggerToast("⚠️", "Location access denied. Centered on city center.");
           if (err.code === 1) {
             setPermissionState("denied");
           }
-        }
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
       );
     } else {
       triggerToast("⚠️", "Geolocation is not supported by your browser.");
@@ -170,11 +199,21 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
         },
         (err) => {
           console.log("Init geolocation fallback", err);
+          const savedLoc = localStorage.getItem("civiq_last_location");
+          if (savedLoc) {
+             try {
+                const parsed = JSON.parse(savedLoc);
+                if (parsed.latitude && parsed.longitude) {
+                   setUserCoords([parsed.latitude, parsed.longitude]);
+                   setPermissionState("granted");
+                }
+             } catch(e) {}
+          }
           if (err.code === 1) {
             setPermissionState("denied");
           }
         },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
       );
 
       watchId = navigator.geolocation.watchPosition(
@@ -184,6 +223,16 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
         },
         (err) => {
           console.log("Watch position fallback", err);
+          const savedLoc = localStorage.getItem("civiq_last_location");
+          if (savedLoc) {
+             try {
+                const parsed = JSON.parse(savedLoc);
+                if (parsed.latitude && parsed.longitude) {
+                   setUserCoords([parsed.latitude, parsed.longitude]);
+                   setPermissionState("granted");
+                }
+             } catch(e) {}
+          }
           if (err.code === 1) {
             setPermissionState("denied");
           }
@@ -239,10 +288,13 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
     const redirectCoordsStr = localStorage.getItem("civiq_submitted_issue_coords");
     if (redirectCoordsStr) {
       try {
-        const { lat, lng } = JSON.parse(redirectCoordsStr);
+        const { lat, lng, id } = JSON.parse(redirectCoordsStr);
         if (lat && lng) {
           map.flyTo([lat, lng], 16);
           hasCenteredOnInitRef.current = true;
+          if (id) {
+            setAutoOpenIssueId(id);
+          }
           localStorage.removeItem("civiq_submitted_issue_coords");
           triggerToast("🚀", "Navigated to your new report!");
         }
@@ -447,6 +499,7 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
       `;
 
       marker.bindPopup(popupHtml);
+      (marker as any).issueId = issue.id;
       
       // Save for clustering and single marker views
       if (markerClusterRef.current) {
@@ -471,6 +524,17 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
 
     // Enforce selected active layers
     updateMapLayers();
+    
+    // Auto-open popup if requested
+    if (autoOpenIssueId) {
+      setTimeout(() => {
+        const markerToOpen = newSingleMarkers.find(m => (m as any).issueId === autoOpenIssueId);
+        if (markerToOpen && map) {
+          markerToOpen.openPopup();
+          setAutoOpenIssueId(null); // Reset after opening once
+        }
+      }, 500);
+    }
   };
 
   // Bind click delegated listener for verify-fix-btn inside map container

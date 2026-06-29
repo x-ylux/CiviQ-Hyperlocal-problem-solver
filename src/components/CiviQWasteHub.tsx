@@ -15,22 +15,59 @@ export function CiviQWasteHub({
 }: CiviQWasteHubProps) {
   return (
     <div className="page active" id="page-waste" style={{ display: "block" }}>
-      <div className="page-hero">
-        <h2>
-          <i className="fas fa-recycle"></i> Smart Waste Hub
-        </h2>
-        <p>3-bin guide · Compost kit shop · Vehicle tracking · Recycling network</p>
+      <div className="page-hero relative overflow-hidden flex flex-col md:flex-row items-center justify-between p-8 gap-6 rounded-3xl bg-gradient-to-r from-emerald-800 to-green-600 text-white mb-8">
+        <div className="flex-1 space-y-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-bold uppercase tracking-wider text-emerald-200">
+            <i className="fas fa-recycle text-[9px]"></i>
+            Municipal Ecosystem
+          </span>
+          <h2 className="text-3xl font-extrabold tracking-tight">Smart Waste Hub</h2>
+          <p className="text-emerald-100/90 text-sm max-w-lg">
+            Complete ward segregation, real-time collection vehicle tracking, premium compost rewards, and localized recycling operations.
+          </p>
+        </div>
+        <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden shadow-xl shadow-emerald-950/20 border border-white/15 shrink-0">
+          <img
+            src="/src/assets/images/civiq_clean_bin_1782730762819.jpg"
+            alt="Eco Waste Segregation"
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
+        </div>
       </div>
+
       <div className="section">
         <div className="section-inner">
-          <div className="section-header" style={{ marginBottom: "1.5rem" }}>
-            <div className="section-tag">
-              <i className="fas fa-trash-can"></i> 3-Bin segregation guide
+          <div className="flex flex-col lg:flex-row gap-8 items-center bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 p-6 md:p-8 rounded-3xl shadow-xl shadow-slate-100/30 dark:shadow-none mb-10">
+            <div className="flex-1 space-y-4">
+              <div className="section-tag inline-flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-300 px-3 py-1 rounded-full text-xs font-bold">
+                <i className="fas fa-trash-can"></i> 3-Bin segregation guide
+              </div>
+              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white font-sans tracking-tight">
+                Which bin for what?
+              </h3>
+              <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+                Proper waste segregation at source prevents landfills from growing and supports eco-friendly bio-conversion. CiviQ rewards compliant households with credits!
+              </p>
             </div>
-            <h3 className="section-title" style={{ fontSize: "1.4rem" }}>
-              Which bin for what?
-            </h3>
+            <div className="w-full lg:w-1/3 flex justify-center">
+              <div className="relative group max-w-[240px]">
+                <div className="absolute -inset-1.5 bg-gradient-to-r from-emerald-500 to-green-400 rounded-2xl blur opacity-25 group-hover:opacity-45 transition duration-500"></div>
+                <div className="relative bg-white dark:bg-slate-800 p-2.5 rounded-2xl border border-slate-100 dark:border-slate-700">
+                  <img
+                    src="/src/assets/images/civiq_clean_bin_1782730762819.jpg"
+                    alt="Charming sorting guide illustration"
+                    className="w-full rounded-xl object-cover shadow-sm"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute bottom-4 left-4 right-4 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-center text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+                    Smarter Segregation
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+
           <div className="bin-guide" style={{ marginBottom: "2.5rem" }}>
             <div className="bin-card green-bin">
               <div className="bin-emoji">🟢</div>

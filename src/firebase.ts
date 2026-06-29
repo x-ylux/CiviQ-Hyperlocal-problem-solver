@@ -11,10 +11,10 @@ export const auth = getAuth();
 export async function validateConnection() {
   try {
     await getDocFromServer(doc(db, "test", "connection"));
-    console.log("[CivicAI] Firestore connection validated successfully.");
+    console.log("[CiviQ] Firestore connection validated successfully.");
   } catch (error: any) {
     if (error instanceof Error && error.message.includes("offline")) {
-      console.warn("[CivicAI] Firestore is offline or config is invalid.");
+      console.warn("[CiviQ] Firestore is offline or config is invalid.");
     }
   }
 }

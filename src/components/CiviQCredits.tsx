@@ -33,6 +33,70 @@ export function CiviQCredits({
   };
   const initials = getInitials(displayName);
 
+  const handleDownloadCertificate = () => {
+    onRedeemReward("Generating Civic Certificate...", 200);
+    
+    const date = new Date().toLocaleDateString();
+    
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Civic Certificate</title>
+        <style>
+          body { font-family: 'Poppins', sans-serif; text-align: center; padding: 50px; background: #f0fdf4; margin: 0; }
+          .certificate { border: 12px solid #166534; padding: 60px; background: white; max-width: 800px; margin: 0 auto; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border-radius: 8px; position: relative; }
+          .cert-header { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 30px; }
+          .cert-icon { font-size: 3rem; color: #166534; }
+          h1 { color: #166534; font-size: 3.2rem; margin: 0; letter-spacing: -1px; }
+          h2 { color: #475569; font-size: 1.5rem; margin-bottom: 40px; font-weight: 500; }
+          .name { font-size: 3rem; font-weight: 800; color: #0f172a; border-bottom: 3px solid #cbd5e1; display: inline-block; padding-bottom: 10px; margin-bottom: 40px; min-width: 450px; }
+          .desc { font-size: 1.25rem; color: #334155; max-width: 600px; margin: 0 auto 50px; line-height: 1.6; }
+          .footer { margin-top: 60px; display: flex; justify-content: space-between; align-items: flex-end; color: #64748b; font-size: 1.1rem; }
+          .seal { width: 120px; height: 120px; background: #166534; border-radius: 50%; margin: 0 auto; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.8rem; box-shadow: 0 5px 15px rgba(22, 101, 52, 0.4); border: 4px dashed #86efac; outline: 4px solid #166534; }
+          .sign-line { border-top: 2px solid #94a3b8; padding-top: 10px; font-weight: bold; color: #1e293b; width: 200px; }
+          @media print {
+            body { background: white; padding: 0; }
+            .certificate { box-shadow: none; max-width: 100%; border-width: 8px; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="certificate">
+          <div class="cert-header">
+            <span class="cert-icon">🎓</span>
+            <h1>Civic Excellence</h1>
+          </div>
+          <h2>This certificate is proudly presented to</h2>
+          <div class="name">${displayName}</div>
+          <div class="desc">For demonstrating outstanding commitment to improving our community, actively participating in civic duties, and driving positive environmental impact.</div>
+          
+          <div class="seal">CiviQ</div>
+          
+          <div class="footer">
+            <div>
+              <div style="margin-bottom: 10px; color: #1e293b; font-weight: bold;">Date: ${date}</div>
+              <div style="font-size: 0.95rem;">Provided by CiviQ</div>
+            </div>
+            <div class="sign-line">Authorized Signature</div>
+          </div>
+        </div>
+        <script>
+          window.onload = () => setTimeout(() => window.print(), 500);
+        </script>
+      </body>
+      </html>
+    `;
+    
+    const newWindow = window.open("", "_blank");
+    if (newWindow) {
+      newWindow.document.write(htmlContent);
+      newWindow.document.close();
+    } else {
+      triggerToast("⚠️", "Popup blocked! Please allow popups to download your certificate.");
+    }
+  };
+
   return (
     <div className="page active" id="page-gamify" style={{ display: "block" }}>
       <div className="page-hero">
@@ -102,7 +166,7 @@ export function CiviQCredits({
                   <div style={{ fontWeight: 600, fontSize: ".82rem" }}>Free compost kit</div>
                   <div className="reward-pts">300 credits</div>
                 </div>
-                <div className="reward-card" onClick={() => onRedeemReward("Civic training certificate queued for download!", 200)}>
+                <div className="reward-card" onClick={handleDownloadCertificate}>
                   <div className="reward-emoji">🎓</div>
                   <div style={{ fontWeight: 600, fontSize: ".82rem" }}>Civic certificate</div>
                   <div className="reward-pts">200 credits</div>
