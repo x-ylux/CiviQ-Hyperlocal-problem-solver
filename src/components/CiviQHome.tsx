@@ -315,83 +315,75 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
         </div>
       ) : (
         // PERSONALIZED WELCOME SCREEN
-        <div className="hero relative overflow-hidden rounded-[2rem] p-8 md:p-12 mb-10" style={{ minHeight: "440px" }}>
-          <div className="absolute inset-0">
+        <div className="hero glass-panel overflow-hidden relative rounded-[2rem] p-8 md:p-12 mb-10" style={{ minHeight: "440px", border: "1px solid rgba(255,255,255,0.8)" }}>
+          <div className="absolute inset-0 z-0">
             <img
-              src="/src/assets/images/civiq_earth_forest_1782730719834.jpg"
+              src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&q=80&w=1500"
               alt="Eco-civic forest backdrop"
-              className="w-full h-full object-cover opacity-50"
+              className="w-full h-full object-cover opacity-20 mix-blend-overlay"
               referrerPolicy="no-referrer"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-slate-950/45"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-white/50"></div>
           </div>
           <div className="hero-content relative z-10" style={{ maxWidth: "800px", margin: "0 auto", textAlign: "left" }}>
             <div style={{ display: "flex", gap: "0.8rem", flexWrap: "wrap", marginBottom: "1rem" }}>
-              <div className="hero-tag" style={{ marginBottom: 0 }}>
-                <i className="fas fa-location-dot"></i> Ward {onboarding.ward} Citizen Hub
+              <div className="hero-tag bg-emerald-100 border border-emerald-300 text-emerald-900 backdrop-blur-md px-3 py-1 rounded-full text-sm font-bold shadow-sm" style={{ marginBottom: 0 }}>
+                <i className="fas fa-location-dot mr-2"></i> Ward {onboarding.ward} Citizen Hub
               </div>
-              <div className="hero-tag" style={{ background: "rgba(168, 85, 247, 0.15)", border: "1px solid rgba(168,85,247,0.3)", color: "#E9D5FF", marginBottom: 0 }}>
-                <i className="fas fa-star"></i> Goal: {onboarding.xpGoal} XP Today
+              <div className="hero-tag bg-purple-100 border border-purple-300 text-purple-900 backdrop-blur-md px-3 py-1 rounded-full text-sm font-bold shadow-sm" style={{ marginBottom: 0 }}>
+                <i className="fas fa-star mr-2"></i> Goal: {onboarding.xpGoal} XP Today
               </div>
             </div>
             
-            <h1 style={{ textAlign: "left", fontSize: "clamp(2rem, 4vw, 3rem)" }}>
+            <h1 className="text-emerald-950 font-black drop-shadow-sm" style={{ textAlign: "left", fontSize: "clamp(2rem, 4vw, 3rem)" }}>
               {onboarding.greeting || `Welcome to Ward ${onboarding.ward}!`}
             </h1>
             
-            <p style={{ textAlign: "left", fontSize: "1.02rem", color: "rgba(255,255,255,0.85)", marginBottom: "2rem", lineHeight: 1.6, maxWidth: "680px" }}>
+            <p className="text-emerald-900 font-medium" style={{ textAlign: "left", fontSize: "1.05rem", marginBottom: "2rem", lineHeight: 1.6, maxWidth: "680px" }}>
               {onboarding.dashboardMessage}
             </p>
 
             {/* ACTION CARD GRID */}
-            <div className="grid g2" style={{ marginBottom: "2rem" }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {/* TARGET XP PLAN CARD */}
-              <div className="card card-body" style={{ background: "rgba(15, 23, 42, 0.45)", border: "1px solid rgba(255,255,255,0.15)", color: "white" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
-                  <div style={{ fontWeight: 700, fontFamily: "Poppins, sans-serif", fontSize: "0.95rem" }}>
+              <div className="glass-panel p-6 rounded-2xl transition-transform hover:scale-[1.02]">
+                <div className="flex justify-between items-center mb-4">
+                  <div className="font-bold font-sans text-lg text-emerald-950">
                     🎯 Daily Engagement Roadmap
                   </div>
-                  <span className="badge badge-resolved" style={{ background: "rgba(76, 175, 80, 0.2)", color: "#81C784" }}>Active</span>
+                  <span className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold border border-emerald-300">Active</span>
                 </div>
-                <div style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.7)", marginBottom: "1rem" }}>
-                  We've calculated a daily target of <strong>{onboarding.xpGoal} XP</strong> to help you scale local sustainability efforts:
+                <div className="text-sm text-emerald-800 mb-4 leading-relaxed font-medium">
+                  We've calculated a daily target of <strong className="text-emerald-700">{onboarding.xpGoal} XP</strong> to help you scale local sustainability efforts:
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.8rem", background: "rgba(255,255,255,0.06)", padding: "0.6rem 0.85rem", borderRadius: "10px", fontSize: "0.78rem" }}>
-                  <i className="fas fa-lightbulb" style={{ color: "var(--amber)", fontSize: "1.1rem" }}></i>
+                <div className="flex items-center gap-4 bg-emerald-50/80 p-4 rounded-xl text-sm border border-emerald-100">
+                  <i className="fas fa-lightbulb text-amber-500 text-xl animate-pulse"></i>
                   <div>
-                    <strong>First Recommendation:</strong> {onboarding.nextAction || "Report a new pothole cluster for instant +150 XP!"}
+                    <strong className="block mb-1 text-emerald-950">First Recommendation:</strong> 
+                    <span className="text-emerald-800">{onboarding.nextAction || "Report a new pothole cluster for instant +150 XP!"}</span>
                   </div>
                 </div>
               </div>
 
               {/* RECOMMENDED CAMPAIGN IN-LINE SUGGESTION */}
-              <div className="card card-body" style={{ background: "rgba(15, 23, 42, 0.45)", border: "1px solid rgba(255,255,255,0.15)", color: "white" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
-                  <div style={{ fontWeight: 700, fontFamily: "Poppins, sans-serif", fontSize: "0.95rem" }}>
+              <div className="glass-panel p-6 rounded-2xl transition-transform hover:scale-[1.02]">
+                <div className="flex justify-between items-center mb-4">
+                  <div className="font-bold font-sans text-lg text-emerald-950">
                     📣 Recommended Ward Campaigns
                   </div>
-                  <span className="badge badge-ai" style={{ background: "rgba(124, 58, 237, 0.2)", color: "#C084FC" }}>AI Suggested</span>
+                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-bold border border-purple-300">AI Suggested</span>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                <div className="flex flex-col gap-3">
                   {onboarding.suggestedCampaigns?.map((camp, idx) => (
                     <div
                       key={idx}
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        background: "rgba(255,255,255,0.06)",
-                        padding: "0.5rem 0.8rem",
-                        borderRadius: "8px",
-                        fontSize: "0.75rem",
-                      }}
+                      className="flex justify-between items-center bg-emerald-50/80 p-3 rounded-xl text-sm border border-emerald-100 hover:bg-emerald-100 transition-colors"
                     >
-                      <span style={{ fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "160px" }}>
+                      <span className="font-semibold truncate max-w-[180px] text-emerald-900">
                         {camp}
                       </span>
                       <button
-                        className="btn btn-sm btn-green"
-                        style={{ padding: "0.2rem 0.6rem", fontSize: "0.7rem" }}
+                        className="glass-button text-xs px-4 py-1.5 rounded-full shadow-sm text-white"
                         onClick={() => {
                           onNavigate("campaigns");
                           triggerToast("📣", `Loading ${camp}...`);
@@ -406,24 +398,22 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
             </div>
 
             {/* QUICK ACTIONS */}
-            <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
-              <button className="btn-hero btn-hero-primary" onClick={() => onNavigate("report")}>
-                <i className="fas fa-camera"></i> Report New Issue
+            <div className="flex flex-wrap items-center gap-4">
+              <button className="glass-button px-6 py-3 rounded-full font-bold shadow-lg text-sm text-white" onClick={() => onNavigate("report")}>
+                <i className="fas fa-camera mr-2"></i> Report New Issue
               </button>
-              <button className="btn-hero btn-hero-secondary" onClick={() => onNavigate("dashboard")}>
-                <i className="fas fa-chart-line"></i> View Dashboard
+              <button className="bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 px-6 py-3 rounded-full font-bold shadow-sm transition-all text-sm" onClick={() => onNavigate("dashboard")}>
+                <i className="fas fa-chart-line mr-2"></i> View Dashboard
+              </button>
+              <button 
+                className="bg-purple-100 hover:bg-purple-200 text-purple-900 border border-purple-300 px-6 py-3 rounded-full font-bold shadow-sm transition-all text-sm" 
+                onClick={() => onNavigate("ai_showcase")}
+              >
+                <i className="fas fa-magic mr-2"></i> See AI Impact
               </button>
               <button
                 onClick={handleReset}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "rgba(255,255,255,0.5)",
-                  fontSize: "0.75rem",
-                  textDecoration: "underline",
-                  cursor: "pointer",
-                  marginLeft: "0.5rem",
-                }}
+                className="text-emerald-600 hover:text-emerald-800 text-xs underline transition-colors ml-2 cursor-pointer bg-transparent border-none font-medium"
               >
                 Reset Onboarding Preferences
               </button>

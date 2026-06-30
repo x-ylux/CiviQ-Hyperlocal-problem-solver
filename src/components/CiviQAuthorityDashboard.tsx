@@ -340,17 +340,24 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-12 px-6 bg-[#F9FBF7]">
-      {/* Title & Brand Header */}
-      <div className="text-center space-y-4 max-w-3xl mx-auto mb-16">
-        <div className="inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-200/50 text-emerald-800 px-4 py-1 rounded-full text-xs font-semibold">
-          <Shield className="w-3.5 h-3.5 text-emerald-600" />
-          <span>SECURE COMMAND & DISPATCH CENTER</span>
+    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 bg-[#F9FBF7]">
+      {/* Forest Background Banner */}
+      <div className="relative overflow-hidden rounded-[32px] mb-8 bg-cover bg-center py-12 px-8 text-center text-white border border-emerald-800/20 shadow-lg" 
+           style={{ backgroundImage: "url('https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&q=80&w=1500')" }}>
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/95 via-emerald-900/90 to-emerald-850/85"></div>
+        
+        {/* Banner Content */}
+        <div className="relative z-10 space-y-3">
+          <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md border border-white/25 text-emerald-250 px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wider uppercase">
+            <Shield className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Secure Command & Dispatch Center</span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white drop-shadow-md">OFFICIAL COMMAND & DISPATCH</h1>
+          <ul className="text-emerald-50 text-xs sm:text-sm max-w-2xl mx-auto space-y-1.5 font-medium list-disc list-inside text-center sm:text-left inline-block">
+            <li>Manage assigned service tickets, monitor real-time ward operations.</li>
+            <li>View dynamic compliance stats linked directly to municipal service-level agreements (SLA).</li>
+          </ul>
         </div>
-        <h1 className="text-4xl font-extrabold tracking-tight text-emerald-950">Official Command & Dispatch</h1>
-        <p className="text-sm text-emerald-800/70 font-light max-w-xl mx-auto leading-relaxed">
-          Manage assigned service tickets, monitor real-time ward operations, and view dynamic compliance stats linked directly to the municipal service-level agreements (SLA).
-        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -358,63 +365,66 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-white p-6 rounded-3xl border border-emerald-900/10 shadow-sm flex flex-col items-center">
             <div className="relative mb-4">
-              <div className="w-24 h-24 bg-emerald-800 border-4 border-emerald-200/50 rounded-full flex items-center justify-center text-emerald-50 text-4xl font-extrabold shadow-lg">
+              <div className="w-24 h-24 bg-emerald-800 border-4 border-emerald-250 rounded-full flex items-center justify-center text-emerald-50 text-4xl font-extrabold shadow-lg">
                 {getInitials(userProfile?.displayName)}
               </div>
               <span className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full" title="Active On Duty"></span>
             </div>
             
-            <h2 className="text-xl font-extrabold text-emerald-950 text-center leading-tight mb-1">
+            <h2 className="text-xl font-black text-emerald-950 text-center leading-tight mb-1">
               {userProfile?.displayName || "Officer S.K. Sharma"}
             </h2>
-            <p className="text-xs text-emerald-800 bg-emerald-50 border border-emerald-200/50 font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4">
+            <p className="text-xs text-emerald-850 bg-emerald-50 border border-emerald-250 font-extrabold px-3 py-1 rounded-full uppercase tracking-wider mb-4">
               {userProfile?.designation || "Chief Inspector"}
             </p>
 
-            {/* Duty Status Switcher */}
-            <div className="flex items-center justify-between w-full p-2 bg-emerald-50/50 border border-emerald-200/40 rounded-xl text-xs mb-4">
-              <span className="text-emerald-800/70 font-medium ml-1">Duty Status</span>
-              <button 
-                onClick={() => setIsOnDuty(!isOnDuty)}
-                className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  isOnDuty 
-                    ? "bg-emerald-800 text-white shadow-sm" 
-                    : "bg-emerald-100 text-emerald-800 border border-emerald-200/50"
-                }`}
-              >
-                {isOnDuty ? "ON DUTY" : "OFF DUTY"}
-              </button>
-            </div>
-
-            <div className="bg-emerald-50/30 rounded-2xl p-4 w-full text-xs space-y-3 border border-emerald-900/5">
-              <div className="flex justify-between items-center pb-2 border-b border-emerald-900/5">
-                <span className="text-emerald-800/60 font-medium">Department</span>
-                <span className="font-bold text-emerald-950">{userProfile?.department || "Sanitation"}</span>
+            {/* Structured Credentials Table */}
+            <div className="w-full text-sm font-semibold border border-emerald-900/10 rounded-2xl overflow-hidden bg-[#F9FBF7]/50 shadow-inner">
+              <div className="flex justify-between items-center px-4 py-3 border-b border-emerald-900/5">
+                <span className="text-emerald-800/60 text-xs font-bold">Duty Status</span>
+                <button 
+                  onClick={() => setIsOnDuty(!isOnDuty)}
+                  className={`text-[10px] font-black px-2.5 py-1 rounded-lg uppercase border transition-all hover:scale-105 active:scale-95 cursor-pointer ${
+                    isOnDuty 
+                      ? "bg-emerald-100 text-emerald-800 border-emerald-300" 
+                      : "bg-gray-100 text-gray-500 border-gray-300"
+                  }`}
+                  title="Click to toggle status"
+                >
+                  {isOnDuty ? "ON DUTY" : "OFF DUTY"}
+                </button>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b border-emerald-900/5">
-                <span className="text-emerald-800/60 font-medium">Jurisdiction</span>
-                <span className="font-bold text-emerald-950">{currentWard}</span>
+              <div className="flex justify-between items-center px-4 py-3 border-b border-emerald-900/5">
+                <span className="text-emerald-800/60 text-xs font-bold">Department</span>
+                <span className="font-extrabold text-emerald-950 text-xs">{userProfile?.department || "Sanitation"}</span>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b border-emerald-900/5">
-                <span className="text-emerald-800/60 font-medium">Status</span>
-                <span className="text-emerald-800 font-extrabold uppercase text-[10px] px-2.5 py-0.5 bg-emerald-100 border border-emerald-200 rounded-full">
+              <div className="flex justify-between items-center px-4 py-3 border-b border-emerald-900/5">
+                <span className="text-emerald-800/60 text-xs font-bold">Jurisdiction</span>
+                <span className="font-extrabold text-emerald-950 text-xs">{currentWard}</span>
+              </div>
+              <div className="flex justify-between items-center px-4 py-3 border-b border-emerald-900/5">
+                <span className="text-emerald-800/60 text-xs font-bold">Status</span>
+                <span className="text-[10px] font-black px-2.5 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full uppercase">
                   ACTIVE
                 </span>
               </div>
-              <div className="flex justify-between items-center pt-1">
-                <span className="text-emerald-800/60 font-medium">Clearance Level</span>
-                <span className="font-semibold text-emerald-950">Class I Officer</span>
+              <div className="flex justify-between items-center px-4 py-3">
+                <span className="text-emerald-800/60 text-xs font-bold">Clearance Level</span>
+                <span className="font-extrabold text-emerald-950 text-xs">Class I Officer</span>
               </div>
             </div>
+          </div>
 
-            {/* AI Auto-Dispatch Notice */}
-            <div className="mt-5 p-3.5 bg-emerald-50 border border-emerald-200/40 rounded-2xl text-[11px] text-emerald-800 flex gap-2">
-              <Shield className="w-5 h-5 text-emerald-600 shrink-0" />
-              <div>
-                <span className="font-bold">AI Auto-Dispatch Active</span>
-                <p className="text-emerald-800/60 mt-0.5">Every new report is automatically routed to officers based on Category & Ward load balancing.</p>
-              </div>
-            </div>
+          {/* AI AUTO-DISPATCH INFO CARD */}
+          <div className="bg-white p-5 rounded-3xl border border-emerald-900/10 shadow-sm space-y-3 text-left">
+            <h3 className="font-extrabold text-emerald-950 text-sm flex items-center gap-2">
+              <span className="text-base">🤖</span>
+              AI Auto-Dispatch
+            </h3>
+            <ul className="text-emerald-800/80 text-xs space-y-2.5 list-disc pl-4 leading-relaxed font-medium">
+              <li>Every new report is automatically routed to officers based of ward operations.</li>
+              <li>View dynamic compliance stats linked directly to municipal service-level agreements (SLA).</li>
+            </ul>
           </div>
         </div>
 
@@ -424,24 +434,24 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
           {/* TOP STATS CARDS BAR */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-white p-5 rounded-3xl border border-emerald-900/10 shadow-sm transition hover:shadow-md">
-              <div className="text-xs font-semibold text-emerald-800/50 uppercase tracking-wider">Total Assigned</div>
-              <div className="text-4xl font-black text-emerald-950 mt-2 font-mono">{totalAssignedCount}</div>
+              <div className="text-[10px] font-extrabold text-emerald-950 uppercase tracking-wider">Total Assigned</div>
+              <div className="text-4xl font-black text-emerald-950 mt-1 font-mono">{totalAssignedCount}</div>
             </div>
             
             <div className="bg-white p-5 rounded-3xl border border-emerald-900/10 shadow-sm transition hover:shadow-md">
-              <div className="text-xs font-semibold text-emerald-800/50 uppercase tracking-wider">Resolved</div>
-              <div className="text-4xl font-black text-emerald-800 mt-2 font-mono">{totalResolvedCount}</div>
+              <div className="text-[10px] font-extrabold text-emerald-950 uppercase tracking-wider">Resolved</div>
+              <div className="text-4xl font-black text-emerald-850 mt-1 font-mono">{totalResolvedCount}</div>
             </div>
             
             <div className="bg-white p-5 rounded-3xl border border-emerald-900/10 shadow-sm transition hover:shadow-md">
-              <div className="text-xs font-semibold text-emerald-800/50 uppercase tracking-wider">SLA Compliance</div>
-              <div className={`text-4xl font-black mt-2 font-mono ${slaCompliance < 80 ? "text-rose-600" : "text-emerald-800"}`}>
+              <div className="text-[10px] font-extrabold text-emerald-950 uppercase tracking-wider">SLA Compliance</div>
+              <div className={`text-4xl font-black mt-1 font-mono ${slaCompliance < 80 ? "text-rose-600" : "text-emerald-800"}`}>
                 {slaCompliance}%
               </div>
             </div>
             
             <div className="bg-white p-5 rounded-3xl border border-emerald-900/10 shadow-sm transition hover:shadow-md relative group cursor-pointer">
-              <div className="text-xs font-semibold text-emerald-800/50 uppercase tracking-wider flex items-center justify-between">
+              <div className="text-[10px] font-extrabold text-emerald-950 uppercase tracking-wider flex items-center justify-between">
                 <span>Notifications</span>
                 {unreadCount > 0 && (
                   <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-bounce">
@@ -449,7 +459,7 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
                   </span>
                 )}
               </div>
-              <div className="text-4xl font-black text-emerald-950 mt-2 font-mono">{notifications.length}</div>
+              <div className="text-4xl font-black text-emerald-950 mt-1 font-mono">{notifications.length}</div>
               
               {/* Real-time Notification Dropdown */}
               <div className="absolute top-full right-0 mt-2 w-80 bg-white border border-emerald-900/10 rounded-3xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-250 z-50 overflow-hidden">
@@ -493,86 +503,86 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
           {/* MAIN NAVIGATION TABS */}
           <div className="flex border-b border-emerald-900/10 gap-6">
             <button 
-              className={`pb-3 px-2 font-bold text-sm transition-all relative ${
+              className={`pb-3 px-2 font-bold text-sm transition-all relative flex items-center gap-2 cursor-pointer ${
                 activeTab === "inbox" 
                   ? "text-emerald-950 font-extrabold" 
                   : "text-emerald-800/60 hover:text-emerald-950"
               }`} 
               onClick={() => setActiveTab("inbox")}
             >
-              Issue Inbox
-              {activeTab === "inbox" && <span className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-800 rounded-full" />}
+              <span>🤖 Issue Inbox</span>
+              {activeTab === "inbox" && <span className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-850 rounded-full" />}
             </button>
             
             <button 
-              className={`pb-3 px-2 font-bold text-sm transition-all relative ${
+              className={`pb-3 px-2 font-bold text-sm transition-all relative flex items-center gap-2 cursor-pointer ${
                 activeTab === "map" 
                   ? "text-emerald-950 font-extrabold" 
                   : "text-emerald-800/60 hover:text-emerald-950"
               }`} 
               onClick={() => setActiveTab("map")}
             >
-              Map View
-              {activeTab === "map" && <span className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-800 rounded-full" />}
+              <span>🗺️ Map View</span>
+              {activeTab === "map" && <span className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-850 rounded-full" />}
             </button>
             
             <button 
-              className={`pb-3 px-2 font-bold text-sm transition-all relative ${
+              className={`pb-3 px-2 font-bold text-sm transition-all relative flex items-center gap-2 cursor-pointer ${
                 activeTab === "performance" 
                   ? "text-emerald-950 font-extrabold" 
                   : "text-emerald-800/60 hover:text-emerald-950"
               }`} 
               onClick={() => setActiveTab("performance")}
             >
-              Performance Leaderboard
-              {activeTab === "performance" && <span className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-800 rounded-full" />}
+              <span>🏆 Performance Leaderboard</span>
+              {activeTab === "performance" && <span className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-850 rounded-full" />}
             </button>
           </div>
 
           {/* TAB 1: ISSUE INBOX & COMPLAINT MONITORING */}
           {activeTab === "inbox" && (
-            <div className="space-y-4">
+            <div className="space-y-6">
               
               {/* SUB TAB SELECTORS FOR MONITORING EVERYTHING */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-emerald-50/50 p-2.5 rounded-2xl border border-emerald-200/40 shadow-inner">
-                <div className="flex flex-wrap gap-2">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+                <div className="flex flex-wrap gap-2.5">
                   <button 
                     onClick={() => setInboxSubTab("my-assigned")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    className={`px-4 py-1.5 rounded-full text-xs font-extrabold transition-all shadow-sm cursor-pointer ${
                       inboxSubTab === "my-assigned" 
-                        ? "bg-emerald-800 text-white shadow-sm" 
-                        : "bg-white text-emerald-800 border border-emerald-200/50 hover:bg-emerald-50"
+                        ? "bg-emerald-850 text-white border border-emerald-950" 
+                        : "bg-white text-emerald-950 border border-emerald-200 hover:bg-emerald-50"
                     }`}
                   >
                     My Assignments ({myAssignedIssues.length})
                   </button>
                   <button 
                     onClick={() => setInboxSubTab("ward-overview")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    className={`px-4 py-1.5 rounded-full text-xs font-extrabold transition-all shadow-sm cursor-pointer ${
                       inboxSubTab === "ward-overview" 
-                        ? "bg-emerald-800 text-white shadow-sm" 
-                        : "bg-white text-emerald-800 border border-emerald-200/50 hover:bg-emerald-50"
+                        ? "bg-emerald-850 text-white border border-emerald-950" 
+                        : "bg-white text-emerald-950 border border-emerald-200 hover:bg-emerald-50"
                     }`}
                   >
-                    Ward {userProfile?.ward} Overview ({wardIssues.length})
+                    Ward {userProfile?.ward || "7"} Overview ({wardIssues.length})
                   </button>
                   <button 
                     onClick={() => setInboxSubTab("unassigned")}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                    className={`px-4 py-1.5 rounded-full text-xs font-extrabold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer ${
                       inboxSubTab === "unassigned" 
-                        ? "bg-rose-700 text-white shadow-sm" 
-                        : "bg-rose-50 text-rose-800 border border-rose-200 hover:bg-rose-100"
+                        ? "bg-rose-600 text-white border border-rose-700" 
+                        : "bg-white text-rose-800 border border-rose-200 hover:bg-rose-50"
                     }`}
                   >
                     <AlertCircle className="w-3.5 h-3.5" />
-                    Unassigned in Ward ({unassignedWardIssues.length})
+                    Unassigned ({unassignedWardIssues.length})
                   </button>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-emerald-800/60 font-medium">Sort:</span>
+                  <span className="text-xs text-emerald-850/60 font-black">Sort:</span>
                   <select 
-                    className="text-xs border border-emerald-200 rounded-lg p-1.5 bg-white font-bold text-emerald-800" 
+                    className="text-xs border border-emerald-200 rounded-xl px-3 py-1.5 bg-white font-black text-emerald-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-100" 
                     value={sortOrder} 
                     onChange={e => setSortOrder(e.target.value as any)}
                   >
@@ -593,26 +603,41 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
                 </div>
               )}
 
-              {/* ISSUES RENDER */}
-              {sortedInboxIssues.length === 0 ? (
-                <div className="bg-white rounded-3xl border border-dashed border-emerald-200 p-16 text-center shadow-sm">
-                  <CheckCircle className="w-12 h-12 text-emerald-300 mx-auto mb-3" />
-                  <p className="text-emerald-800/50 font-medium">No assigned issues found for this category / jurisdiction.</p>
+              {/* TABLE LAYOUT FOR ISSUES */}
+              <div className="space-y-4">
+                <div className="hidden md:grid bg-white text-emerald-950 font-black text-xs uppercase tracking-wider py-4 px-6 rounded-2xl grid-cols-12 gap-4 items-center border border-emerald-900/10 shadow-sm">
+                  <div className="col-span-2">Issue ID</div>
+                  <div className="col-span-2">Category</div>
+                  <div className="col-span-4">Description</div>
+                  <div className="col-span-2">Reporter</div>
+                  <div className="col-span-1 text-center">Ward</div>
+                  <div className="col-span-1 text-right">Date Filed</div>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {sortedInboxIssues.map((issue) => (
-                    <IssueRow 
-                      key={issue.id} 
-                      issue={issue} 
-                      userProfile={userProfile}
-                      onUpdate={handleUpdateStatus} 
-                      onSelfAssign={handleSelfAssign}
-                      urgency={getUrgencyScore(issue)} 
-                    />
-                  ))}
-                </div>
-              )}
+
+                {sortedInboxIssues.length === 0 ? (
+                  <div className="bg-white rounded-3xl border border-emerald-900/10 p-6 flex items-center gap-4 shadow-sm">
+                    <div className="w-12 h-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
+                      <CheckCircle className="w-6 h-6" />
+                    </div>
+                    <div className="text-emerald-900/80 font-bold text-sm">
+                      No assigned issues found for this category / jurisdiction.
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {sortedInboxIssues.map((issue) => (
+                      <IssueRow 
+                        key={issue.id} 
+                        issue={issue} 
+                        userProfile={userProfile}
+                        onUpdate={handleUpdateStatus} 
+                        onSelfAssign={handleSelfAssign}
+                        urgency={getUrgencyScore(issue)} 
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -997,130 +1022,97 @@ function IssueRow({ issue, userProfile, onUpdate, onSelfAssign, urgency }: Issue
   const isUnassigned = !issue.assignedTo || !issue.assignedTo.uid;
 
   return (
-    <div className={`bg-white rounded-3xl border shadow-sm overflow-hidden transition-all duration-200 ${
-      isUnassigned 
-        ? "border-rose-300 hover:border-rose-400 bg-rose-50/10" 
-        : isHighRisk 
-          ? "border-amber-300 hover:border-amber-400 ring-1 ring-amber-100" 
-          : "border-emerald-900/10 hover:border-emerald-900/20"
+    <div className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
+      expanded 
+        ? "border-emerald-600 ring-1 ring-emerald-100 shadow-md" 
+        : isUnassigned 
+          ? "border-rose-250 hover:border-rose-350 bg-rose-50/5 hover:bg-rose-50/10" 
+          : "border-emerald-900/5 hover:border-emerald-950/10 hover:shadow-sm"
     }`}>
       
-      {/* CARD BODY CLICKABLE HEADER */}
+      {/* Clickable Grid Row */}
       <div 
-        className="p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 cursor-pointer hover:bg-emerald-50/10 transition-all" 
+        className="p-5 md:py-4 md:px-6 flex flex-col md:grid md:grid-cols-12 gap-3 md:gap-4 items-start md:items-center cursor-pointer text-sm font-medium text-emerald-950 hover:bg-emerald-50/25 transition-all"
         onClick={() => setExpanded(!expanded)}
       >
-        <div className="flex-1 space-y-1.5">
-          <div className="flex flex-wrap items-center gap-2">
-            
-            {/* URGENCY CHIPS WITH HOVER BREAKDOWNS */}
-            <div 
-              className={`px-2.5 py-0.5 rounded-full text-[11px] font-black tracking-wide cursor-help flex items-center gap-1 shadow-sm transition ${
-                isHighRisk 
-                  ? 'bg-rose-600 text-white animate-pulse' 
-                  : urgency.score >= 40 
-                    ? 'bg-amber-100 text-amber-800 border border-amber-200' 
-                    : 'bg-emerald-50 text-emerald-800 border border-emerald-200/50'
-              }`}
-              title={urgency.reasonText}
-            >
-              {isHighRisk && <Flame className="w-3 h-3 fill-white" />}
-              <span>AI Priority Score: {Math.round(urgency.score)}</span>
-            </div>
-
-            {/* UNASSIGNED BADGES */}
-            {isUnassigned ? (
-              <span className="px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-extrabold uppercase border border-rose-200">
-                ⚠️ UNASSIGNED CIVIC INCIDENT
-              </span>
-            ) : (
-              <span className="px-2 py-0.5 bg-emerald-50 border border-emerald-200/50 text-emerald-850 text-[10px] rounded-full font-bold">
-                Assigned to {issue.assignedOfficer}
-              </span>
-            )}
-
-            <span className="text-xs text-emerald-850/40 font-mono">ID: #{issue.id?.slice(0, 6)}</span>
-          </div>
-
-          <h4 className="font-extrabold text-emerald-950 text-base leading-tight">
-            {issue.title || issue.category}
-          </h4>
-          <p className="text-xs text-emerald-800/60 font-medium line-clamp-1">
-            {issue.description || "No description supplied by reporter."}
-          </p>
-
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-emerald-850/50 font-semibold pt-1">
-            <span className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-              {issue.address || "Rajouri Garden, Zone 5"}
+        {/* Issue ID & Risk Icon & Status Badge */}
+        <div className="col-span-2 flex md:flex-col items-center md:items-start justify-between md:justify-center w-full md:w-auto gap-1">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-mono font-extrabold text-emerald-850/60">
+              #{issue.id?.slice(0, 6) || "N/A"}
             </span>
-            <span>•</span>
-            <span>Ward {issue.ward || "7"}</span>
-            <span>•</span>
-            <span>SLA: {issue.slaDays || 5} Days</span>
+            {isHighRisk && (
+              <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" title="High Priority Risk Detected!" />
+            )}
           </div>
+          <span className={`px-2 py-0.5 text-[9px] font-black rounded-md border uppercase tracking-wider ${
+            issue.status === "Resolved" || issue.status === "Closed"
+              ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+              : issue.status === "In progress" || issue.status === "Work In Progress"
+                ? "bg-amber-100 text-amber-800 border-amber-200"
+                : "bg-emerald-50 text-emerald-850 border-emerald-200/50"
+          }`}>
+            {issue.status}
+          </span>
         </div>
 
-        {/* STATUS BAR RIGHT PANEL */}
-        <div className="flex sm:flex-col items-end justify-between w-full sm:w-auto shrink-0 border-t sm:border-t-0 pt-3 sm:pt-0 gap-3">
-          <div className="text-right">
-            <span className={`px-3 py-1 text-xs font-black rounded-full border ${
-              issue.status === "Resolved" || issue.status === "Closed"
-                ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-                : issue.status === "In progress" || issue.status === "Work In Progress"
-                  ? "bg-amber-100 text-amber-800 border-amber-200"
-                  : "bg-emerald-50 text-emerald-800 border-emerald-200/50"
-            }`}>
-              {issue.status}
-            </span>
-            <span className="text-[10px] text-emerald-800/40 font-bold block mt-1.5 font-mono">
-              Reported {new Date(issue.createdAt).toLocaleDateString()}
-            </span>
-          </div>
+        {/* Category Pill */}
+        <div className="col-span-2 w-full md:w-auto">
+          <span className="px-2.5 py-1 text-xs font-black rounded-lg bg-emerald-50 border border-emerald-200/50 text-emerald-800 uppercase tracking-wide">
+            {issue.category}
+          </span>
+        </div>
 
-          <div className="flex gap-2 self-end">
-            {/* QUICK SELF-ASSIGN IF UNASSIGNED */}
-            {isUnassigned && (
-              <button
-                className="bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs px-3 py-1.5 rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelfAssign(issue.id);
-                }}
-              >
-                <UserCheck className="w-3.5 h-3.5" />
-                Self-Assign Claim
-              </button>
-            )}
+        {/* Description / Title */}
+        <div className="col-span-4 pr-4 w-full md:w-auto">
+          <div className="font-extrabold text-emerald-950 line-clamp-1">{issue.title || issue.category}</div>
+          <div className="text-xs text-emerald-850/50 line-clamp-1 font-normal mt-0.5">{issue.description || "No description supplied."}</div>
+        </div>
 
-            {/* QUICK MARK DONE IF ASSIGNED AND NOT RESOLVED */}
-            {!isUnassigned && issue.status !== "Resolved" && issue.status !== "Closed" && (
-              <button
-                className="bg-emerald-800 hover:bg-emerald-950 text-white font-extrabold text-xs px-3 py-1.5 rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onUpdate(issue.id, "Resolved", "Marked as Resolved/Done by assigned officer.");
-                }}
-              >
-                <CheckCircle className="w-3.5 h-3.5" />
-                Mark Done
-              </button>
-            )}
-          </div>
+        {/* Reporter Name */}
+        <div className="col-span-2 text-emerald-800/70 font-semibold text-xs truncate w-full md:w-auto">
+          <span className="md:hidden text-emerald-850/40 text-[10px] font-bold mr-1">Reporter:</span>
+          {issue.reporterName || "Anonymous Citizen"}
+        </div>
+
+        {/* Ward Number */}
+        <div className="col-span-1 text-xs text-emerald-800/70 font-mono font-bold md:text-center w-full md:w-auto">
+          <span className="md:hidden text-emerald-850/40 text-[10px] font-bold mr-1">Ward:</span>
+          {issue.ward || "7"}
+        </div>
+
+        {/* Date Filed */}
+        <div className="col-span-1 md:text-right text-xs text-emerald-800/50 font-bold w-full md:w-auto flex md:block justify-between items-center">
+          <span className="md:hidden text-emerald-850/40 text-[10px] font-bold">Date Filed:</span>
+          <span>{issue.createdAt ? new Date(issue.createdAt).toLocaleDateString() : "N/A"}</span>
         </div>
       </div>
 
       {/* ACCORDION EXPANDED BODY */}
       {expanded && (
-        <div className="p-5 border-t border-emerald-900/10 bg-emerald-50/10 grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeIn">
+        <div className="p-6 border-t border-emerald-900/10 bg-[#F9FBF7]/40 grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeIn">
           
           {/* REGULATORY ACTION CONTROLS PANEL */}
           <div className="space-y-4">
-            <div className="bg-white p-5 rounded-3xl border border-emerald-900/10 shadow-sm">
-              <h5 className="text-sm font-black text-emerald-950 flex items-center gap-1.5 border-b border-emerald-900/5 pb-3 mb-4">
-                <FileText className="w-4 h-4 text-emerald-800" />
-                Complaint Dispatch & Status Control
-              </h5>
+            <div className="bg-white p-5 rounded-2xl border border-emerald-900/10 shadow-sm">
+              <div className="flex items-center justify-between border-b border-emerald-900/5 pb-3 mb-4">
+                <h5 className="text-sm font-black text-emerald-950 flex items-center gap-1.5">
+                  <FileText className="w-4 h-4 text-emerald-800" />
+                  Complaint Dispatch & Status Control
+                </h5>
+                {isUnassigned && (
+                  <button
+                    className="bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-[10px] px-2.5 py-1 rounded-lg shadow-sm transition flex items-center gap-1 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelfAssign(issue.id);
+                    }}
+                  >
+                    <UserCheck className="w-3 h-3" />
+                    Claim Task
+                  </button>
+                )}
+              </div>
               
               <div className="space-y-4">
                 
@@ -1143,7 +1135,7 @@ function IssueRow({ issue, userProfile, onUpdate, onSelfAssign, urgency }: Issue
 
                 {/* TEXTAREA WITH AI DRAFTER */}
                 <div>
-                  <label className="text-xs font-bold text-[#F9FBF7] text-emerald-850/60 block mb-1.5">Official Progress Report for Citizen Tray</label>
+                  <label className="text-xs font-bold text-emerald-850/60 block mb-1.5">Official Progress Report for Citizen Tray</label>
                   <div className="relative">
                     <textarea 
                       className="w-full p-3 border border-emerald-200 rounded-xl text-xs font-medium text-emerald-950 bg-[#F9FBF7] focus:outline-none focus:ring-2 focus:ring-emerald-100" 
@@ -1197,14 +1189,14 @@ function IssueRow({ issue, userProfile, onUpdate, onSelfAssign, urgency }: Issue
                 <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
                 <div>
                   <span className="font-extrabold">AI Flagged: High Priority Risk Detected</span>
-                  <p className="mt-1 text-amber-700 font-medium">This issue has crossed our urgency baseline due to high upvotes and monsoon proximity. Immediate mitigation plan generation recommended.</p>
+                  <p className="mt-1 text-amber-700 font-medium leading-relaxed">This issue has crossed our urgency baseline due to high upvotes and monsoon proximity. Immediate mitigation plan generation recommended.</p>
                 </div>
               </div>
             )}
           </div>
 
           {/* AI CONTRACTOR BRIEFING ACTION PLAN */}
-          <div className="bg-white p-5 rounded-3xl border border-emerald-900/10 shadow-sm flex flex-col">
+          <div className="bg-white p-5 rounded-2xl border border-emerald-900/10 shadow-sm flex flex-col">
             <div className="flex items-center justify-between mb-4 border-b border-emerald-900/5 pb-3">
               <h5 className="text-sm font-black text-emerald-950 flex items-center gap-1.5">
                 <Shield className="w-4 h-4 text-emerald-800" />

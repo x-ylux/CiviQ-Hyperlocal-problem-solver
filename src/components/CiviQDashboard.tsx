@@ -43,37 +43,41 @@ const categoryProgress = [
 
 export function CiviQDashboard({ onNavigate, openModal, triggerToast }: CiviQDashboardProps) {
   return (
-    <div className="page active dashboard-page" id="page-dashboard" style={{ display: "block" }}>
-      <section className="dashboard-hero">
-        <div className="dashboard-hero-photo" aria-hidden="true"></div>
-        <div className="dashboard-hero-content">
-          <span className="dashboard-eyebrow">
-            <i className="fas fa-satellite-dish"></i> Live municipal operations
+    <div className="page active dashboard-page w-full h-full" id="page-dashboard" style={{ display: "block" }}>
+      <section className="dashboard-hero glass-panel overflow-hidden relative">
+        <div className="absolute inset-0 bg-cover bg-center opacity-70 mix-blend-overlay pointer-events-none" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&q=80&w=1500')" }}></div>
+        <div className="absolute inset-0 bg-gradient-to-tr from-emerald-900/60 via-emerald-700/40 to-transparent mix-blend-multiply"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-300/30 blur-[80px] rounded-full"></div>
+        <div className="dashboard-hero-content relative z-10 p-8">
+          <span className="dashboard-eyebrow text-emerald-950 bg-emerald-100/90 px-3 py-1 rounded-full font-bold tracking-wider text-xs uppercase shadow-sm border border-emerald-200">
+            <i className="fas fa-satellite-dish mr-1 text-emerald-600 animate-pulse"></i> Live municipal operations
           </span>
-          <h2>Community Dashboard</h2>
-          <p>Track open civic issues, response times, green impact, and contractor accountability in one command view.</p>
-          <div className="dashboard-hero-actions">
-            <button className="btn btn-green" onClick={() => onNavigate("report")}>
+          <h2 className="text-4xl font-black text-emerald-950 mt-4 mb-4 drop-shadow-sm tracking-tight">Community Dashboard</h2>
+          <p className="text-emerald-900 font-medium text-lg max-w-2xl drop-shadow-sm">Track open civic issues, response times, green impact, and contractor accountability in one command view.</p>
+          <div className="dashboard-hero-actions mt-6 flex gap-4">
+            <button className="glass-button px-6 py-3 rounded-full font-bold shadow-lg" onClick={() => onNavigate("report")}>
               <i className="fas fa-plus"></i> New report
             </button>
-            <button className="btn btn-outline" onClick={() => onNavigate("map")}>
+            <button className="bg-white/80 hover:bg-white text-emerald-900 border border-emerald-200 backdrop-blur-md px-6 py-3 rounded-full font-bold shadow-sm transition-all" onClick={() => onNavigate("map")}>
               <i className="fas fa-map-location-dot"></i> Open map
             </button>
           </div>
         </div>
       </section>
 
-      <div className="section dashboard-section">
+      <div className="section dashboard-section mt-8">
         <div className="section-inner dashboard-grid-shell">
-          <div className="sla-alert dashboard-sla">
-            <i className="fas fa-triangle-exclamation"></i>
-            <div>
-              <strong>SLA breach:</strong> Ward 7 pothole, Report #1042, ignored for 14 days and escalated to Dy.
-              Commissioner.
-              <button type="button" onClick={() => openModal("rti")}>
-                Generate RTI
-              </button>
+          <div className="sla-alert dashboard-sla glass-panel border-rose-400 bg-rose-50/90 shadow-[0_10px_30px_rgba(244,63,94,0.2)] flex items-center gap-4 p-4 rounded-xl mb-6 transform hover:scale-[1.01] transition-transform">
+            <div className="w-12 h-12 rounded-full bg-rose-100 flex items-center justify-center flex-shrink-0 shadow-inner">
+              <i className="fas fa-triangle-exclamation text-rose-600 text-2xl animate-pulse"></i>
             </div>
+            <div className="flex-1 text-rose-950">
+              <strong className="text-rose-700 block text-lg mb-0.5">SLA breach detected</strong> 
+              Ward 7 pothole, Report #1042, ignored for 14 days and escalated to Dy. Commissioner.
+            </div>
+            <button type="button" onClick={() => openModal("rti")} className="bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-bold py-2.5 px-5 rounded-lg shadow-[0_4px_15px_rgba(244,63,94,0.4)] transition-all whitespace-nowrap transform hover:-translate-y-1">
+              Generate RTI
+            </button>
           </div>
 
           <div className="dashboard-metrics">

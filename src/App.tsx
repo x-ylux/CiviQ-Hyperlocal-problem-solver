@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { doc, getDoc, setDoc, collection, onSnapshot, addDoc, query, where, getDocs } from "firebase/firestore";
+import confetti from "canvas-confetti";
 import { auth, db } from "./firebase";
 import { UserProfile, OnboardingData, CivicIssue } from "./types";
 
@@ -18,6 +20,7 @@ import { CiviQInsights } from "./components/CiviQInsights";
 import { CiviQCarbonTracker } from "./components/CiviQCarbonTracker";
 import { CiviQLogin } from "./components/CiviQLogin";
 import { CiviQAuthorityDashboard } from "./components/CiviQAuthorityDashboard";
+import CiviQAIShowcase from "./components/CiviQAIShowcase";
 
 // Static Games Data
 const items: GameItem[] = [
@@ -100,9 +103,11 @@ const aiReplies: Record<string, string> = {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>(() => localStorage.getItem("civiq_active_user") ? "home" : "login");
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    return localStorage.getItem("civiq_theme") === "dark";
-  });
+  
+  useEffect(() => {
+    document.documentElement.classList.remove("dark");
+    localStorage.setItem("civiq_theme", "light");
+  }, []);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(() => {
     const activeSandboxJson = localStorage.getItem("civiq_active_user");
     if (activeSandboxJson) {
@@ -115,15 +120,6 @@ export default function App() {
     return null;
   });
 
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("civiq_theme", "dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("civiq_theme", "light");
-    }
-  }, [isDarkMode]);
   const [credits, setCredits] = useState<number>(0);
   const isUserLoggedIn = !!userProfile && (userProfile.uid.startsWith("sb_") || !auth.currentUser?.isAnonymous);
   const [reportStep, setReportStep] = useState<number>(1);
@@ -562,6 +558,31 @@ export default function App() {
 
   const triggerToast = (icon: string, message: string) => {
     setToast({ visible: true, icon, message });
+
+    // Confetti gamification for rewards, XP, etc.
+    const confettiTriggers = ["🎉", "🎁", "🔥", "⭐", "🪣", "🎓", "🌱", "♻️", "✅", "⚡", "🎯"];
+    
+    // Check for negative outcomes
+    const isError = ["❌", "⚠️", "error", "insufficient", "failed"].some(str => 
+      icon === str || message.toLowerCase().includes(str)
+    );
+
+    if (!isError) {
+      if (
+        confettiTriggers.includes(icon) ||
+        message.toLowerCase().includes("earned") ||
+        message.toLowerCase().includes("xp") ||
+        message.toLowerCase().includes("credit")
+      ) {
+        confetti({
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ['#10b981', '#059669', '#34d399', '#f59e0b', '#3b82f6', '#8b5cf6'],
+          disableForReducedMotion: true
+        });
+      }
+    }
   };
 
   useEffect(() => {
@@ -960,25 +981,58 @@ export default function App() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 antialiased relative">
-      {/* Falling Leaves Background container */}
-      <div className="leaves-container" id="leavesContainer"></div>
+  const getBackgroundImage = (tab: string) => {
+    switch(tab) {
+      case "home": return "url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&q=80&w=2500')"; // Forest glow
+      case "dashboard": return "url('https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&q=80&w=2500')"; // Sun rays in forest
+      case "report": return "url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=2500')"; // Deep nature
+      case "map": return "url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=2500')"; // Mountains
+      case "track": return "url('https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&q=80&w=2500')"; // Nature path
+      case "campaigns": return "url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=2500')"; // Earth globe leaf
+      case "games": return "url('https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&q=80&w=2500')"; // Sunset field
+      case "waste": return "url('https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&q=80&w=2500')"; // Green moss
+      case "carbon": return "url('https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?auto=format&fit=crop&q=80&w=2500')"; // Clean water / ice
+      case "gamify": return "url('https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?auto=format&fit=crop&q=80&w=2500')"; // Nature textures
+      case "insights": return "url('https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&q=80&w=2500')"; // Mountain view
+      case "ai_showcase": return "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=2500')"; // Abstract organic green
+      default: return "url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&q=80&w=2500')";
+    }
+  };
 
-      {/* Navbar exactly like civiQ.html */}
-      <nav className="nav" id="navbar">
+  return (
+    <div className="min-h-screen relative text-[#0F172A] antialiased transition-colors duration-300 flex flex-col font-sans overflow-hidden">
+      {/* Dynamic Realistic Nature Background */}
+      <div 
+        className="fixed inset-0 z-0 bg-cover bg-center transition-all duration-1000 ease-in-out transform scale-105" 
+        style={{
+          backgroundImage: getBackgroundImage(activeTab),
+          filter: 'brightness(1.1) saturate(1.4)'
+        }}
+      />
+      <div className="fixed inset-0 z-0 bg-white/40 backdrop-blur-md pointer-events-none transition-all duration-700"></div>
+
+      {/* Premium glowing ambient backdrops */}
+      <div className="absolute top-[5%] left-[-10%] w-[50vw] h-[50vw] max-w-[800px] rounded-full filter blur-[120px] bg-emerald-400/50 pointer-events-none z-0 mix-blend-screen animate-pulse" style={{ animationDuration: '8s' }}></div>
+      <div className="absolute bottom-[10%] right-[-10%] w-[50vw] h-[50vw] max-w-[800px] rounded-full filter blur-[120px] bg-sky-400/40 pointer-events-none z-0 mix-blend-screen animate-pulse" style={{ animationDuration: '10s' }}></div>
+      <div className="absolute top-[40%] left-[20%] w-[40vw] h-[40vw] max-w-[600px] rounded-full filter blur-[100px] bg-amber-300/40 pointer-events-none z-0 mix-blend-screen animate-pulse" style={{ animationDuration: '12s' }}></div>
+
+      {/* Falling Leaves Background container */}
+      <div className="leaves-container fixed inset-0 z-0 pointer-events-none" id="leavesContainer"></div>
+
+      {/* Navbar with Glassmorphism */}
+      <nav className="nav relative z-50" id="navbar">
         <a
-          className="nav-logo"
+          className="nav-logo hover:scale-105 transition-transform"
           href="#"
           onClick={(e) => {
             e.preventDefault();
             setActiveTab("home");
           }}
         >
-          <div className="nav-logo-icon">
-            <i className="fas fa-leaf"></i>
+          <div className="nav-logo-icon shadow-[0_0_15px_rgba(16,185,129,0.5)] bg-gradient-to-br from-emerald-400 to-emerald-600">
+            <i className="fas fa-leaf text-white"></i>
           </div>
-          CiviQ
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 to-teal-800 font-bold">CiviQ</span>
         </a>
         <div className="nav-links">
           {userProfile?.role === "authority" ? (
@@ -1022,6 +1076,9 @@ export default function App() {
               <button className={`nav-link ${activeTab === "insights" ? "active" : ""}`} onClick={() => setActiveTab("insights")}>
                 AI Insights
               </button>
+              <button className={`nav-link ${activeTab === "ai_showcase" ? "active" : ""}`} onClick={() => setActiveTab("ai_showcase")}>
+                AI Demo
+              </button>
               {!isUserLoggedIn && (
                 <button className={`nav-link ${activeTab === "login" ? "active" : ""}`} onClick={() => setActiveTab("login")}>
                   Login
@@ -1031,14 +1088,6 @@ export default function App() {
           )}
         </div>
         <div className="nav-right">
-          <button
-            className="nav-link"
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            title="Toggle Dark Mode"
-            style={{ fontSize: "1.2rem", padding: "0.2rem 0.5rem" }}
-          >
-            {isDarkMode ? "🌙" : "☀️"}
-          </button>
           {isUserLoggedIn && userProfile?.role !== "authority" && (
             <div className="xp-badge">
               <i className="fas fa-star"></i> {credits.toLocaleString()} XP
@@ -1119,146 +1168,182 @@ export default function App() {
         </div>
       </nav>
 
-      {/* Main page view containers matching civiQ.html active class and display toggles */}
-      <main className="main max-w-7xl mx-auto px-4 sm:px-6 md:px-8" style={{ paddingBottom: "80px" }}>
-        {activeTab === "home" && (
-          <CiviQHome
-            onNavigate={setActiveTab}
-            onboarding={onboarding}
-            setOnboarding={setOnboarding}
-            triggerToast={triggerToast}
-          />
-        )}
+      {/* Main page view containers */}
+      <main className="main max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative z-10 w-full flex-grow flex flex-col" style={{ paddingBottom: "80px" }}>
+        <AnimatePresence mode="wait">
+          {activeTab === "home" && (
+            <motion.div key="home" className="flex-grow flex flex-col" initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -30, filter: 'blur(10px)' }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+              <CiviQHome
+                onNavigate={setActiveTab}
+                onboarding={onboarding}
+                setOnboarding={setOnboarding}
+                triggerToast={triggerToast}
+              />
+            </motion.div>
+          )}
 
-        {activeTab === "dashboard" && (
-          userProfile?.role === "authority" ? (
-            <CiviQAuthorityDashboard triggerToast={triggerToast} userProfile={userProfile} />
-          ) : (
-            <CiviQDashboard onNavigate={setActiveTab} openModal={openModal} triggerToast={triggerToast} />
-          )
-        )}
+          {activeTab === "dashboard" && (
+            <motion.div key="dashboard" className="flex-grow flex flex-col" initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -30, filter: 'blur(10px)' }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+              {userProfile?.role === "authority" ? (
+                <CiviQAuthorityDashboard triggerToast={triggerToast} userProfile={userProfile} />
+              ) : (
+                <CiviQDashboard onNavigate={setActiveTab} openModal={openModal} triggerToast={triggerToast} />
+              )}
+            </motion.div>
+          )}
 
-        {activeTab === "report" && (
-          <CiviQReport
-            onNavigate={setActiveTab}
-            reportStep={reportStep}
-            setReportStep={setReportStep}
-            selectedCat={selectedCat}
-            setSelectedCat={setSelectedCat}
-            onReportSubmit={handleReportSubmit}
-            onResetReport={resetReport}
-            openModal={openModal}
-            triggerToast={triggerToast}
-          />
-        )}
+          {activeTab === "report" && (
+            <motion.div key="report" className="flex-grow flex flex-col" initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -30, filter: 'blur(10px)' }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+              <CiviQReport
+                onNavigate={setActiveTab}
+                reportStep={reportStep}
+                setReportStep={setReportStep}
+                selectedCat={selectedCat}
+                setSelectedCat={setSelectedCat}
+                onReportSubmit={handleReportSubmit}
+                onResetReport={resetReport}
+                openModal={openModal}
+                triggerToast={triggerToast}
+              />
+            </motion.div>
+          )}
 
-        {activeTab === "map" && <CiviQMap triggerToast={triggerToast} />}
+          {activeTab === "map" && (
+            <motion.div key="map" className="flex-grow flex flex-col" initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -30, filter: 'blur(10px)' }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+              <CiviQMap triggerToast={triggerToast} />
+            </motion.div>
+          )}
 
-        {activeTab === "track" && (
-          <CiviQTrack
-            issues={issues}
-            selectedIssueId={selectedIssueId}
-            setSelectedIssueId={setSelectedIssueId}
-            openModal={openModal}
-            triggerToast={triggerToast}
-            onUpvoteIssue={handleUpvoteIssue}
-          />
-        )}
+          {activeTab === "track" && (
+            <motion.div key="track" className="flex-grow flex flex-col" initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -30, filter: 'blur(10px)' }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+              <CiviQTrack
+                issues={issues}
+                selectedIssueId={selectedIssueId}
+                setSelectedIssueId={setSelectedIssueId}
+                openModal={openModal}
+                triggerToast={triggerToast}
+                onUpvoteIssue={handleUpvoteIssue}
+              />
+            </motion.div>
+          )}
 
-        {activeTab === "campaigns" && (
-          <CiviQCampaigns
-            campaignFilter={campaignFilter}
-            setCampaignFilter={setCampaignFilter}
-            joinedCampaigns={joinedCampaigns}
-            onJoinCampaign={handleJoinCampaign}
-          />
-        )}
+          {activeTab === "campaigns" && (
+            <motion.div key="campaigns" className="flex-grow flex flex-col" initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -30, filter: 'blur(10px)' }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+              <CiviQCampaigns
+                campaignFilter={campaignFilter}
+                setCampaignFilter={setCampaignFilter}
+                joinedCampaigns={joinedCampaigns}
+                onJoinCampaign={handleJoinCampaign}
+              />
+            </motion.div>
+          )}
 
-        {activeTab === "games" && (
-          <CiviQGames
-            gameTab={gameTab}
-            setGameTab={setGameTab}
-            items={items}
-            sortScore={sortScore}
-            sortIdx={sortIdx}
-            sortLevel={sortLevel}
-            sortFeedback={sortFeedback}
-            checkSortBin={checkSortBin}
-            nextSortItem={nextSortItem}
-            quizScore={quizScore}
-            quizIdx={quizIdx}
-            quizAnswered={quizAnswered}
-            quizSelected={quizSelected}
-            quizQs={quizQs}
-            onQuizOptionClick={handleQuizOptionClick}
-            nextQuizQuestion={nextQuizQuestion}
-            speedState={speedState}
-            speedCount={speedCount}
-            speedScoreVal={speedScoreVal}
-            speedIdx={speedIdx}
-            speedFeedback={speedFeedback}
-            onStartSpeedGame={startSpeedGame}
-            onCheckSpeedAnswer={checkSpeedAnswer}
-            onResetSpeedGame={resetSpeedGame}
-          />
-        )}
+          {activeTab === "games" && (
+            <motion.div key="games" className="flex-grow flex flex-col" initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -30, filter: 'blur(10px)' }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+              <CiviQGames
+                gameTab={gameTab}
+                setGameTab={setGameTab}
+                items={items}
+                sortScore={sortScore}
+                sortIdx={sortIdx}
+                sortLevel={sortLevel}
+                sortFeedback={sortFeedback}
+                checkSortBin={checkSortBin}
+                nextSortItem={nextSortItem}
+                quizScore={quizScore}
+                quizIdx={quizIdx}
+                quizAnswered={quizAnswered}
+                quizSelected={quizSelected}
+                quizQs={quizQs}
+                onQuizOptionClick={handleQuizOptionClick}
+                nextQuizQuestion={nextQuizQuestion}
+                speedState={speedState}
+                speedCount={speedCount}
+                speedScoreVal={speedScoreVal}
+                speedIdx={speedIdx}
+                speedFeedback={speedFeedback}
+                onStartSpeedGame={startSpeedGame}
+                onCheckSpeedAnswer={checkSpeedAnswer}
+                onResetSpeedGame={resetSpeedGame}
+              />
+            </motion.div>
+          )}
 
-        {activeTab === "waste" && (
-          <CiviQWasteHub
-            onNavigate={setActiveTab}
-            openModal={openModal}
-            triggerToast={triggerToast}
-            onBuyCompostItem={buyCompostItem}
-          />
-        )}
+          {activeTab === "waste" && (
+            <motion.div key="waste" className="flex-grow flex flex-col" initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -30, filter: 'blur(10px)' }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+              <CiviQWasteHub
+                onNavigate={setActiveTab}
+                openModal={openModal}
+                triggerToast={triggerToast}
+                onBuyCompostItem={buyCompostItem}
+              />
+            </motion.div>
+          )}
 
-        {activeTab === "carbon" && (
-          <CiviQCarbonTracker
-            credits={credits}
-            handleUpdateCredits={handleUpdateCredits}
-            triggerToast={triggerToast}
-          />
-        )}
+          {activeTab === "carbon" && (
+            <motion.div key="carbon" className="flex-grow flex flex-col" initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -30, filter: 'blur(10px)' }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+              <CiviQCarbonTracker
+                credits={credits}
+                handleUpdateCredits={handleUpdateCredits}
+                triggerToast={triggerToast}
+              />
+            </motion.div>
+          )}
 
-        {activeTab === "gamify" && (
-          <CiviQCredits
-            credits={credits}
-            userProfile={userProfile}
-            onNavigate={setActiveTab}
-            triggerToast={triggerToast}
-            onRedeemReward={redeemReward}
-            onStartCivicLearning={startCivicLearning}
-            setGameTab={setGameTab}
-          />
-        )}
+          {activeTab === "gamify" && (
+            <motion.div key="gamify" className="flex-grow flex flex-col" initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -30, filter: 'blur(10px)' }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+              <CiviQCredits
+                credits={credits}
+                userProfile={userProfile}
+                onNavigate={setActiveTab}
+                triggerToast={triggerToast}
+                onRedeemReward={redeemReward}
+                onStartCivicLearning={startCivicLearning}
+                setGameTab={setGameTab}
+              />
+            </motion.div>
+          )}
 
-        {activeTab === "insights" && <CiviQInsights triggerToast={triggerToast} />}
+          {activeTab === "insights" && (
+            <motion.div key="insights" className="flex-grow flex flex-col" initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -30, filter: 'blur(10px)' }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+              <CiviQInsights triggerToast={triggerToast} />
+            </motion.div>
+          )}
 
-         {activeTab === "login" && (
-          <CiviQLogin
-            onNavigate={setActiveTab}
-            triggerToast={triggerToast}
-            onLoginSuccess={(role) => {
-              const activeUserJson = localStorage.getItem("civiq_active_user");
-              if (activeUserJson) {
-                try {
-                  const p = JSON.parse(activeUserJson);
-                  setUserProfile(p);
-                  if (typeof p.credits === "number") {
-                    setCredits(p.credits);
+          {activeTab === "ai_showcase" && (
+            <motion.div key="ai_showcase" className="flex-grow flex flex-col" initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -30, filter: 'blur(10px)' }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+              <CiviQAIShowcase />
+            </motion.div>
+          )}
+
+          {activeTab === "login" && (
+            <motion.div key="login" className="flex-grow flex flex-col" initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -30, filter: 'blur(10px)' }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
+              <CiviQLogin
+                onNavigate={setActiveTab}
+                triggerToast={triggerToast}
+                onLoginSuccess={(role) => {
+                  const activeUserJson = localStorage.getItem("civiq_active_user");
+                  if (activeUserJson) {
+                    try {
+                      const p = JSON.parse(activeUserJson);
+                      setUserProfile(p);
+                      if (typeof p.credits === "number") {
+                        setCredits(p.credits);
+                      }
+                      if (p.role === "authority") {
+                        setActiveTab("dashboard");
+                      } else {
+                        setActiveTab("home");
+                      }
+                    } catch (e) {
+                      console.error("Error loading user profile on login success:", e);
+                    }
                   }
-                  if (p.role === "authority") {
-                    setActiveTab("dashboard");
-                  } else {
-                    setActiveTab("home");
-                  }
-                } catch (e) {
-                  console.error("Error loading user profile on login success:", e);
-                }
-              }
-            }}
-          />
-        )}
+                }}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
 
       {/* Floating Smart AI Chatbot assistant with standard or keyword responses */}

@@ -38,29 +38,29 @@ export function CiviQWasteHub({
 
       <div className="section">
         <div className="section-inner">
-          <div className="flex flex-col lg:flex-row gap-8 items-center bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-850 p-6 md:p-8 rounded-3xl shadow-xl shadow-slate-100/30 dark:shadow-none mb-10">
+          <div className="flex flex-col lg:flex-row gap-8 items-center bg-white  border border-emerald-100  p-6 md:p-8 rounded-3xl shadow-xl shadow-slate-100/30  mb-10">
             <div className="flex-1 space-y-4">
-              <div className="section-tag inline-flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/40 text-emerald-700 dark:text-emerald-300 px-3 py-1 rounded-full text-xs font-bold">
+              <div className="section-tag inline-flex items-center gap-1.5 bg-emerald-50  border border-emerald-100  text-emerald-700  px-3 py-1 rounded-full text-xs font-bold">
                 <i className="fas fa-trash-can"></i> 3-Bin segregation guide
               </div>
-              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white font-sans tracking-tight">
+              <h3 className="text-2xl font-extrabold text-emerald-900  font-sans tracking-tight">
                 Which bin for what?
               </h3>
-              <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">
+              <p className="text-emerald-500  text-sm leading-relaxed">
                 Proper waste segregation at source prevents landfills from growing and supports eco-friendly bio-conversion. CiviQ rewards compliant households with credits!
               </p>
             </div>
             <div className="w-full lg:w-1/3 flex justify-center">
               <div className="relative group max-w-[240px]">
                 <div className="absolute -inset-1.5 bg-gradient-to-r from-emerald-500 to-green-400 rounded-2xl blur opacity-25 group-hover:opacity-45 transition duration-500"></div>
-                <div className="relative bg-white dark:bg-slate-800 p-2.5 rounded-2xl border border-slate-100 dark:border-slate-700">
+                <div className="relative bg-white  p-2.5 rounded-2xl border border-emerald-100 ">
                   <img
                     src="/src/assets/images/civiq_clean_bin_1782730762819.jpg"
                     alt="Charming sorting guide illustration"
                     className="w-full rounded-xl object-cover shadow-sm"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute bottom-4 left-4 right-4 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-center text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+                  <div className="absolute bottom-4 left-4 right-4 bg-emerald-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-center text-[10px] font-bold uppercase tracking-wider text-emerald-300">
                     Smarter Segregation
                   </div>
                 </div>

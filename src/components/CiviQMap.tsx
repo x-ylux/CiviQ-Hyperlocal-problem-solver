@@ -470,10 +470,10 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
 
       // HTML content for Popup
       const popupHtml = `
-        <div class="popup-card text-slate-800" style="min-width: 180px; font-family: 'Inter', sans-serif;">
+        <div class="popup-card text-emerald-800" style="min-width: 180px; font-family: 'Inter', sans-serif;">
           <h4 class="font-bold text-[13px] text-emerald-900 mb-1" style="margin: 0 0 4px 0;">${issue.title}</h4>
           ${issue.photoURL ? `<img src="${issue.photoURL}" alt="issue thumbnail" class="w-full h-20 object-cover rounded mb-2" style="display: block; width: 100%; height: 80px; object-fit: cover; border-radius: 6px; margin-bottom: 8px;" />` : ""}
-          <div class="text-[11px] leading-relaxed text-slate-600 mb-2" style="margin-bottom: 8px;">
+          <div class="text-[11px] leading-relaxed text-emerald-600 mb-2" style="margin-bottom: 8px;">
             <p style="margin: 2px 0;"><strong>Reporter:</strong> ${issue.reporterName}</p>
             <p style="margin: 2px 0;"><strong>Upvotes:</strong> ${issue.upvotes}</p>
             <p style="margin: 2px 0;"><strong>Category:</strong> ${issue.category}</p>
@@ -576,16 +576,16 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
           <div className="card relative overflow-hidden" style={{ borderRadius: "16px", border: "1px solid var(--border)", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.05)" }}>
             
             {/* Map Header Overlay / Controls */}
-            <div className="absolute top-4 left-4 z-[1000] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md p-3 rounded-xl shadow-lg border border-slate-100 dark:border-slate-800 max-w-[280px] md:max-w-[400px]">
+            <div className="absolute top-4 left-4 z-[1000] bg-white/95  backdrop-blur-md p-3 rounded-xl shadow-lg border border-emerald-100  max-w-[280px] md:max-w-[400px]">
               <div className="flex flex-col gap-2">
                 <div className="flex items-center justify-between gap-1.5">
                   <div className="flex items-center gap-1.5">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Live Sync Engaged</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 ">Live Sync Engaged</span>
                   </div>
                   <button 
                     onClick={() => setShowLocationInfo(!showLocationInfo)}
-                    className="text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                    className="text-emerald-400 hover:text-emerald-600 :text-emerald-400 transition-colors"
                     title="Why location is requested"
                   >
                     <i className="fas fa-info-circle text-xs"></i>
@@ -593,37 +593,37 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
                 </div>
 
                 {showLocationInfo && (
-                  <div className="bg-slate-50 dark:bg-slate-800/80 p-2 rounded-lg text-[10px] text-slate-600 dark:text-slate-300 border border-slate-100 dark:border-slate-800 leading-normal">
+                  <div className="bg-emerald-50  p-2 rounded-lg text-[10px] text-emerald-600  border border-emerald-100  leading-normal">
                     <strong>Why location is needed:</strong> Location access allows us to auto-locate reported civic issues, display active incidents in your immediate ward, and enable physical fix verification within a 2km radius to earn XP!
                   </div>
                 )}
 
-                <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                <p className="text-[11px] text-emerald-500 ">
                   Showing {issues.length} community complaints in actual coords.
                 </p>
 
                 {/* Geolocation Status Indicator */}
-                <div className="flex items-center gap-1.5 text-[10px] bg-slate-50 dark:bg-slate-800/50 px-2 py-1.5 rounded-lg border border-slate-100 dark:border-slate-800">
-                  <span className="font-semibold text-slate-500 dark:text-slate-400">Location:</span>
+                <div className="flex items-center gap-1.5 text-[10px] bg-emerald-50  px-2 py-1.5 rounded-lg border border-emerald-100 ">
+                  <span className="font-semibold text-emerald-500 ">Location:</span>
                   {permissionState === "granted" ? (
-                    <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
+                    <span className="text-emerald-600  font-bold flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Active (GPS)
                     </span>
                   ) : permissionState === "denied" ? (
-                    <span className="text-rose-600 dark:text-rose-400 font-bold flex items-center gap-1">
+                    <span className="text-rose-600  font-bold flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-rose-500"></span> Denied / Blocked
                     </span>
                   ) : (
-                    <span className="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
+                    <span className="text-amber-600  font-bold flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span> Checking...
                     </span>
                   )}
                 </div>
 
                 {/* Fallback Manual Picker */}
-                <div className="border-t border-slate-100 dark:border-slate-800 pt-2">
+                <div className="border-t border-emerald-100  pt-2">
                   <div className="mb-1">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">
+                    <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-wide">
                       {permissionState === "denied" ? "⚠️ Set Location Manually" : "Set Location Manually"}
                     </span>
                   </div>
@@ -633,25 +633,25 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
                     <div className="grid grid-cols-2 gap-1">
                       <button
                         onClick={() => handleSetManualLocation(28.6139, 77.2090, "New Delhi")}
-                        className="text-[9px] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 py-1 rounded font-medium text-slate-700 dark:text-slate-300 transition-colors"
+                        className="text-[9px] bg-emerald-100  hover:bg-emerald-200 :bg-emerald-700 py-1 rounded font-medium text-emerald-700  transition-colors"
                       >
                         New Delhi
                       </button>
                       <button
                         onClick={() => handleSetManualLocation(19.0760, 72.8777, "Mumbai")}
-                        className="text-[9px] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 py-1 rounded font-medium text-slate-700 dark:text-slate-300 transition-colors"
+                        className="text-[9px] bg-emerald-100  hover:bg-emerald-200 :bg-emerald-700 py-1 rounded font-medium text-emerald-700  transition-colors"
                       >
                         Mumbai
                       </button>
                       <button
                         onClick={() => handleSetManualLocation(12.9716, 77.5946, "Bengaluru")}
-                        className="text-[9px] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 py-1 rounded font-medium text-slate-700 dark:text-slate-300 transition-colors"
+                        className="text-[9px] bg-emerald-100  hover:bg-emerald-200 :bg-emerald-700 py-1 rounded font-medium text-emerald-700  transition-colors"
                       >
                         Bengaluru
                       </button>
                       <button
                         onClick={() => handleSetManualLocation(22.5726, 88.3639, "Kolkata")}
-                        className="text-[9px] bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 py-1 rounded font-medium text-slate-700 dark:text-slate-300 transition-colors"
+                        className="text-[9px] bg-emerald-100  hover:bg-emerald-200 :bg-emerald-700 py-1 rounded font-medium text-emerald-700  transition-colors"
                       >
                         Kolkata
                       </button>
@@ -677,7 +677,7 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
                         name="lat"
                         step="0.0001"
                         placeholder="Lat"
-                        className="w-5/12 text-[9px] px-1.5 py-1 border rounded dark:bg-slate-800 dark:border-slate-700 dark:text-white"
+                        className="w-5/12 text-[9px] px-1.5 py-1 border rounded   "
                         required
                       />
                       <input
@@ -685,7 +685,7 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
                         name="lng"
                         step="0.0001"
                         placeholder="Lng"
-                        className="w-5/12 text-[9px] px-1.5 py-1 border rounded dark:bg-slate-800 dark:border-slate-700 dark:text-white"
+                        className="w-5/12 text-[9px] px-1.5 py-1 border rounded   "
                         required
                       />
                       <button
@@ -700,13 +700,13 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
                 </div>
                 
                 {/* View Toggles */}
-                <div className="flex gap-1.5 mt-1 border-t border-slate-100 dark:border-slate-800 pt-2 flex-wrap">
+                <div className="flex gap-1.5 mt-1 border-t border-emerald-100  pt-2 flex-wrap">
                   <button
                     onClick={() => setLayerView("pins")}
                     className={`px-2 py-1 text-[10px] font-semibold rounded-lg transition-all ${
                       layerView === "pins"
                         ? "bg-emerald-600 text-white"
-                        : "bg-slate-50 hover:bg-slate-100 text-slate-600"
+                        : "bg-emerald-50 hover:bg-emerald-100 text-emerald-600"
                     }`}
                   >
                     Pins
@@ -716,7 +716,7 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
                     className={`px-2 py-1 text-[10px] font-semibold rounded-lg transition-all ${
                       layerView === "cluster"
                         ? "bg-emerald-600 text-white"
-                        : "bg-slate-50 hover:bg-slate-100 text-slate-600"
+                        : "bg-emerald-50 hover:bg-emerald-100 text-emerald-600"
                     }`}
                   >
                     Cluster
@@ -726,7 +726,7 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
                     className={`px-2 py-1 text-[10px] font-semibold rounded-lg transition-all ${
                       layerView === "heatmap"
                         ? "bg-emerald-600 text-white"
-                        : "bg-slate-50 hover:bg-slate-100 text-slate-600"
+                        : "bg-emerald-50 hover:bg-emerald-100 text-emerald-600"
                     }`}
                   >
                     🔥 Heatmap
@@ -740,7 +740,7 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
               {/* Locate Me */}
               <button
                 onClick={handleLocateMe}
-                className="w-10 h-10 bg-white/95 hover:bg-white dark:bg-slate-900/95 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-200 rounded-full shadow-md flex items-center justify-center border border-slate-100 dark:border-slate-800 transition-all hover:scale-105 active:scale-95"
+                className="w-10 h-10 bg-white/95 hover:bg-white  :bg-emerald-900 text-emerald-700  rounded-full shadow-md flex items-center justify-center border border-emerald-100  transition-all hover:scale-105 active:scale-95"
                 title="Locate Me"
               >
                 <i className="fas fa-crosshairs text-base"></i>
@@ -749,7 +749,7 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
               {/* Satellite Toggle */}
               <button
                 onClick={() => setMapView(mapView === "standard" ? "satellite" : "standard")}
-                className="w-10 h-10 bg-white/95 hover:bg-white dark:bg-slate-900/95 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-200 rounded-full shadow-md flex items-center justify-center border border-slate-100 dark:border-slate-800 transition-all hover:scale-105 active:scale-95"
+                className="w-10 h-10 bg-white/95 hover:bg-white  :bg-emerald-900 text-emerald-700  rounded-full shadow-md flex items-center justify-center border border-emerald-100  transition-all hover:scale-105 active:scale-95"
                 title="Toggle Satellite Imagery"
               >
                 <i className={`fas ${mapView === "standard" ? "fa-globe" : "fa-map"} text-base`}></i>
@@ -777,8 +777,8 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
             />
 
             {/* Legend / Info Bar */}
-            <div className="flex flex-wrap items-center gap-4 px-4 py-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 text-[11px] font-medium text-slate-600 dark:text-slate-400">
-              <span className="font-bold text-slate-700 dark:text-slate-300">LEGEND:</span>
+            <div className="flex flex-wrap items-center gap-4 px-4 py-3 bg-emerald-50  border-t border-emerald-100  text-[11px] font-medium text-emerald-600 ">
+              <span className="font-bold text-emerald-700 ">LEGEND:</span>
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#EF4444]"></span> Critical Severity
               </div>

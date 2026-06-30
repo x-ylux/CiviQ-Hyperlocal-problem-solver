@@ -857,7 +857,7 @@ export function CiviQReport({
                     </div>
                   </div>
                   <button onClick={fetchExactLocation} className="btn btn-ghost" style={{ padding: "0.5rem", borderRadius: "50%", background: "#e2e8f0" }} title="Fetch Exact Live Location">
-                    <i className="fas fa-crosshairs text-slate-700"></i>
+                    <i className="fas fa-crosshairs text-emerald-700"></i>
                   </button>
                 </div>
 
