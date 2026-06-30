@@ -340,51 +340,51 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 bg-[#F9FBF7]">
+    <div className="max-w-7xl mx-auto py-10 px-4 sm:px-8 bg-[#F9FBF7]">
       {/* Forest Background Banner */}
-      <div className="relative overflow-hidden rounded-[32px] mb-8 bg-cover bg-center py-12 px-8 text-center text-white border border-emerald-800/20 shadow-lg" 
+      <div className="relative overflow-hidden rounded-[36px] mb-10 bg-cover bg-center py-14 px-10 text-center text-white border border-emerald-800/20 shadow-xl" 
            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&q=80&w=1500')" }}>
         <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/95 via-emerald-900/90 to-emerald-850/85"></div>
         
         {/* Banner Content */}
-        <div className="relative z-10 space-y-3">
-          <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md border border-white/25 text-emerald-250 px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wider uppercase">
-            <Shield className="w-3.5 h-3.5 text-emerald-400" />
+        <div className="relative z-10 space-y-4">
+          <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md border border-white/25 text-emerald-250 px-5 py-2 rounded-full text-xs font-black tracking-widest uppercase">
+            <Shield className="w-4 h-4 text-emerald-400" />
             <span>Secure Command & Dispatch Center</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white drop-shadow-md">OFFICIAL COMMAND & DISPATCH</h1>
-          <ul className="text-emerald-50 text-xs sm:text-sm max-w-2xl mx-auto space-y-1.5 font-medium list-disc list-inside text-center sm:text-left inline-block">
+          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white drop-shadow-md">OFFICIAL COMMAND & DISPATCH</h1>
+          <ul className="text-emerald-50 text-xs sm:text-sm max-w-2xl mx-auto space-y-2 font-medium list-disc list-inside text-center sm:text-left inline-block">
             <li>Manage assigned service tickets, monitor real-time ward operations.</li>
             <li>View dynamic compliance stats linked directly to municipal service-level agreements (SLA).</li>
           </ul>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
         {/* LEFT COLUMN: SIDEBAR PROFILE CARD */}
-        <div className="lg:col-span-4 space-y-6">
-          <div className="bg-white p-6 rounded-3xl border border-emerald-900/10 shadow-sm flex flex-col items-center">
-            <div className="relative mb-4">
-              <div className="w-24 h-24 bg-emerald-800 border-4 border-emerald-250 rounded-full flex items-center justify-center text-emerald-50 text-4xl font-extrabold shadow-lg">
+        <div className="lg:col-span-4 space-y-8">
+          <div className="bg-white p-8 rounded-3xl border border-emerald-900/10 shadow-[0_10px_30px_-5px_rgba(4,47,31,0.03)] flex flex-col items-center">
+            <div className="relative mb-5">
+              <div className="w-28 h-28 bg-emerald-800 border-4 border-emerald-250 rounded-full flex items-center justify-center text-emerald-50 text-4xl font-extrabold shadow-lg">
                 {getInitials(userProfile?.displayName)}
               </div>
-              <span className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full" title="Active On Duty"></span>
+              <span className="absolute bottom-1 right-1 w-5 h-5 bg-green-500 border-2 border-white rounded-full animate-pulse" title="Active On Duty"></span>
             </div>
             
-            <h2 className="text-xl font-black text-emerald-950 text-center leading-tight mb-1">
+            <h2 className="text-2xl font-black text-emerald-950 text-center leading-tight mb-2">
               {userProfile?.displayName || "Officer S.K. Sharma"}
             </h2>
-            <p className="text-xs text-emerald-850 bg-emerald-50 border border-emerald-250 font-extrabold px-3 py-1 rounded-full uppercase tracking-wider mb-4">
+            <p className="text-xs text-emerald-850 bg-emerald-50 border border-emerald-250 font-extrabold px-3 py-1.5 rounded-full uppercase tracking-wider mb-6">
               {userProfile?.designation || "Chief Inspector"}
             </p>
 
             {/* Structured Credentials Table */}
             <div className="w-full text-sm font-semibold border border-emerald-900/10 rounded-2xl overflow-hidden bg-[#F9FBF7]/50 shadow-inner">
-              <div className="flex justify-between items-center px-4 py-3 border-b border-emerald-900/5">
+              <div className="flex justify-between items-center px-5 py-4 border-b border-emerald-900/5">
                 <span className="text-emerald-800/60 text-xs font-bold">Duty Status</span>
                 <button 
                   onClick={() => setIsOnDuty(!isOnDuty)}
-                  className={`text-[10px] font-black px-2.5 py-1 rounded-lg uppercase border transition-all hover:scale-105 active:scale-95 cursor-pointer ${
+                  className={`text-[10px] font-black px-3 py-1.5 rounded-lg uppercase border transition-all hover:scale-105 active:scale-95 cursor-pointer ${
                     isOnDuty 
                       ? "bg-emerald-100 text-emerald-800 border-emerald-300" 
                       : "bg-gray-100 text-gray-500 border-gray-300"
@@ -394,21 +394,21 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
                   {isOnDuty ? "ON DUTY" : "OFF DUTY"}
                 </button>
               </div>
-              <div className="flex justify-between items-center px-4 py-3 border-b border-emerald-900/5">
+              <div className="flex justify-between items-center px-5 py-4 border-b border-emerald-900/5">
                 <span className="text-emerald-800/60 text-xs font-bold">Department</span>
                 <span className="font-extrabold text-emerald-950 text-xs">{userProfile?.department || "Sanitation"}</span>
               </div>
-              <div className="flex justify-between items-center px-4 py-3 border-b border-emerald-900/5">
+              <div className="flex justify-between items-center px-5 py-4 border-b border-emerald-900/5">
                 <span className="text-emerald-800/60 text-xs font-bold">Jurisdiction</span>
                 <span className="font-extrabold text-emerald-950 text-xs">{currentWard}</span>
               </div>
-              <div className="flex justify-between items-center px-4 py-3 border-b border-emerald-900/5">
+              <div className="flex justify-between items-center px-5 py-4 border-b border-emerald-900/5">
                 <span className="text-emerald-800/60 text-xs font-bold">Status</span>
                 <span className="text-[10px] font-black px-2.5 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full uppercase">
                   ACTIVE
                 </span>
               </div>
-              <div className="flex justify-between items-center px-4 py-3">
+              <div className="flex justify-between items-center px-5 py-4">
                 <span className="text-emerald-800/60 text-xs font-bold">Clearance Level</span>
                 <span className="font-extrabold text-emerald-950 text-xs">Class I Officer</span>
               </div>
@@ -416,12 +416,12 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
           </div>
 
           {/* AI AUTO-DISPATCH INFO CARD */}
-          <div className="bg-white p-5 rounded-3xl border border-emerald-900/10 shadow-sm space-y-3 text-left">
+          <div className="bg-white p-6 rounded-3xl border border-emerald-900/10 shadow-[0_10px_30px_-5px_rgba(4,47,31,0.03)] space-y-4 text-left">
             <h3 className="font-extrabold text-emerald-950 text-sm flex items-center gap-2">
               <span className="text-base">🤖</span>
               AI Auto-Dispatch
             </h3>
-            <ul className="text-emerald-800/80 text-xs space-y-2.5 list-disc pl-4 leading-relaxed font-medium">
+            <ul className="text-emerald-800/80 text-xs space-y-3 list-disc pl-5 leading-relaxed font-medium">
               <li>Every new report is automatically routed to officers based of ward operations.</li>
               <li>View dynamic compliance stats linked directly to municipal service-level agreements (SLA).</li>
             </ul>
@@ -429,29 +429,29 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
         </div>
 
         {/* RIGHT COLUMN: MAIN CONTENT AREA */}
-        <div className="lg:col-span-8 space-y-6">
+        <div className="lg:col-span-8 space-y-8">
           
           {/* TOP STATS CARDS BAR */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-white p-5 rounded-3xl border border-emerald-900/10 shadow-sm transition hover:shadow-md">
-              <div className="text-[10px] font-extrabold text-emerald-950 uppercase tracking-wider">Total Assigned</div>
-              <div className="text-4xl font-black text-emerald-950 mt-1 font-mono">{totalAssignedCount}</div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="bg-white p-6 rounded-3xl border border-emerald-900/10 shadow-[0_10px_30px_-5px_rgba(4,47,31,0.03)] transition hover:shadow-md hover:border-emerald-600/20">
+              <div className="text-[10px] font-extrabold text-emerald-850/60 uppercase tracking-wider mb-2">Total Assigned</div>
+              <div className="text-4xl font-black text-emerald-950 font-mono leading-none">{totalAssignedCount}</div>
             </div>
             
-            <div className="bg-white p-5 rounded-3xl border border-emerald-900/10 shadow-sm transition hover:shadow-md">
-              <div className="text-[10px] font-extrabold text-emerald-950 uppercase tracking-wider">Resolved</div>
-              <div className="text-4xl font-black text-emerald-850 mt-1 font-mono">{totalResolvedCount}</div>
+            <div className="bg-white p-6 rounded-3xl border border-emerald-900/10 shadow-[0_10px_30px_-5px_rgba(4,47,31,0.03)] transition hover:shadow-md hover:border-emerald-600/20">
+              <div className="text-[10px] font-extrabold text-emerald-850/60 uppercase tracking-wider mb-2">Resolved</div>
+              <div className="text-4xl font-black text-emerald-850 font-mono leading-none">{totalResolvedCount}</div>
             </div>
             
-            <div className="bg-white p-5 rounded-3xl border border-emerald-900/10 shadow-sm transition hover:shadow-md">
-              <div className="text-[10px] font-extrabold text-emerald-950 uppercase tracking-wider">SLA Compliance</div>
-              <div className={`text-4xl font-black mt-1 font-mono ${slaCompliance < 80 ? "text-rose-600" : "text-emerald-800"}`}>
+            <div className="bg-white p-6 rounded-3xl border border-emerald-900/10 shadow-[0_10px_30px_-5px_rgba(4,47,31,0.03)] transition hover:shadow-md hover:border-emerald-600/20">
+              <div className="text-[10px] font-extrabold text-emerald-850/60 uppercase tracking-wider mb-2">SLA Compliance</div>
+              <div className={`text-4xl font-black font-mono leading-none ${slaCompliance < 80 ? "text-rose-600" : "text-emerald-800"}`}>
                 {slaCompliance}%
               </div>
             </div>
             
-            <div className="bg-white p-5 rounded-3xl border border-emerald-900/10 shadow-sm transition hover:shadow-md relative group cursor-pointer">
-              <div className="text-[10px] font-extrabold text-emerald-950 uppercase tracking-wider flex items-center justify-between">
+            <div className="bg-white p-6 rounded-3xl border border-emerald-900/10 shadow-[0_10px_30px_-5px_rgba(4,47,31,0.03)] transition hover:shadow-md hover:border-emerald-600/20 relative group cursor-pointer">
+              <div className="text-[10px] font-extrabold text-emerald-850/60 uppercase tracking-wider flex items-center justify-between mb-2">
                 <span>Notifications</span>
                 {unreadCount > 0 && (
                   <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full animate-bounce">
@@ -459,10 +459,10 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
                   </span>
                 )}
               </div>
-              <div className="text-4xl font-black text-emerald-950 mt-1 font-mono">{notifications.length}</div>
+              <div className="text-4xl font-black text-emerald-950 font-mono leading-none">{notifications.length}</div>
               
               {/* Real-time Notification Dropdown */}
-              <div className="absolute top-full right-0 mt-2 w-80 bg-white border border-emerald-900/10 rounded-3xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-250 z-50 overflow-hidden">
+              <div className="absolute top-full right-0 mt-3 w-80 bg-white border border-emerald-900/10 rounded-3xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-250 z-50 overflow-hidden">
                 <div className="p-4 border-b bg-emerald-50/50 font-bold text-sm text-emerald-950 flex items-center gap-2">
                   <Bell className="w-4 h-4 text-emerald-700" />
                   <span>Duty Alerts Inbox</span>
@@ -501,11 +501,11 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
           </div>
 
           {/* MAIN NAVIGATION TABS */}
-          <div className="flex border-b border-emerald-900/10 gap-6">
+          <div className="flex border-b border-emerald-900/10 gap-8 md:gap-10 pt-4">
             <button 
-              className={`pb-3 px-2 font-bold text-sm transition-all relative flex items-center gap-2 cursor-pointer ${
+              className={`pb-4 px-3 font-bold text-sm transition-all relative flex items-center gap-2 cursor-pointer ${
                 activeTab === "inbox" 
-                  ? "text-emerald-950 font-extrabold" 
+                  ? "text-emerald-950 font-black" 
                   : "text-emerald-800/60 hover:text-emerald-950"
               }`} 
               onClick={() => setActiveTab("inbox")}
@@ -515,9 +515,9 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
             </button>
             
             <button 
-              className={`pb-3 px-2 font-bold text-sm transition-all relative flex items-center gap-2 cursor-pointer ${
+              className={`pb-4 px-3 font-bold text-sm transition-all relative flex items-center gap-2 cursor-pointer ${
                 activeTab === "map" 
-                  ? "text-emerald-950 font-extrabold" 
+                  ? "text-emerald-950 font-black" 
                   : "text-emerald-800/60 hover:text-emerald-950"
               }`} 
               onClick={() => setActiveTab("map")}
@@ -527,9 +527,9 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
             </button>
             
             <button 
-              className={`pb-3 px-2 font-bold text-sm transition-all relative flex items-center gap-2 cursor-pointer ${
+              className={`pb-4 px-3 font-bold text-sm transition-all relative flex items-center gap-2 cursor-pointer ${
                 activeTab === "performance" 
-                  ? "text-emerald-950 font-extrabold" 
+                  ? "text-emerald-950 font-black" 
                   : "text-emerald-800/60 hover:text-emerald-950"
               }`} 
               onClick={() => setActiveTab("performance")}
@@ -544,11 +544,11 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
             <div className="space-y-6">
               
               {/* SUB TAB SELECTORS FOR MONITORING EVERYTHING */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
-                <div className="flex flex-wrap gap-2.5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 pb-2">
+                <div className="flex flex-wrap gap-3">
                   <button 
                     onClick={() => setInboxSubTab("my-assigned")}
-                    className={`px-4 py-1.5 rounded-full text-xs font-extrabold transition-all shadow-sm cursor-pointer ${
+                    className={`px-5 py-2 rounded-full text-xs font-extrabold transition-all shadow-sm cursor-pointer ${
                       inboxSubTab === "my-assigned" 
                         ? "bg-emerald-850 text-white border border-emerald-950" 
                         : "bg-white text-emerald-950 border border-emerald-200 hover:bg-emerald-50"
@@ -558,7 +558,7 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
                   </button>
                   <button 
                     onClick={() => setInboxSubTab("ward-overview")}
-                    className={`px-4 py-1.5 rounded-full text-xs font-extrabold transition-all shadow-sm cursor-pointer ${
+                    className={`px-5 py-2 rounded-full text-xs font-extrabold transition-all shadow-sm cursor-pointer ${
                       inboxSubTab === "ward-overview" 
                         ? "bg-emerald-850 text-white border border-emerald-950" 
                         : "bg-white text-emerald-950 border border-emerald-200 hover:bg-emerald-50"
@@ -568,7 +568,7 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
                   </button>
                   <button 
                     onClick={() => setInboxSubTab("unassigned")}
-                    className={`px-4 py-1.5 rounded-full text-xs font-extrabold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer ${
+                    className={`px-5 py-2 rounded-full text-xs font-extrabold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer ${
                       inboxSubTab === "unassigned" 
                         ? "bg-rose-600 text-white border border-rose-700" 
                         : "bg-white text-rose-800 border border-rose-200 hover:bg-rose-50"
@@ -580,9 +580,9 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-emerald-850/60 font-black">Sort:</span>
+                  <span className="text-xs text-emerald-850/60 font-black uppercase tracking-wider">Sort:</span>
                   <select 
-                    className="text-xs border border-emerald-200 rounded-xl px-3 py-1.5 bg-white font-black text-emerald-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-100" 
+                    className="text-xs border border-emerald-200 rounded-xl px-4 py-2 bg-white font-black text-emerald-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-100" 
                     value={sortOrder} 
                     onChange={e => setSortOrder(e.target.value as any)}
                   >
@@ -594,10 +594,10 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
 
               {/* UNASSIGNED SYSTEM BANNER */}
               {inboxSubTab === "unassigned" && unassignedWardIssues.length > 0 && (
-                <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 text-xs flex gap-2 animate-pulse">
+                <div className="p-5 bg-rose-50 border border-rose-200/60 rounded-2xl text-rose-800 text-xs flex gap-3 shadow-sm">
                   <AlertCircle className="w-5 h-5 text-rose-600 shrink-0" />
                   <div>
-                    <span className="font-extrabold">🚨 Action Required: Unassigned Incidents in Ward</span>
+                    <span className="font-extrabold text-sm block">🚨 Action Required: Unassigned Incidents in Ward</span>
                     <p className="mt-1 text-rose-700 font-medium">These complaints have not found a matching departmental official. As an active ward officer, you can self-assign these tasks to coordinate them.</p>
                   </div>
                 </div>
@@ -605,12 +605,12 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
 
               {/* TABLE LAYOUT FOR ISSUES */}
               <div className="space-y-4">
-                <div className="hidden md:grid bg-white text-emerald-950 font-black text-xs uppercase tracking-wider py-4 px-6 rounded-2xl grid-cols-12 gap-4 items-center border border-emerald-900/10 shadow-sm">
+                <div className="hidden md:grid bg-[#F4F7F2] text-emerald-900/60 font-black text-[11px] uppercase tracking-wider py-4 px-8 rounded-2xl grid-cols-12 gap-4 items-center border border-emerald-900/5 shadow-sm">
                   <div className="col-span-2">Issue ID</div>
                   <div className="col-span-2">Category</div>
                   <div className="col-span-4">Description</div>
                   <div className="col-span-2">Reporter</div>
-                  <div className="col-span-1 text-center">Ward</div>
+                  <div className="col-span-1 text-center font-mono">Ward</div>
                   <div className="col-span-1 text-right">Date Filed</div>
                 </div>
 
@@ -867,51 +867,52 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
             )}
 
             {/* LEADERBOARD TABLE (RANKS 4+) */}
-            <div className="bg-white border rounded-2xl shadow-sm overflow-hidden">
-              <div className="p-4 bg-gray-50 border-b">
-                <span className="text-xs font-bold text-gray-400 uppercase">Leaderboard Rankings</span>
+            <div className="bg-white border border-emerald-900/10 rounded-[24px] shadow-sm overflow-hidden">
+              <div className="p-5 bg-emerald-50/40 border-b border-emerald-900/5 flex justify-between items-center">
+                <span className="text-xs font-black text-emerald-900/60 uppercase tracking-wider">Leaderboard Rankings</span>
+                <span className="text-[10px] font-extrabold text-emerald-800/50 uppercase tracking-widest">Active Ward Officers</span>
               </div>
-              <div className="divide-y">
+              <div className="divide-y divide-emerald-900/5">
                 {remainingRanks.map((officer, index) => {
                   const rank = index + 4;
                   const isCurrentOfficer = officer.uid === userProfile?.uid || officer.displayName?.toLowerCase() === userProfile?.displayName?.toLowerCase();
                   return (
                     <div 
                       key={officer.uid} 
-                      className={`p-4 flex items-center justify-between hover:bg-gray-50 transition ${
-                        isCurrentOfficer ? "bg-teal-50/40 border-l-4 border-l-teal-600" : ""
+                      className={`p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-emerald-50/10 transition gap-4 ${
+                        isCurrentOfficer ? "bg-emerald-50/20 border-l-4 border-emerald-600" : ""
                       }`}
                     >
                       <div className="flex items-center gap-4">
-                        <span className="font-bold text-sm text-gray-500 w-4 font-mono">{rank}</span>
-                        <div className="w-10 h-10 rounded-full bg-teal-50 border border-teal-100 text-teal-700 font-bold text-xs flex items-center justify-center">
+                        <span className="font-black text-sm text-emerald-900/40 w-5 text-center font-mono">{rank}</span>
+                        <div className="w-11 h-11 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 font-extrabold text-sm flex items-center justify-center shrink-0">
                           {getInitials(officer.displayName)}
                         </div>
                         <div>
-                          <h5 className="font-bold text-gray-900 text-sm flex items-center gap-1.5">
+                          <h5 className="font-extrabold text-emerald-950 text-sm flex items-center gap-2">
                             {officer.displayName}
                             {isCurrentOfficer && (
-                              <span className="text-[9px] bg-teal-600 text-white font-extrabold px-1.5 py-0.5 rounded-full uppercase">
+                              <span className="text-[9px] bg-emerald-600 text-white font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
                                 You
                               </span>
                             )}
                           </h5>
-                          <p className="text-xs text-gray-400 font-medium">{officer.designation} • {officer.department} ({officer.ward})</p>
+                          <p className="text-xs text-emerald-800/60 font-medium mt-0.5">{officer.designation} • {officer.department} ({officer.ward})</p>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-8">
+                      <div className="flex items-center gap-8 justify-between sm:justify-end">
                         <div className="text-right">
-                          <span className="text-xs text-gray-400 block">Resolved</span>
-                          <span className="font-bold text-gray-800 text-sm">{officer.resolvedCount} issues</span>
+                          <span className="text-[10px] font-bold text-emerald-800/40 uppercase tracking-wider block mb-0.5">Resolved</span>
+                          <span className="font-black text-emerald-950 text-sm font-mono">{officer.resolvedCount} issues</span>
                         </div>
                         <div className="text-right">
-                          <span className="text-xs text-gray-400 block">SLA Rate</span>
-                          <span className="font-bold text-green-600 text-sm">{officer.slaCompliance}%</span>
+                          <span className="text-[10px] font-bold text-emerald-800/40 uppercase tracking-wider block mb-0.5">SLA Rate</span>
+                          <span className="font-black text-emerald-700 text-sm font-mono">{officer.slaCompliance}%</span>
                         </div>
                         <div className="text-right w-24">
-                          <span className="text-xs text-gray-400 block">Score</span>
-                          <span className="font-extrabold text-teal-600 text-sm font-mono">{officer.score} pts</span>
+                          <span className="text-[10px] font-bold text-emerald-800/40 uppercase tracking-wider block mb-0.5">Score</span>
+                          <span className="font-black text-emerald-600 text-sm font-mono">{officer.score} pts</span>
                         </div>
                       </div>
                     </div>
@@ -921,12 +922,12 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
             </div>
 
             {/* PERFORMANCE TIPS */}
-            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex gap-3 items-center">
-              <Star className="w-6 h-6 text-emerald-600 shrink-0" />
-              <div className="text-xs text-emerald-800">
-                <span className="font-extrabold">How to increase your rank:</span>
-                <p className="text-emerald-700 mt-0.5">
-                  Earn <span className="font-bold">25 points</span> for every resolved complaint, plus speed bonuses for resolving issues in less than 48 hours. Keep your SLA compliance over 95% to maintain a streak multiplier!
+            <div className="p-5 sm:p-6 bg-emerald-50/60 border border-emerald-200/50 rounded-[24px] flex gap-4 items-center shadow-sm">
+              <Star className="w-7 h-7 text-emerald-600 shrink-0 animate-pulse" />
+              <div className="text-xs text-emerald-950/80 leading-relaxed">
+                <span className="font-black text-emerald-950 text-sm block mb-1">How to increase your rank:</span>
+                <p className="text-emerald-850 font-medium">
+                  Earn <span className="font-extrabold text-emerald-950">25 points</span> for every resolved complaint, plus speed bonuses for resolving issues in less than 48 hours. Keep your SLA compliance over 95% to maintain a streak multiplier!
                 </p>
               </div>
             </div>
@@ -1022,35 +1023,35 @@ function IssueRow({ issue, userProfile, onUpdate, onSelfAssign, urgency }: Issue
   const isUnassigned = !issue.assignedTo || !issue.assignedTo.uid;
 
   return (
-    <div className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden ${
+    <div className={`bg-white rounded-[24px] border transition-all duration-300 overflow-hidden ${
       expanded 
-        ? "border-emerald-600 ring-1 ring-emerald-100 shadow-md" 
+        ? "border-emerald-600 ring-2 ring-emerald-50 shadow-[0_15px_30px_rgba(4,47,31,0.06)]" 
         : isUnassigned 
-          ? "border-rose-250 hover:border-rose-350 bg-rose-50/5 hover:bg-rose-50/10" 
-          : "border-emerald-900/5 hover:border-emerald-950/10 hover:shadow-sm"
+          ? "border-rose-200 bg-rose-50/5 hover:bg-rose-50/15 hover:shadow-sm" 
+          : "border-emerald-900/10 hover:border-emerald-600/30 hover:shadow-[0_8px_20px_-5px_rgba(4,47,31,0.04)]"
     }`}>
       
       {/* Clickable Grid Row */}
       <div 
-        className="p-5 md:py-4 md:px-6 flex flex-col md:grid md:grid-cols-12 gap-3 md:gap-4 items-start md:items-center cursor-pointer text-sm font-medium text-emerald-950 hover:bg-emerald-50/25 transition-all"
+        className="p-6 md:py-5 md:px-8 flex flex-col md:grid md:grid-cols-12 gap-4 md:gap-6 items-start md:items-center cursor-pointer text-sm font-medium text-emerald-950 hover:bg-emerald-50/30 transition-all"
         onClick={() => setExpanded(!expanded)}
       >
         {/* Issue ID & Risk Icon & Status Badge */}
-        <div className="col-span-2 flex md:flex-col items-center md:items-start justify-between md:justify-center w-full md:w-auto gap-1">
+        <div className="col-span-2 flex md:flex-col items-center md:items-start justify-between md:justify-center w-full md:w-auto gap-2">
           <div className="flex items-center gap-1.5">
-            <span className="text-xs font-mono font-extrabold text-emerald-850/60">
+            <span className="text-xs font-mono font-black text-emerald-850/60">
               #{issue.id?.slice(0, 6) || "N/A"}
             </span>
             {isHighRisk && (
-              <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" title="High Priority Risk Detected!" />
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" title="High Priority Risk Detected!" />
             )}
           </div>
-          <span className={`px-2 py-0.5 text-[9px] font-black rounded-md border uppercase tracking-wider ${
+          <span className={`px-2.5 py-0.5 text-[9px] font-black rounded-full border uppercase tracking-wider ${
             issue.status === "Resolved" || issue.status === "Closed"
               ? "bg-emerald-100 text-emerald-800 border-emerald-200"
               : issue.status === "In progress" || issue.status === "Work In Progress"
                 ? "bg-amber-100 text-amber-800 border-amber-200"
-                : "bg-emerald-50 text-emerald-850 border-emerald-200/50"
+                : "bg-emerald-50/70 text-emerald-850 border-emerald-250"
           }`}>
             {issue.status}
           </span>
@@ -1058,69 +1059,69 @@ function IssueRow({ issue, userProfile, onUpdate, onSelfAssign, urgency }: Issue
 
         {/* Category Pill */}
         <div className="col-span-2 w-full md:w-auto">
-          <span className="px-2.5 py-1 text-xs font-black rounded-lg bg-emerald-50 border border-emerald-200/50 text-emerald-800 uppercase tracking-wide">
+          <span className="px-3 py-1 text-xs font-extrabold rounded-full bg-emerald-50 border border-emerald-200/50 text-emerald-800 uppercase tracking-wide">
             {issue.category}
           </span>
         </div>
 
         {/* Description / Title */}
-        <div className="col-span-4 pr-4 w-full md:w-auto">
-          <div className="font-extrabold text-emerald-950 line-clamp-1">{issue.title || issue.category}</div>
-          <div className="text-xs text-emerald-850/50 line-clamp-1 font-normal mt-0.5">{issue.description || "No description supplied."}</div>
+        <div className="col-span-4 pr-4 w-full md:w-auto space-y-0.5">
+          <div className="font-extrabold text-emerald-950 text-sm leading-snug line-clamp-1">{issue.title || issue.category}</div>
+          <div className="text-xs text-emerald-850/60 line-clamp-1 font-normal">{issue.description || "No description supplied."}</div>
         </div>
 
         {/* Reporter Name */}
-        <div className="col-span-2 text-emerald-800/70 font-semibold text-xs truncate w-full md:w-auto">
-          <span className="md:hidden text-emerald-850/40 text-[10px] font-bold mr-1">Reporter:</span>
+        <div className="col-span-2 text-emerald-850 font-semibold text-xs truncate w-full md:w-auto">
+          <span className="md:hidden text-emerald-850/40 text-[10px] font-black mr-1 uppercase tracking-wider">Reporter:</span>
           {issue.reporterName || "Anonymous Citizen"}
         </div>
 
         {/* Ward Number */}
-        <div className="col-span-1 text-xs text-emerald-800/70 font-mono font-bold md:text-center w-full md:w-auto">
-          <span className="md:hidden text-emerald-850/40 text-[10px] font-bold mr-1">Ward:</span>
+        <div className="col-span-1 text-xs text-emerald-850 font-mono font-bold md:text-center w-full md:w-auto">
+          <span className="md:hidden text-emerald-850/40 text-[10px] font-black mr-1 uppercase tracking-wider font-sans">Ward:</span>
           {issue.ward || "7"}
         </div>
 
         {/* Date Filed */}
-        <div className="col-span-1 md:text-right text-xs text-emerald-800/50 font-bold w-full md:w-auto flex md:block justify-between items-center">
-          <span className="md:hidden text-emerald-850/40 text-[10px] font-bold">Date Filed:</span>
+        <div className="col-span-1 md:text-right text-xs text-emerald-850/60 font-bold w-full md:w-auto flex md:block justify-between items-center">
+          <span className="md:hidden text-emerald-850/40 text-[10px] font-black uppercase tracking-wider font-sans">Date Filed:</span>
           <span>{issue.createdAt ? new Date(issue.createdAt).toLocaleDateString() : "N/A"}</span>
         </div>
       </div>
 
       {/* ACCORDION EXPANDED BODY */}
       {expanded && (
-        <div className="p-6 border-t border-emerald-900/10 bg-[#F9FBF7]/40 grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeIn">
+        <div className="p-8 border-t border-emerald-900/10 bg-emerald-50/15 grid grid-cols-1 lg:grid-cols-2 gap-8 animate-fadeIn">
           
           {/* REGULATORY ACTION CONTROLS PANEL */}
-          <div className="space-y-4">
-            <div className="bg-white p-5 rounded-2xl border border-emerald-900/10 shadow-sm">
-              <div className="flex items-center justify-between border-b border-emerald-900/5 pb-3 mb-4">
-                <h5 className="text-sm font-black text-emerald-950 flex items-center gap-1.5">
-                  <FileText className="w-4 h-4 text-emerald-800" />
+          <div className="space-y-6">
+            <div className="bg-white p-6 rounded-2xl border border-emerald-900/10 shadow-sm">
+              <div className="flex items-center justify-between border-b border-emerald-900/5 pb-4 mb-5">
+                <h5 className="text-sm font-black text-emerald-950 flex items-center gap-2">
+                  <FileText className="w-4.5 h-4.5 text-emerald-800" />
                   Complaint Dispatch & Status Control
                 </h5>
                 {isUnassigned && (
                   <button
-                    className="bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-[10px] px-2.5 py-1 rounded-lg shadow-sm transition flex items-center gap-1 cursor-pointer"
+                    className="bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-[10px] px-3 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
                       onSelfAssign(issue.id);
                     }}
                   >
-                    <UserCheck className="w-3 h-3" />
+                    <UserCheck className="w-3.5 h-3.5" />
                     Claim Task
                   </button>
                 )}
               </div>
               
-              <div className="space-y-4">
+              <div className="space-y-5">
                 
                 {/* STATUS INPUTS */}
                 <div>
-                  <label className="text-xs font-bold text-emerald-850/60 block mb-1.5">Update Operational Stage</label>
+                  <label className="text-xs font-black text-emerald-850/60 uppercase tracking-wider block mb-2">Update Operational Stage</label>
                   <select 
-                    className="w-full p-2.5 border border-emerald-200 rounded-xl text-xs bg-[#F9FBF7] font-semibold text-emerald-950 focus:outline-none focus:ring-2 focus:ring-emerald-100" 
+                    className="w-full p-3 border border-emerald-200 rounded-xl text-xs bg-white font-bold text-emerald-950 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-100" 
                     value={newStatus} 
                     onChange={e => setNewStatus(e.target.value)}
                   >
@@ -1135,17 +1136,17 @@ function IssueRow({ issue, userProfile, onUpdate, onSelfAssign, urgency }: Issue
 
                 {/* TEXTAREA WITH AI DRAFTER */}
                 <div>
-                  <label className="text-xs font-bold text-emerald-850/60 block mb-1.5">Official Progress Report for Citizen Tray</label>
+                  <label className="text-xs font-black text-emerald-850/60 uppercase tracking-wider block mb-2">Official Progress Report for Citizen Tray</label>
                   <div className="relative">
                     <textarea 
-                      className="w-full p-3 border border-emerald-200 rounded-xl text-xs font-medium text-emerald-950 bg-[#F9FBF7] focus:outline-none focus:ring-2 focus:ring-emerald-100" 
+                      className="w-full p-4 border border-emerald-200 rounded-xl text-xs font-medium text-emerald-950 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-100 min-h-[120px]" 
                       placeholder="Write operational details, contractor names, or reasons for status updates..."
                       rows={5}
                       value={note}
                       onChange={e => setNote(e.target.value)}
                     />
                     <button 
-                      className="absolute bottom-3 right-3 text-[10px] bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 px-3 py-1.5 rounded-xl flex items-center gap-1 font-bold transition shadow-sm cursor-pointer"
+                      className="absolute bottom-3.5 right-3.5 text-[10px] bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200 px-3.5 py-2 rounded-xl flex items-center gap-1 font-bold transition shadow-sm cursor-pointer"
                       onClick={handleDraftMessage}
                       disabled={draftLoading}
                     >
@@ -1155,9 +1156,9 @@ function IssueRow({ issue, userProfile, onUpdate, onSelfAssign, urgency }: Issue
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-2">
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <button 
-                    className="bg-emerald-800 hover:bg-emerald-950 text-white font-bold py-2.5 rounded-xl text-xs transition shadow flex-1 cursor-pointer"
+                    className="bg-emerald-800 hover:bg-emerald-950 text-white font-black py-3 px-5 rounded-xl text-xs transition shadow-md flex-1 cursor-pointer uppercase tracking-wider"
                     onClick={() => {
                       onUpdate(issue.id, newStatus, note);
                       setExpanded(false);
@@ -1169,7 +1170,7 @@ function IssueRow({ issue, userProfile, onUpdate, onSelfAssign, urgency }: Issue
                   
                   {issue.status !== "Resolved" && issue.status !== "Closed" && (
                     <button 
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition shadow flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 px-6 rounded-xl text-xs transition shadow-md flex items-center justify-center gap-2 cursor-pointer uppercase tracking-wider"
                       onClick={() => {
                         onUpdate(issue.id, "Resolved", note || "Marked as Resolved/Done by assigned officer.");
                         setExpanded(false);
@@ -1185,43 +1186,43 @@ function IssueRow({ issue, userProfile, onUpdate, onSelfAssign, urgency }: Issue
 
             {/* AI RISK WARNING BADGE */}
             {isHighRisk && (
-              <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl flex gap-3 text-amber-800 text-xs">
-                <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+              <div className="bg-amber-50/70 border border-amber-200/80 p-5 rounded-2xl flex gap-4 text-amber-800 text-xs shadow-sm">
+                <AlertTriangle className="w-6 h-6 text-amber-600 shrink-0" />
                 <div>
-                  <span className="font-extrabold">AI Flagged: High Priority Risk Detected</span>
-                  <p className="mt-1 text-amber-700 font-medium leading-relaxed">This issue has crossed our urgency baseline due to high upvotes and monsoon proximity. Immediate mitigation plan generation recommended.</p>
+                  <span className="font-extrabold text-sm block">AI Flagged: High Priority Risk Detected</span>
+                  <p className="mt-1.5 text-amber-700 font-medium leading-relaxed">This issue has crossed our urgency baseline due to high upvotes and monsoon proximity. Immediate mitigation plan generation recommended.</p>
                 </div>
               </div>
             )}
           </div>
 
           {/* AI CONTRACTOR BRIEFING ACTION PLAN */}
-          <div className="bg-white p-5 rounded-2xl border border-emerald-900/10 shadow-sm flex flex-col">
-            <div className="flex items-center justify-between mb-4 border-b border-emerald-900/5 pb-3">
-              <h5 className="text-sm font-black text-emerald-950 flex items-center gap-1.5">
-                <Shield className="w-4 h-4 text-emerald-800" />
+          <div className="bg-white p-6 rounded-2xl border border-emerald-900/10 shadow-sm flex flex-col">
+            <div className="flex items-center justify-between mb-5 border-b border-emerald-900/5 pb-4">
+              <h5 className="text-sm font-black text-emerald-950 flex items-center gap-2">
+                <Shield className="w-4.5 h-4.5 text-emerald-800" />
                 AI Smart Contractor Dispatcher
               </h5>
               <button 
                 onClick={handleGeneratePlan}
                 disabled={aiLoading}
-                className="text-[10px] bg-emerald-800 text-white font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition hover:bg-emerald-950 shadow-sm cursor-pointer"
+                className="text-[10px] bg-emerald-800 text-white font-black px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition hover:bg-emerald-950 shadow-sm cursor-pointer uppercase tracking-wider"
               >
                 {aiLoading ? <RefreshCw className="w-3 h-3 animate-spin" /> : "⚡"} 
                 Generate Dispatch Brief
               </button>
             </div>
             
-            <div className="flex-1 bg-[#F9FBF7] border border-emerald-900/5 rounded-2xl p-4 text-xs overflow-y-auto max-h-[300px] font-sans text-emerald-950/80 leading-relaxed space-y-2 select-text">
+            <div className="flex-1 bg-[#F9FBF7] border border-emerald-900/5 rounded-2xl p-5 text-xs overflow-y-auto max-h-[320px] font-sans text-emerald-950/80 leading-relaxed space-y-3 select-text">
               {aiPlan ? (
-                <div className="prose prose-sm text-emerald-950 max-w-none whitespace-pre-line font-mono text-[11px]">
+                <div className="prose prose-sm text-emerald-950 max-w-none whitespace-pre-line font-mono text-[11.5px] leading-relaxed">
                   {aiPlan}
                 </div>
               ) : (
-                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-emerald-800/40">
-                  <Star className="w-8 h-8 text-emerald-300 animate-pulse mb-2" />
-                  <span className="font-bold text-emerald-800/60">No Contractor Brief Prepared</span>
-                  <p className="text-[11px] mt-1 text-emerald-800/40">Click the generate button above to auto-create contractor instructions, India-standard budgets, and safety checklists.</p>
+                <div className="h-full flex flex-col items-center justify-center text-center p-8 text-emerald-800/40">
+                  <Star className="w-9 h-9 text-emerald-300 animate-pulse mb-3" />
+                  <span className="font-extrabold text-emerald-800/70 text-sm">No Contractor Brief Prepared</span>
+                  <p className="text-[11px] mt-1.5 text-emerald-800/40 max-w-xs leading-relaxed">Click the generate button above to auto-create contractor instructions, India-standard budgets, and safety checklists.</p>
                 </div>
               )}
             </div>

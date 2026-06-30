@@ -29,6 +29,88 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const [isLocating, setIsLocating] = useState<boolean>(false);
+  const [locatedAddress, setLocatedAddress] = useState<string>("");
+
+  // Automatically fetch location on mount and auto-fill ward
+  useEffect(() => {
+    if (navigator.geolocation) {
+      setIsLocating(true);
+      
+      const options = {
+        enableHighAccuracy: false, // Much faster & more reliable inside standard iframes/sandboxes
+        timeout: 6000,
+        maximumAge: 60000
+      };
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setIsLocating(false);
+          const { latitude, longitude } = position.coords;
+          
+          // Delhi coordinates of our 4 main wards
+          const wards = [
+            { id: "7", name: "Ward 7 (Rajouri Garden)", lat: 28.6415, lng: 77.1218 },
+            { id: "3", name: "Ward 3 (Pitampura)", lat: 28.7032, lng: 77.1325 },
+            { id: "11", name: "Ward 11 (Dwarka)", lat: 28.5921, lng: 77.0460 },
+            { id: "5", name: "Ward 5 (Malviya Nagar)", lat: 28.5355, lng: 77.2081 }
+          ];
+          
+          // Calculate closest ward by Euclidean distance
+          let closestWard = wards[0];
+          let minD = Infinity;
+          wards.forEach(w => {
+            const d = Math.hypot(w.lat - latitude, w.lng - longitude);
+            if (d < minD) {
+              minD = d;
+              closestWard = w;
+            }
+          });
+          
+          setOnboarding({
+            ...onboarding,
+            ward: closestWard.id,
+            completed: true,
+          });
+          
+          setLocatedAddress(`GPS: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+          triggerToast("📍", `Detected nearest: ${closestWard.name}`);
+        },
+        (error) => {
+          console.warn("GPS fetch error (using standard fallback):", error.message);
+          setIsLocating(false);
+          
+          let friendlyError = "GPS offline. Select ward manually.";
+          if (error.code === error.PERMISSION_DENIED) {
+            friendlyError = "GPS blocked. Select ward manually.";
+          } else if (error.code === error.TIMEOUT) {
+            friendlyError = "GPS timeout. Select ward manually.";
+          }
+          
+          setLocatedAddress(friendlyError);
+          
+          // Standard fallback to default Ward 7 if not set
+          if (!onboarding.ward) {
+            setOnboarding({
+              ...onboarding,
+              ward: "7",
+              completed: true,
+            });
+          }
+        },
+        options
+      );
+    } else {
+      setLocatedAddress("GPS unsupported. Select ward manually.");
+      if (!onboarding.ward) {
+        setOnboarding({
+          ...onboarding,
+          ward: "7",
+          completed: true,
+        });
+      }
+    }
+  }, []);
 
   // Auto-scroll chat to bottom
   useEffect(() => {
@@ -188,239 +270,84 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
 
   return (
     <div className="page active" id="page-home" style={{ display: "block" }}>
-      {!onboarding.completed ? (
-        // ONBOARDING CHAT FLOW
-        <div className="hero" style={{ minHeight: "580px", padding: "3rem 1.5rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div className="hero-bg-circles">
-            <div className="hero-circle" style={{ width: "500px", height: "500px", top: "-100px", left: "-100px" }}></div>
-            <div className="hero-circle" style={{ width: "300px", height: "300px", bottom: "-50px", right: "-50px" }}></div>
-          </div>
-          <div className="card w-full max-w-2xl" style={{ border: "1px solid rgba(255,255,255,0.25)", backdropFilter: "blur(20px)", background: "rgba(30, 41, 59, 0.75)" }}>
-            <div className="card-header" style={{ borderBottom: "1px solid rgba(255,255,255,0.15)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: "var(--leaf)", animation: "pulse 1.5s infinite" }}></div>
-                <span style={{ fontSize: "0.95rem", fontWeight: 700, color: "white", fontFamily: "Poppins, sans-serif" }}>
-                  CiviQ Personalized Onboarding
-                </span>
-              </div>
-              <span className="badge badge-ai" style={{ background: "rgba(124, 58, 237, 0.2)", color: "#C084FC" }}>
-                <i className="fas fa-robot"></i> AI Guide
-              </span>
+      {/* BEAUTIFUL GREENERY EARTH & ENVIRONMENTAL BANNER */}
+      <div className="hero glass-panel overflow-hidden relative rounded-[2.5rem] p-8 md:p-12 mb-10 min-h-[480px] border border-emerald-900/10 flex flex-col justify-between shadow-xl">
+        {/* Breathtaking Greenery Backdrop */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&q=80&w=1600"
+            alt="Eco-civic lush green canopy"
+            className="w-full h-full object-cover brightness-[0.45] contrast-[1.05]"
+            referrerPolicy="no-referrer"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-emerald-950/40 to-transparent"></div>
+          {/* Subtle slow pulsing green light glow */}
+          <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none animate-pulse"></div>
+        </div>
+
+        {/* Hero Content Area */}
+        <div className="relative z-10 flex flex-col h-full justify-between gap-8">
+          {/* Top Row: Decorative Header and Live Status */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2 bg-emerald-500/20 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-black text-emerald-200 border border-emerald-400/20 uppercase tracking-wider shadow-sm">
+              <i className="fas fa-globe-americas"></i>
+              <span>CiviQ Planet Alliance</span>
             </div>
             
-            {/* CHAT BUBBLES CONTAINER */}
-            <div style={{ height: "320px", overflowY: "auto", padding: "1.25rem", display: "flex", flexDirection: "column", gap: "1rem" }}>
-              {chatMessages.map((msg) => (
-                <div
-                  key={msg.id}
-                  style={{
-                    display: "flex",
-                    justifyContent: msg.sender === "user" ? "flex-end" : "flex-start",
-                  }}
-                >
-                  <div
-                    style={{
-                      maxWidth: "85%",
-                      padding: "0.85rem 1.1rem",
-                      borderRadius: "18px",
-                      borderBottomRightRadius: msg.sender === "user" ? "3px" : "18px",
-                      borderBottomLeftRadius: msg.sender === "ai" ? "3px" : "18px",
-                      background: msg.sender === "user" ? "var(--leaf)" : "rgba(255,255,255,0.1)",
-                      color: msg.sender === "user" ? "white" : "rgba(255,255,255,0.95)",
-                      fontSize: "0.88rem",
-                      lineHeight: "1.5",
-                      boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-                    }}
-                  >
-                    {msg.text}
-                  </div>
-                </div>
-              ))}
-              {isTyping && (
-                <div style={{ display: "flex", justifyContent: "flex-start" }}>
-                  <div
-                    style={{
-                      padding: "0.75rem 1.2rem",
-                      borderRadius: "18px",
-                      borderBottomLeftRadius: "3px",
-                      background: "rgba(255,255,255,0.1)",
-                      color: "rgba(255,255,255,0.7)",
-                      fontSize: "0.82rem",
-                    }}
-                  >
-                    <i className="fas fa-spinner fa-spin"></i> Guide is thinking...
-                  </div>
-                </div>
-              )}
-              <div ref={chatEndRef} />
+            <div className="text-emerald-300/80 font-mono text-[11px] font-semibold">
+              <i className="far fa-clock mr-1"></i> Live Eco-Impact Tracker
+            </div>
+          </div>
+
+          {/* Middle Row: Quote Block and Slogan */}
+          <div className="max-w-3xl space-y-6 my-auto">
+            <div className="space-y-3">
+              <span className="text-emerald-400 font-extrabold uppercase tracking-widest text-xs font-mono block">Weekly Environmental Inspiration</span>
+              <h1 className="text-white font-black leading-tight tracking-tight drop-shadow-md text-3xl sm:text-4xl md:text-5xl" style={{ textAlign: "left" }}>
+                Nurture Nature, Empower Community.
+              </h1>
             </div>
 
-            {/* CHAT INPUT / OPTIONS AREA */}
-            <div style={{ padding: "1.25rem", borderTop: "1px solid rgba(255,255,255,0.12)", background: "rgba(15, 23, 42, 0.4)" }}>
-              {chatMessages[chatMessages.length - 1]?.multiSelect ? (
-                // MULTI-SELECT DISPLAY
-                <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", justifyContent: "center" }}>
-                    {chatMessages[chatMessages.length - 1].options?.map((opt) => {
-                      const selected = selectedInterests.includes(opt);
-                      return (
-                        <button
-                          key={opt}
-                          className="btn btn-sm"
-                          onClick={() => handleToggleInterest(opt)}
-                          style={{
-                            background: selected ? "var(--leaf)" : "rgba(255,255,255,0.08)",
-                            color: "white",
-                            border: selected ? "1px solid var(--leaf)" : "1px solid rgba(255,255,255,0.15)",
-                            transition: "all 0.2s",
-                          }}
-                        >
-                          {selected ? "✓ " : ""}{opt}
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <button
-                    className="btn btn-green"
-                    onClick={handleConfirmInterests}
-                    style={{ alignSelf: "center", width: "200px" }}
-                  >
-                    Confirm Categories
-                  </button>
-                </div>
-              ) : (
-                // SINGLE OPTIONS DISPLAY
-                <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", justifyContent: "center" }}>
-                  {!isTyping &&
-                    chatMessages[chatMessages.length - 1]?.options?.map((opt) => (
-                      <button
-                        key={opt}
-                        className="btn btn-sm btn-ghost"
-                        onClick={() => handleSelectOption(opt)}
-                        style={{
-                          background: "rgba(255,255,255,0.06)",
-                          border: "1px solid rgba(255,255,255,0.15)",
-                          color: "white",
-                          borderRadius: "12px",
-                          padding: "0.5rem 1rem",
-                        }}
-                      >
-                        {opt}
-                      </button>
-                    ))}
-                </div>
-              )}
+            {/* Quote Card */}
+            <div className="bg-emerald-950/60 backdrop-blur-md border border-emerald-500/20 p-6 rounded-2xl relative shadow-lg">
+              <div className="absolute -top-3 -left-2 text-4xl text-emerald-400/40 font-serif">“</div>
+              <p className="text-emerald-100 text-sm sm:text-base md:text-lg italic font-medium leading-relaxed font-sans pr-4 pl-3" style={{ textAlign: "left" }}>
+                The environment is where we all meet; where we all have a mutual interest; it is the one thing all of us share.
+              </p>
+              <div className="mt-3 text-right">
+                <span className="text-emerald-300 text-xs font-black uppercase tracking-wider">— Lady Bird Johnson</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Row: Quick Stats & Preferences Configurator */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-emerald-500/10">
+            {/* Quick Quote of the Day Highlight */}
+            <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-xl flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-300">
+                <i className="fas fa-leaf"></i>
+              </div>
+              <div>
+                <span className="text-[10px] text-emerald-300/80 font-bold block uppercase tracking-wider">Earth Action Target</span>
+                <span className="text-white font-black text-xs block">Carbon Neutrality Model</span>
+              </div>
+            </div>
+
+            {/* Personalization state trigger */}
+            <div className="bg-white/10 backdrop-blur-md border border-white/10 p-4 rounded-xl flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-300">
+                <i className="fas fa-award"></i>
+              </div>
+              <div>
+                <span className="text-[10px] text-emerald-300/80 font-bold block uppercase tracking-wider">Your Civic Goal</span>
+                <span className="text-white font-black text-xs block">Earn {onboarding.xpGoal || 300} XP Daily</span>
+              </div>
             </div>
           </div>
         </div>
-      ) : (
-        // PERSONALIZED WELCOME SCREEN
-        <div className="hero glass-panel overflow-hidden relative rounded-[2rem] p-8 md:p-12 mb-10" style={{ minHeight: "440px", border: "1px solid rgba(255,255,255,0.8)" }}>
-          <div className="absolute inset-0 z-0">
-            <img
-              src="https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&q=80&w=1500"
-              alt="Eco-civic forest backdrop"
-              className="w-full h-full object-cover opacity-20 mix-blend-overlay"
-              referrerPolicy="no-referrer"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-white/50"></div>
-          </div>
-          <div className="hero-content relative z-10" style={{ maxWidth: "800px", margin: "0 auto", textAlign: "left" }}>
-            <div style={{ display: "flex", gap: "0.8rem", flexWrap: "wrap", marginBottom: "1rem" }}>
-              <div className="hero-tag bg-emerald-100 border border-emerald-300 text-emerald-900 backdrop-blur-md px-3 py-1 rounded-full text-sm font-bold shadow-sm" style={{ marginBottom: 0 }}>
-                <i className="fas fa-location-dot mr-2"></i> Ward {onboarding.ward} Citizen Hub
-              </div>
-              <div className="hero-tag bg-purple-100 border border-purple-300 text-purple-900 backdrop-blur-md px-3 py-1 rounded-full text-sm font-bold shadow-sm" style={{ marginBottom: 0 }}>
-                <i className="fas fa-star mr-2"></i> Goal: {onboarding.xpGoal} XP Today
-              </div>
-            </div>
-            
-            <h1 className="text-emerald-950 font-black drop-shadow-sm" style={{ textAlign: "left", fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-              {onboarding.greeting || `Welcome to Ward ${onboarding.ward}!`}
-            </h1>
-            
-            <p className="text-emerald-900 font-medium" style={{ textAlign: "left", fontSize: "1.05rem", marginBottom: "2rem", lineHeight: 1.6, maxWidth: "680px" }}>
-              {onboarding.dashboardMessage}
-            </p>
+      </div>
 
-            {/* ACTION CARD GRID */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {/* TARGET XP PLAN CARD */}
-              <div className="glass-panel p-6 rounded-2xl transition-transform hover:scale-[1.02]">
-                <div className="flex justify-between items-center mb-4">
-                  <div className="font-bold font-sans text-lg text-emerald-950">
-                    🎯 Daily Engagement Roadmap
-                  </div>
-                  <span className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full text-xs font-bold border border-emerald-300">Active</span>
-                </div>
-                <div className="text-sm text-emerald-800 mb-4 leading-relaxed font-medium">
-                  We've calculated a daily target of <strong className="text-emerald-700">{onboarding.xpGoal} XP</strong> to help you scale local sustainability efforts:
-                </div>
-                <div className="flex items-center gap-4 bg-emerald-50/80 p-4 rounded-xl text-sm border border-emerald-100">
-                  <i className="fas fa-lightbulb text-amber-500 text-xl animate-pulse"></i>
-                  <div>
-                    <strong className="block mb-1 text-emerald-950">First Recommendation:</strong> 
-                    <span className="text-emerald-800">{onboarding.nextAction || "Report a new pothole cluster for instant +150 XP!"}</span>
-                  </div>
-                </div>
-              </div>
 
-              {/* RECOMMENDED CAMPAIGN IN-LINE SUGGESTION */}
-              <div className="glass-panel p-6 rounded-2xl transition-transform hover:scale-[1.02]">
-                <div className="flex justify-between items-center mb-4">
-                  <div className="font-bold font-sans text-lg text-emerald-950">
-                    📣 Recommended Ward Campaigns
-                  </div>
-                  <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-bold border border-purple-300">AI Suggested</span>
-                </div>
-                <div className="flex flex-col gap-3">
-                  {onboarding.suggestedCampaigns?.map((camp, idx) => (
-                    <div
-                      key={idx}
-                      className="flex justify-between items-center bg-emerald-50/80 p-3 rounded-xl text-sm border border-emerald-100 hover:bg-emerald-100 transition-colors"
-                    >
-                      <span className="font-semibold truncate max-w-[180px] text-emerald-900">
-                        {camp}
-                      </span>
-                      <button
-                        className="glass-button text-xs px-4 py-1.5 rounded-full shadow-sm text-white"
-                        onClick={() => {
-                          onNavigate("campaigns");
-                          triggerToast("📣", `Loading ${camp}...`);
-                        }}
-                      >
-                        Enlist
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* QUICK ACTIONS */}
-            <div className="flex flex-wrap items-center gap-4">
-              <button className="glass-button px-6 py-3 rounded-full font-bold shadow-lg text-sm text-white" onClick={() => onNavigate("report")}>
-                <i className="fas fa-camera mr-2"></i> Report New Issue
-              </button>
-              <button className="bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300 px-6 py-3 rounded-full font-bold shadow-sm transition-all text-sm" onClick={() => onNavigate("dashboard")}>
-                <i className="fas fa-chart-line mr-2"></i> View Dashboard
-              </button>
-              <button 
-                className="bg-purple-100 hover:bg-purple-200 text-purple-900 border border-purple-300 px-6 py-3 rounded-full font-bold shadow-sm transition-all text-sm" 
-                onClick={() => onNavigate("ai_showcase")}
-              >
-                <i className="fas fa-magic mr-2"></i> See AI Impact
-              </button>
-              <button
-                onClick={handleReset}
-                className="text-emerald-600 hover:text-emerald-800 text-xs underline transition-colors ml-2 cursor-pointer bg-transparent border-none font-medium"
-              >
-                Reset Onboarding Preferences
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* HOW IT WORKS */}
       <div className="section" style={{ background: "transparent" }}>

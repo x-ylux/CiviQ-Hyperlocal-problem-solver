@@ -20,7 +20,6 @@ import { CiviQInsights } from "./components/CiviQInsights";
 import { CiviQCarbonTracker } from "./components/CiviQCarbonTracker";
 import { CiviQLogin } from "./components/CiviQLogin";
 import { CiviQAuthorityDashboard } from "./components/CiviQAuthorityDashboard";
-import CiviQAIShowcase from "./components/CiviQAIShowcase";
 
 // Static Games Data
 const items: GameItem[] = [
@@ -103,6 +102,7 @@ const aiReplies: Record<string, string> = {
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>(() => localStorage.getItem("civiq_active_user") ? "home" : "login");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   
   useEffect(() => {
     document.documentElement.classList.remove("dark");
@@ -122,6 +122,32 @@ export default function App() {
 
   const [credits, setCredits] = useState<number>(0);
   const isUserLoggedIn = !!userProfile && (userProfile.uid.startsWith("sb_") || !auth.currentUser?.isAnonymous);
+
+  const getNavTabs = () => {
+    if (userProfile?.role === "authority") {
+      return [
+        { id: "dashboard", label: "Official Dashboard", icon: "fas fa-shield-alt" }
+      ];
+    }
+    const tabs = [
+      { id: "home", label: "Home", icon: "fas fa-home" },
+      { id: "dashboard", label: "Dashboard", icon: "fas fa-columns" },
+      { id: "report", label: "Report", icon: "fas fa-plus-circle" },
+      { id: "map", label: "Map", icon: "fas fa-map-marked-alt" },
+      { id: "track", label: "Track", icon: "fas fa-route" },
+      { id: "campaigns", label: "Campaigns", icon: "fas fa-bullhorn" },
+      { id: "games", label: "Games", icon: "fas fa-gamepad" },
+      { id: "waste", label: "Waste Hub", icon: "fas fa-recycle" },
+      { id: "carbon", label: "Carbon Tracker", icon: "fas fa-leaf" },
+      { id: "gamify", label: "Credits", icon: "fas fa-award" },
+      { id: "insights", label: "AI Insights", icon: "fas fa-brain" },
+    ];
+    if (!isUserLoggedIn) {
+      tabs.push({ id: "login", label: "Login", icon: "fas fa-sign-in-alt" });
+    }
+    return tabs;
+  };
+
   const [reportStep, setReportStep] = useState<number>(1);
   const [selectedCat, setSelectedCat] = useState<string>("Roads");
 
@@ -389,6 +415,19 @@ export default function App() {
       container.appendChild(l);
     }
   }, [activeTab]);
+
+  // Close mobile navigation dropdown on outside click
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const handleOutsideClick = (event: MouseEvent) => {
+      const container = document.getElementById("mobile-nav-container");
+      if (container && !container.contains(event.target as Node)) {
+        setMobileMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [mobileMenuOpen]);
 
   // Load user profile & credits
   useEffect(() => {
@@ -994,7 +1033,6 @@ export default function App() {
       case "carbon": return "url('https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?auto=format&fit=crop&q=80&w=2500')"; // Clean water / ice
       case "gamify": return "url('https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?auto=format&fit=crop&q=80&w=2500')"; // Nature textures
       case "insights": return "url('https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&q=80&w=2500')"; // Mountain view
-      case "ai_showcase": return "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=2500')"; // Abstract organic green
       default: return "url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&q=80&w=2500')";
     }
   };
@@ -1020,7 +1058,7 @@ export default function App() {
       <div className="leaves-container fixed inset-0 z-0 pointer-events-none" id="leavesContainer"></div>
 
       {/* Navbar with Glassmorphism */}
-      <nav className="nav relative z-50" id="navbar">
+      <nav className="nav z-50" id="navbar">
         <a
           className="nav-logo hover:scale-105 transition-transform"
           href="#"
@@ -1034,67 +1072,42 @@ export default function App() {
           </div>
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 to-teal-800 font-bold">CiviQ</span>
         </a>
-        <div className="nav-links">
-          {userProfile?.role === "authority" ? (
-            <>
-              <button className={`nav-link ${activeTab === "dashboard" ? "active" : ""}`} onClick={() => setActiveTab("dashboard")}>
-                Official Dashboard
-              </button>
-            </>
-          ) : (
-            <>
-              <button className={`nav-link ${activeTab === "home" ? "active" : ""}`} onClick={() => setActiveTab("home")}>
-                Home
-              </button>
-              <button className={`nav-link ${activeTab === "dashboard" ? "active" : ""}`} onClick={() => setActiveTab("dashboard")}>
-                Dashboard
-              </button>
-              <button className={`nav-link ${activeTab === "report" ? "active" : ""}`} onClick={() => setActiveTab("report")}>
-                Report
-              </button>
-              <button className={`nav-link ${activeTab === "map" ? "active" : ""}`} onClick={() => setActiveTab("map")}>
-                Map
-              </button>
-              <button className={`nav-link ${activeTab === "track" ? "active" : ""}`} onClick={() => setActiveTab("track")}>
-                Track
-              </button>
-              <button className={`nav-link ${activeTab === "campaigns" ? "active" : ""}`} onClick={() => setActiveTab("campaigns")}>
-                Campaigns
-              </button>
-              <button className={`nav-link ${activeTab === "games" ? "active" : ""}`} onClick={() => setActiveTab("games")}>
-                Games
-              </button>
-              <button className={`nav-link ${activeTab === "waste" ? "active" : ""}`} onClick={() => setActiveTab("waste")}>
-                Waste Hub
-              </button>
-              <button className={`nav-link ${activeTab === "carbon" ? "active" : ""}`} onClick={() => setActiveTab("carbon")}>
-                Carbon Tracker
-              </button>
-              <button className={`nav-link ${activeTab === "gamify" ? "active" : ""}`} onClick={() => setActiveTab("gamify")}>
-                Credits
-              </button>
-              <button className={`nav-link ${activeTab === "insights" ? "active" : ""}`} onClick={() => setActiveTab("insights")}>
-                AI Insights
-              </button>
-              <button className={`nav-link ${activeTab === "ai_showcase" ? "active" : ""}`} onClick={() => setActiveTab("ai_showcase")}>
-                AI Demo
-              </button>
-              {!isUserLoggedIn && (
-                <button className={`nav-link ${activeTab === "login" ? "active" : ""}`} onClick={() => setActiveTab("login")}>
-                  Login
-                </button>
-              )}
-            </>
-          )}
+        {/* Desktop View Navigation Links */}
+        <div className="nav-links hidden md:flex">
+          {getNavTabs().map((tab) => (
+            <button
+              key={tab.id}
+              className={`nav-link ${activeTab === tab.id ? "active" : ""}`}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
+
+        {/* Mobile View Navigation Dropdown Trigger */}
+        <div id="mobile-nav-container" className="md:hidden flex-1 flex justify-center px-2">
+          <button
+            id="mobile-nav-trigger"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="flex items-center gap-2 bg-emerald-50/70 hover:bg-emerald-100/80 border border-emerald-200/50 text-emerald-950 font-black text-xs px-3 py-2.5 rounded-xl transition duration-200 cursor-pointer shadow-sm select-none"
+          >
+            <i className={getNavTabs().find((t) => t.id === activeTab)?.icon || "fas fa-bars"}></i>
+            <span className="truncate max-w-[80px]">
+              {getNavTabs().find((t) => t.id === activeTab)?.label || "Menu"}
+            </span>
+            <i className={`fas fa-chevron-down text-[10px] text-emerald-800/60 transition-transform duration-300 ${mobileMenuOpen ? "rotate-180" : ""}`}></i>
+          </button>
+        </div>
+
         <div className="nav-right">
           {isUserLoggedIn && userProfile?.role !== "authority" && (
-            <div className="xp-badge">
+            <div className="xp-badge hidden sm:flex">
               <i className="fas fa-star"></i> {credits.toLocaleString()} XP
             </div>
           )}
           {userProfile?.role !== "authority" && (
-            <button className="nav-btn" onClick={() => setActiveTab("report")}>
+            <button className="nav-btn hidden sm:flex" onClick={() => setActiveTab("report")}>
               <i className="fas fa-plus"></i> Report
             </button>
           )}
@@ -1116,7 +1129,7 @@ export default function App() {
                   : "C"}
               </div>
               <button
-                className="nav-link"
+                className="nav-link hidden sm:inline-block"
                 style={{
                   fontSize: "0.75rem",
                   padding: "0.25rem 0.5rem",
@@ -1145,7 +1158,7 @@ export default function App() {
           ) : (
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <button
-                className="btn btn-ghost"
+                className="btn btn-ghost hidden sm:inline-block"
                 style={{
                   fontSize: "0.8rem",
                   padding: "0.4rem 0.8rem",
@@ -1166,6 +1179,125 @@ export default function App() {
             </div>
           )}
         </div>
+
+        {/* Mobile Dropdown Menu (Direct Child of Nav, perfectly width-matched and relative position) */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <>
+              <motion.div
+                key="mobile-nav-overlay"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 bg-emerald-950/25 backdrop-blur-sm z-[9998] pointer-events-auto"
+                onClick={() => setMobileMenuOpen(false)}
+              />
+              <motion.div
+                key="mobile-nav-menu"
+                initial={{ opacity: 0, y: -20, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.97 }}
+                transition={{ type: "spring", damping: 25, stiffness: 350 }}
+                className="absolute top-[80px] left-0 right-0 bg-white/95 backdrop-blur-xl border border-emerald-900/10 rounded-[24px] shadow-[0_25px_50px_-12px_rgba(4,47,31,0.25)] p-5 z-[9999] max-h-[75vh] overflow-y-auto space-y-4"
+              >
+                <div className="border-b border-emerald-900/5 pb-2 text-[9px] font-black text-emerald-900/40 uppercase tracking-widest flex justify-between items-center">
+                  <span>Explore CiviQ Platform</span>
+                  <button 
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-emerald-800/60 hover:text-emerald-950 p-1.5 rounded-full hover:bg-emerald-50/50 transition cursor-pointer"
+                  >
+                    <i className="fas fa-times text-xs"></i>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  {getNavTabs().map((tab) => (
+                    <button
+                      key={tab.id}
+                      className={`w-full text-left py-3.5 px-4 text-xs font-bold transition-all duration-200 rounded-xl flex items-center gap-3 cursor-pointer select-none active:scale-95 ${
+                        activeTab === tab.id
+                          ? "text-emerald-900 bg-emerald-50 border-l-4 border-emerald-600 font-black shadow-sm"
+                          : "text-emerald-800/80 hover:text-emerald-950 hover:bg-emerald-50/40"
+                      }`}
+                      onClick={() => {
+                        setActiveTab(tab.id);
+                        setMobileMenuOpen(false);
+                      }}
+                    >
+                      <i className={`${tab.icon} w-5 text-emerald-700 text-center text-sm`}></i>
+                      <span className="truncate">{tab.label}</span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Mobile Bottom Status Actions Box */}
+                <div className="pt-3 border-t border-emerald-900/5 space-y-3">
+                  {isUserLoggedIn && userProfile?.role !== "authority" && (
+                    <div className="flex items-center justify-between bg-emerald-50/50 border border-emerald-200/50 p-3 rounded-2xl">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black text-xs">
+                          {userProfile?.displayName ? userProfile.displayName[0].toUpperCase() : "C"}
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-[10px] text-emerald-900/60 font-black uppercase">Active Member</span>
+                          <span className="text-xs font-bold text-emerald-950 truncate max-w-[110px]">{userProfile?.displayName}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-black text-[10px] px-2.5 py-1.5 rounded-xl shadow-sm font-mono">
+                        <i className="fas fa-star animate-pulse"></i>
+                        <span>{credits.toLocaleString()} XP</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {userProfile?.role !== "authority" && (
+                    <button
+                      onClick={() => {
+                        setActiveTab("report");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full text-center py-3 bg-emerald-800 hover:bg-emerald-900 text-white font-black text-xs rounded-xl shadow-sm cursor-pointer transition flex items-center justify-center gap-2 uppercase tracking-wider"
+                    >
+                      <i className="fas fa-plus-circle"></i> File Citizen Complaint
+                    </button>
+                  )}
+
+                  {isUserLoggedIn ? (
+                    <button
+                      onClick={async () => {
+                        try {
+                          localStorage.removeItem("civiq_active_user");
+                          setUserProfile(null);
+                          setCredits(0);
+                          await signOut(auth);
+                          triggerToast("🔓", "Logged out successfully!");
+                          setActiveTab("login");
+                          setMobileMenuOpen(false);
+                        } catch (err) {
+                          console.error("Sign out error", err);
+                        }
+                      }}
+                      className="w-full text-center py-3 bg-rose-50 hover:bg-rose-100 border border-rose-200/50 text-rose-700 font-extrabold text-xs rounded-xl cursor-pointer transition uppercase tracking-wider flex items-center justify-center gap-2"
+                    >
+                      <i className="fas fa-sign-out-alt"></i> Logout Profile
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        setActiveTab("login");
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full text-center py-3 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-black text-xs rounded-xl shadow-md cursor-pointer transition uppercase tracking-wider flex items-center justify-center gap-2"
+                    >
+                      <i className="fas fa-sign-in-alt"></i> Login or Register Account
+                    </button>
+                  )}
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </nav>
 
       {/* Main page view containers */}
@@ -1307,12 +1439,6 @@ export default function App() {
           {activeTab === "insights" && (
             <motion.div key="insights" className="flex-grow flex flex-col" initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -30, filter: 'blur(10px)' }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
               <CiviQInsights triggerToast={triggerToast} />
-            </motion.div>
-          )}
-
-          {activeTab === "ai_showcase" && (
-            <motion.div key="ai_showcase" className="flex-grow flex flex-col" initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -30, filter: 'blur(10px)' }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>
-              <CiviQAIShowcase />
             </motion.div>
           )}
 
