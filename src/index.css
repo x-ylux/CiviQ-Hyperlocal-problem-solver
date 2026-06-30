@@ -52,8 +52,10 @@ h1,h2,h3,h4{font-family:'Poppins',sans-serif;}
 .nav {
   position: fixed;
   top: 1rem;
-  left: 1.5rem;
-  right: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 3rem);
+  max-width: 1140px;
   z-index: 1000;
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.7));
   backdrop-filter: blur(24px) saturate(1.2);
@@ -70,7 +72,7 @@ h1,h2,h3,h4{font-family:'Poppins',sans-serif;}
 }
 .nav-logo{display:flex;align-items:center;gap:.6rem;font-family:'Poppins',sans-serif;font-weight:800;font-size:1.3rem;color:var(--forest);text-decoration:none;}
 .nav-logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--leaf),var(--lime));border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-size:18px;box-shadow:0 4px 15px rgba(16,185,129,0.3);}
-.nav-links{display:flex;gap:.35rem;margin-left:1.5rem;flex:1;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;}
+.nav-links{display:flex;gap:.35rem;margin-left:1.5rem;flex:1;overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;justify-content:center;}
 .nav-links::-webkit-scrollbar{display:none;}
 .nav-link{padding:.5rem .9rem;font-size:.82rem;font-weight:600;color:var(--muted);border-radius:12px;cursor:pointer;transition:var(--transition);border:none;background:none;white-space:nowrap;}
 .nav-link:hover{color:var(--forest);background:rgba(16,185,129,0.1);}
@@ -88,7 +90,7 @@ h1,h2,h3,h4{font-family:'Poppins',sans-serif;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
 
 /* HERO */
-.hero{min-height:calc(100vh - 64px);background:linear-gradient(160deg,#0D3B0F 0%,#1B5E20 40%,#2E7D32 70%,#33691E 100%);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;}
+.hero{min-height:calc(100vh - 64px);background:linear-gradient(160deg,#0D3B0F 0%,#1B5E20 40%,#2E7D32 70%,#33691E 100%);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;text-align:center;max-width:1140px;margin-left:auto;margin-right:auto;}
 .hero-bg-circles{position:absolute;inset:0;}
 .hero-circle{position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.06);}
 .hero-content{position:relative;z-index:2;padding:2rem;}
@@ -481,8 +483,13 @@ textarea.form-input{resize:vertical;min-height:90px;}
   margin-bottom: 2rem;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: 0.5rem;
   border: 1px solid rgba(255, 255, 255, 0.4);
+  max-width: 1140px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .page-hero::before {
   content: '';
@@ -513,6 +520,10 @@ textarea.form-input{resize:vertical;min-height:90px;}
   margin: 0;
   letter-spacing: -0.02em;
   text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 .page-hero p {
   opacity: 0.95;
@@ -520,7 +531,8 @@ textarea.form-input{resize:vertical;min-height:90px;}
   line-height: 1.6;
   text-shadow: 0 1px 5px rgba(0,0,0,0.3);
   max-width: 600px;
-  margin: 0;
+  margin: 0 auto;
+  text-align: center;
 }
 
 /* COMPOST SHOP */
@@ -550,6 +562,9 @@ textarea.form-input{resize:vertical;min-height:90px;}
   border-radius: var(--radius);
   margin-bottom: 2.5rem;
   box-shadow: 0 10px 30px -10px rgba(16, 185, 129, 0.25);
+  max-width: 1140px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .dashboard-hero-photo {
   position: absolute;
@@ -563,6 +578,10 @@ textarea.form-input{resize:vertical;min-height:90px;}
   z-index: 1;
   max-width: 1140px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 .dashboard-eyebrow {
   display: inline-flex;
@@ -586,11 +605,14 @@ textarea.form-input{resize:vertical;min-height:90px;}
   opacity: 0.9;
   max-width: 600px;
   margin-bottom: 2rem;
+  margin-left: auto;
+  margin-right: auto;
   line-height: 1.6;
 }
 .dashboard-hero-actions {
   display: flex;
   gap: 1rem;
+  justify-content: center;
 }
 .dashboard-hero-actions .btn-outline {
   background: rgba(255, 255, 255, 0.1);

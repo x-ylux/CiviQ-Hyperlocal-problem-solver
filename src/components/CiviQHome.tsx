@@ -300,21 +300,21 @@ export function CiviQHome({ onNavigate, onboarding, setOnboarding, triggerToast 
           </div>
 
           {/* Middle Row: Quote Block and Slogan */}
-          <div className="max-w-3xl space-y-6 my-auto">
+          <div className="max-w-3xl space-y-6 my-auto mx-auto text-center flex flex-col items-center">
             <div className="space-y-3">
               <span className="text-emerald-400 font-extrabold uppercase tracking-widest text-xs font-mono block">Weekly Environmental Inspiration</span>
-              <h1 className="text-white font-black leading-tight tracking-tight drop-shadow-md text-3xl sm:text-4xl md:text-5xl" style={{ textAlign: "left" }}>
+              <h1 className="text-white font-black leading-tight tracking-tight drop-shadow-md text-3xl sm:text-4xl md:text-5xl" style={{ textAlign: "center" }}>
                 Nurture Nature, Empower Community.
               </h1>
             </div>
 
             {/* Quote Card */}
-            <div className="bg-emerald-950/60 backdrop-blur-md border border-emerald-500/20 p-6 rounded-2xl relative shadow-lg">
+            <div className="bg-emerald-950/60 backdrop-blur-md border border-emerald-500/20 p-6 rounded-2xl relative shadow-lg w-full">
               <div className="absolute -top-3 -left-2 text-4xl text-emerald-400/40 font-serif">“</div>
-              <p className="text-emerald-100 text-sm sm:text-base md:text-lg italic font-medium leading-relaxed font-sans pr-4 pl-3" style={{ textAlign: "left" }}>
+              <p className="text-emerald-100 text-sm sm:text-base md:text-lg italic font-medium leading-relaxed font-sans pr-4 pl-3" style={{ textAlign: "center" }}>
                 The environment is where we all meet; where we all have a mutual interest; it is the one thing all of us share.
               </p>
-              <div className="mt-3 text-right">
+              <div className="mt-3 text-center">
                 <span className="text-emerald-300 text-xs font-black uppercase tracking-wider">— Lady Bird Johnson</span>
               </div>
             </div>

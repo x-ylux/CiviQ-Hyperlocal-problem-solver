@@ -15,14 +15,14 @@ export function CiviQWasteHub({
 }: CiviQWasteHubProps) {
   return (
     <div className="page active" id="page-waste" style={{ display: "block" }}>
-      <div className="page-hero relative overflow-hidden flex flex-col md:flex-row items-center justify-between p-8 gap-6 rounded-3xl bg-gradient-to-r from-emerald-800 to-green-600 text-white mb-8">
-        <div className="flex-1 space-y-2">
+      <div className="page-hero relative overflow-hidden flex flex-col items-center justify-center text-center p-8 gap-6 rounded-3xl bg-gradient-to-r from-emerald-800 to-green-600 text-white mb-8">
+        <div className="flex-1 space-y-2 flex flex-col items-center">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-bold uppercase tracking-wider text-emerald-200">
             <i className="fas fa-recycle text-[9px]"></i>
             Municipal Ecosystem
           </span>
           <h2 className="text-3xl font-extrabold tracking-tight">Smart Waste Hub</h2>
-          <p className="text-emerald-100/90 text-sm max-w-lg">
+          <p className="text-emerald-100/90 text-sm max-w-lg text-center">
             Complete ward segregation, real-time collection vehicle tracking, premium compost rewards, and localized recycling operations.
           </p>
         </div>
