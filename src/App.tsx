@@ -1038,7 +1038,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen relative text-[#0F172A] antialiased transition-colors duration-300 flex flex-col font-sans overflow-hidden">
+    <div className="w-full min-h-screen flex flex-col items-center justify-start mx-auto max-w-[1280px] relative text-[#0F172A] antialiased transition-colors duration-300 font-sans overflow-hidden">
       {/* Dynamic Realistic Nature Background */}
       <div 
         className="fixed inset-0 z-0 bg-cover bg-center transition-all duration-1000 ease-in-out transform scale-105" 
@@ -1301,7 +1301,7 @@ export default function App() {
       </nav>
 
       {/* Main page view containers */}
-      <main className="main max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative z-10 w-full flex-grow flex flex-col" style={{ paddingBottom: "80px" }}>
+      <main className="main max-w-[1188px] mx-auto px-6 relative z-10 w-full flex-grow flex flex-col" style={{ paddingBottom: "80px" }}>
         <AnimatePresence mode="wait">
           {activeTab === "home" && (
             <motion.div key="home" className="flex-grow flex flex-col" initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -30, filter: 'blur(10px)' }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}>

@@ -572,7 +572,7 @@ export function CiviQMap({ triggerToast }: CiviQMapProps) {
       </div>
       
       <div className="section" style={{ padding: "0" }}>
-        <div className="section-inner" style={{ maxWidth: "100%", padding: "0 1rem" }}>
+        <div className="section-inner">
           <div className="card relative overflow-hidden" style={{ borderRadius: "16px", border: "1px solid var(--border)", boxShadow: "0 10px 15px -3px rgba(0,0,0,0.05)" }}>
             
             {/* Map Header Overlay / Controls */}

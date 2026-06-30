@@ -340,7 +340,9 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-10 px-4 sm:px-8 bg-[#F9FBF7]">
+    <div className="page active" id="page-authority" style={{ display: "block" }}>
+      <div className="section" style={{ padding: "0" }}>
+        <div className="section-inner">
       {/* Forest Background Banner */}
       <div className="relative overflow-hidden rounded-[36px] mb-10 bg-cover bg-center py-14 px-10 text-center text-white border border-emerald-800/20 shadow-xl" 
            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1473448912268-2022ce9509d8?auto=format&fit=crop&q=80&w=1500')" }}>
@@ -938,7 +940,9 @@ export function CiviQAuthorityDashboard({ triggerToast, userProfile }: Props) {
         </div>
       </div>
     </div>
-  );
+  </div>
+</div>
+);
 }
 
 interface IssueRowProps {
